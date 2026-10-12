@@ -41,6 +41,7 @@ import com.fitcal.app.telemetry.summarizeCorrections
 import com.fitcal.app.ui.components.FitCalTextField
 import com.fitcal.app.ui.components.PressableBox
 import com.fitcal.app.ui.components.macroPercentOfGoal
+import com.fitcal.app.plan.hasDailyTargets
 import com.fitcal.app.ui.screens.review.components.EditableFoodItem
 import com.fitcal.app.ui.screens.review.components.caloriesAtCurrentWeight
 import com.fitcal.app.ui.screens.review.components.toEditable
@@ -134,6 +135,8 @@ fun ResultScreen(
         (it.fatPerGram * weight).toDouble()
     }.toFloat()
 
+    // "% of daily goal" only when the user has targets (a plan or their own numbers).
+    val hasTargets = profile.hasDailyTargets()
     val proteinPercent = macroPercentOfGoal(totalProtein, profile.proteinGoal)
     val carbsPercent = macroPercentOfGoal(totalCarbs, profile.carbsGoal)
     val fatPercent = macroPercentOfGoal(totalFat, profile.fatGoal)
@@ -424,15 +427,15 @@ fun ResultScreen(
                                     MacroGridCard("Calories", "$totalCalories", "kcal", PrimaryAccent)
                                 }
                                 Box(modifier = Modifier.weight(1f)) {
-                                    MacroGridCard("Protein", "${totalProtein.toInt()}g", "$proteinPercent%", ProteinColor)
+                                    MacroGridCard("Protein", "${totalProtein.toInt()}g", if (hasTargets) "$proteinPercent%" else "", ProteinColor)
                                 }
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                 Box(modifier = Modifier.weight(1f)) {
-                                    MacroGridCard("Carbs", "${totalCarbs.toInt()}g", "$carbsPercent%", CarbsColor)
+                                    MacroGridCard("Carbs", "${totalCarbs.toInt()}g", if (hasTargets) "$carbsPercent%" else "", CarbsColor)
                                 }
                                 Box(modifier = Modifier.weight(1f)) {
-                                    MacroGridCard("Fats", "${totalFat.toInt()}g", "$fatPercent%", FatColor)
+                                    MacroGridCard("Fats", "${totalFat.toInt()}g", if (hasTargets) "$fatPercent%" else "", FatColor)
                                 }
                             }
                         }
