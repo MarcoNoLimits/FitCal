@@ -73,7 +73,8 @@ All form answers (Data safety, content rating, Health declaration, target audien
 - [ ] **Play developer account: $25 one-time fee, not paid yet.** Everything below that touches Play waits on this.
 - [ ] Closed test: 12 testers for 14 days, if the account is personal and new. Collect testers' Gmail addresses now: _list them here_.
 - [ ] First AAB upload → fill in §2 → second Android OAuth client.
-- [ ] Email: `tecaa.xyz` has both Zoho and Name.com MX records. Keep one.
+- [x] Email (2026-10-12): Name.com forwarding only (receive-only; replies go out from Gmail). Zoho records removed, root SPF is `v=spf1 ~all`, DMARC is `p=none` with reports to `fitcal@tecaa.xyz`. Auth emails send via Resend (`resend._domainkey`, `send.tecaa.xyz`). Around 2026-10-26, if reports are clean, change DMARC to `p=quarantine`.
+- [ ] Confirm forwarding: send a test from another account to `fitcal@tecaa.xyz`.
 - [x] `SENTRY_DSN` set (2026-10-12, Sentry org `tecaa`, US region); a test event was accepted.
 - [x] Readable crash stack traces: the Sentry Gradle plugin uploads `mapping.txt` on every release build (org `tecaa`, project `fitcal`, token `SENTRY_AUTH_TOKEN` in `local.properties`). First upload worked on 2026-10-12. Without the token the build skips the upload and still succeeds.
 - [ ] Gemini budget alert + OpenRouter credit cap.
