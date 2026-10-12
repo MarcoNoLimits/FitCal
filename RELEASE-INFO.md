@@ -60,7 +60,7 @@ With Play App Signing, Google re-signs the app that users install. Its fingerpri
 
 **Testing (2026-10-12):** on the emulator the Google button opens Credential Manager and reaches Google's account step. The full flow is **not tested yet**: picking an account, the SHA-1/client-ID match, and Supabase accepting the token. Test it on a real phone: guest with a logged meal → Continue with Google → the meal is still there. If it fails with "developer error" or code 10, the SHA-1 or package doesn't match an Android client.
 
-Branding was validated by Google on 2026-10-12. Scopes: email, profile and openid only, with no logo (a logo would trigger brand verification).
+Branding was validated by Google on 2026-10-12. The Web client secret was rotated on 2026-10-12 (the old one, which appeared in a chat screenshot, is deleted); the current secret is stored only in Supabase. Scopes: email, profile and openid only, with no logo (a logo would trigger brand verification).
 
 ## 4. Identifiers and URLs
 
@@ -90,7 +90,7 @@ All form answers (Data safety, content rating, Health declaration, target audien
 - [ ] Confirm forwarding: send a test from another account to `fitcal@tecaa.xyz`.
 - [x] `SENTRY_DSN` set (2026-10-12, Sentry org `tecaa`, US region); a test event was accepted.
 - [x] Readable crash stack traces: the Sentry Gradle plugin uploads `mapping.txt` on every release build (org `tecaa`, project `fitcal`, token `SENTRY_AUTH_TOKEN` in `local.properties`). First upload worked on 2026-10-12. Without the token the build skips the upload and still succeeds.
-- [ ] Gemini budget alert + OpenRouter credit cap.
+- [x] Spend caps (2026-10-12): an OpenRouter key credit limit and a Google Cloud budget alert. Gemini is billed to the owner's **Google Cloud credits** (paid tier, so prompts aren't used for training). When the credits run out, usage is charged to the linked billing account; the budget alert is the warning. Emergency stop: Supabase secret `KILL_SWITCH=true`.
 - [x] R8/Kotlin version warning fixed: R8 pinned to 9.4.28 in the root `build.gradle.kts`. Remove the pin when AGP is upgraded to 9.x.
 - [x] Abuse limits (2026-10-12, migration 0002 + gateway v3, tested live): clients can only read their own quota rows; recalculate is capped at 50/day per user with 30 items and 80-char names. Per user per day: up to 16 photo scans (6 free + 10 rewarded).
 - [ ] Supabase → Authentication → Rate Limits: lower anonymous sign-ins from 30 to 10 per hour per IP.
