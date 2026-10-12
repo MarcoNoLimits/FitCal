@@ -4,6 +4,7 @@ import com.fitcal.shared.auth.SupabaseClientFactory
 import com.fitcal.shared.data.KeyValueStorage
 import com.fitcal.shared.model.FoodItem
 import com.fitcal.shared.model.LoggedMeal
+import com.fitcal.shared.model.PersonalPlan
 import com.fitcal.shared.model.UserProfile
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -68,7 +69,10 @@ data class SupabaseProfileRow(
     val age: Int? = null,
     val gender: String? = null,
     val goal_type: String? = null,
-    val default_plate_size: Float? = null
+    val default_plate_size: Float? = null,
+    val activity_level: String? = null,  // migration 0005
+    val targets_mode: String? = null,    // migration 0005
+    val plan: PersonalPlan? = null       // jsonb, migration 0005
 )
 
 /**
@@ -183,7 +187,10 @@ class SyncEngine(
                         age = item.profile.age,
                         gender = item.profile.gender,
                         goal_type = item.profile.goalType,
-                        default_plate_size = item.profile.defaultPlateSize
+                        default_plate_size = item.profile.defaultPlateSize,
+                        activity_level = item.profile.activityLevel,
+                        targets_mode = item.profile.targetsMode,
+                        plan = item.profile.plan
                     )
                     client.from("profiles").upsert(row)
                     true
