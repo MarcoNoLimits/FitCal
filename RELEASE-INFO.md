@@ -49,6 +49,17 @@ With Play App Signing, Google re-signs the app that users install. Its fingerpri
 | Google Cloud → OAuth client **Android** `com.fitcal.app` #2 | App signing key (§2) | Google sign-in for **real users** installing from Play |
 | Google Cloud → OAuth client **Web** | none | Its client ID goes in `local.properties` as `GOOGLE_WEB_CLIENT_ID`, and its ID + secret go in Supabase → Auth → Providers → Google |
 
+## 3b. Google OAuth clients (Google Cloud project "FitCal", created 2026-10-12)
+
+| Client | Client ID | Notes |
+|---|---|---|
+| Web `FitCal Supabase` | `846576167463-1482ovcavtvnh87fb0gmk5eopds61lvk.apps.googleusercontent.com` | `GOOGLE_WEB_CLIENT_ID` in `local.properties`; ID + secret in Supabase → Auth → Google. Redirect URI `https://uedtovphilwstzdpzjrk.supabase.co/auth/v1/callback`. The secret is stored only in Supabase. |
+| Android (upload key) | `846576167463-knle3ffi0gpeqqcbjltcsb6ollkilc22.apps.googleusercontent.com` (assumed; check the client names in Cloud Console) | SHA-1 `AF:EF:50:…:14:7A` |
+| Android (debug key) | `846576167463-dcabg4jeusrht2nq34lfqtqlci3atp7m.apps.googleusercontent.com` (assumed) | SHA-1 `D4:72:F3:85:6B:50:1F:13:3A:20:7D:CB:9C:41:36:1B:6F:D5:78:D4` (this PC's `~/.android/debug.keystore`) |
+| Android (Play app signing) | _TODO after the first upload_ | SHA-1 from Play Console → App integrity |
+
+Branding was validated by Google on 2026-10-12. Scopes: email, profile and openid only, with no logo (a logo would trigger brand verification).
+
 ## 4. Identifiers and URLs
 
 | Item | Value |
