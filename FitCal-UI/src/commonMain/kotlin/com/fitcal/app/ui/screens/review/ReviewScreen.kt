@@ -40,6 +40,7 @@ import com.fitcal.app.telemetry.Analytics
 import com.fitcal.app.telemetry.summarizeCorrections
 import com.fitcal.app.ui.components.FitCalTextField
 import com.fitcal.app.ui.components.PressableBox
+import com.fitcal.app.ui.components.macroPercentOfGoal
 import com.fitcal.app.ui.screens.review.components.EditableFoodItem
 import com.fitcal.app.ui.screens.review.components.MacroGridCard
 import com.fitcal.app.ui.screens.review.components.WeightInputPill
@@ -50,12 +51,14 @@ import com.fitcal.shared.api.FoodDatabase
 import com.fitcal.shared.api.FoodDbEntry
 import com.fitcal.shared.api.NutritionClient
 import com.fitcal.shared.model.NutritionResponse
+import com.fitcal.shared.model.UserProfile
 import kotlinx.coroutines.launch
 
 @Composable
 fun ResultScreen(
     apiClient: NutritionClient,
     data: NutritionResponse,
+    profile: UserProfile,
     isMock: Boolean,
     capturedImageBytes: ByteArray?,
     onMealLogged: (String, Int, Float, Float, Float) -> Unit,
@@ -138,13 +141,9 @@ fun ResultScreen(
         (it.fatPerGram * weight).toDouble()
     }.toFloat()
 
-    val proteinDailyTarget = 57f
-    val carbsDailyTarget = 173f
-    val fatDailyTarget = 78f
-
-    val proteinPercent = if (proteinDailyTarget > 0) ((totalProtein / proteinDailyTarget) * 100).toInt() else 0
-    val carbsPercent = if (carbsDailyTarget > 0) ((totalCarbs / carbsDailyTarget) * 100).toInt() else 0
-    val fatPercent = if (fatDailyTarget > 0) ((totalFat / fatDailyTarget) * 100).toInt() else 0
+    val proteinPercent = macroPercentOfGoal(totalProtein, profile.proteinGoal)
+    val carbsPercent = macroPercentOfGoal(totalCarbs, profile.carbsGoal)
+    val fatPercent = macroPercentOfGoal(totalFat, profile.fatGoal)
 
     Column(
         modifier = Modifier

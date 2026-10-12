@@ -10,6 +10,10 @@ fun calculateBmr(profile: UserProfile): Float {
     }
 }
 
+/** Share of the user's daily goal that [amountG] covers, in whole percent; 0 when no goal is set. */
+fun macroPercentOfGoal(amountG: Float, goalG: Int): Int =
+    if (goalG > 0) ((amountG / goalG) * 100).toInt() else 0
+
 fun getAiCoachFeedback(p: Float, c: Float, f: Float, cal: Int, profile: UserProfile): String {
     if (cal == 0) {
         return "Coach says: Log your first meal to get personalized daily nutritional feedback!"
