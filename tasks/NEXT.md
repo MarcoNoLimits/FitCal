@@ -15,7 +15,7 @@ Still blocking launch (only you can do these):
 6. [ ] `SENTRY_DSN` in `local.properties`; upload `mapping.txt` per release now that R8 is on.
 7. [ ] Real-device test of the **signed release** build: consent, age gate, scan, quota wall, interstitial, rewarded, account create/reset, delete.
 8. [ ] Supabase Pro on launch day (backups, no auto-pause). Budget caps on Gemini and OpenRouter.
-9. [ ] Old worktree `.claude/worktrees/zealous-bhabha-fb5c78` has uncommitted edits (App.kt, AdManager.kt, tests). Keep or discard them, then remove it.
+9. [x] Old worktree `.claude/worktrees/zealous-bhabha-fb5c78` removed and its edits discarded (owner decision, 2026-10-12).
 
 Scope decision: **Android-only for v1.** iOS code stays in the repo but isn't a release target.
 
