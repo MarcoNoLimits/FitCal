@@ -92,6 +92,9 @@ All form answers (Data safety, content rating, Health declaration, target audien
 - [x] Readable crash stack traces: the Sentry Gradle plugin uploads `mapping.txt` on every release build (org `tecaa`, project `fitcal`, token `SENTRY_AUTH_TOKEN` in `local.properties`). First upload worked on 2026-10-12. Without the token the build skips the upload and still succeeds.
 - [ ] Gemini budget alert + OpenRouter credit cap.
 - [x] R8/Kotlin version warning fixed: R8 pinned to 9.4.28 in the root `build.gradle.kts`. Remove the pin when AGP is upgraded to 9.x.
+- [x] Abuse limits (2026-10-12, migration 0002 + gateway v3, tested live): clients can only read their own quota rows; recalculate is capped at 50/day per user with 30 items and 80-char names. Per user per day: up to 16 photo scans (6 free + 10 rewarded).
+- [ ] Supabase → Authentication → Rate Limits: lower anonymous sign-ins from 30 to 10 per hour per IP.
+- [ ] Later: AdMob server-side verification for rewarded ads, so bonus scans can't be claimed without watching an ad.
 - [ ] Real-device test of the signed release build.
 - [ ] Supabase Pro once there's real traffic or revenue (Free = no backups).
 
