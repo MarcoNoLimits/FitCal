@@ -65,6 +65,27 @@ Scope decision: **Android-only for v1.** iOS code stays in the repo but isn't a 
 - `on_auth_user_created` creates a CRM `member` profile for every FitCal guest, which pollutes the CRM. Consider skipping anonymous users in `crm.handle_new_user()` (`if NEW.is_anonymous then return NEW; end if;`).
 - Longer term, give FitCal its own Supabase project so apps can't affect each other's logins.
 
+## ✅ FitCal moved to its own Supabase project (2026-10-11/12)
+**FitCal** `uedtovphilwstzdpzjrk` (eu-west-1, Free plan, $0).
+- Baseline schema in `supabase/migrations/0001_fitcal_baseline.sql`; the old shared-project history is in `supabase/legacy-shared-project/`.
+- Gateway deployed; secrets `GEMINI_API_KEY`, `OPENROUTER_API_KEY`. **Groq skipped by choice**: the failover runs Gemini then OpenRouter. Add `GROQ_API_KEY` later for a third fallback.
+- Dashboard: `fitcal` exposed, anonymous sign-ins, manual linking, confirm email, SMTP via Resend, code templates with the logo.
+- Tested end to end on 2026-10-12, then cleaned up:
+  - app sync and quota RPCs;
+  - user isolation; direct writes refused;
+  - events, feedback, rewards;
+  - **real Gemini scan (3.1 s)**;
+  - account deletion.
+- Old shared project cleaned up (migration `legacy-shared-project/migrations/0013`):
+  - removed FitCal's schemas and 5 test guests;
+  - kept the 11 CRM/yinyang users and their data;
+  - removed `fitcal`/`fitter` from Exposed schemas.
+- [x] Old project fully cleared (2026-10-12): `analyze-meal` function deleted; its 6 FitCal secrets deleted; custom SMTP off, which also reset its templates. Leftover: delete the old project's Resend key in Resend.
+- [x] AI provider keys removed from `local.properties`.
+- [x] SMTP works (real code emails delivered on 2026-10-12).
+- [x] Auth settings checked and fixed on 2026-10-12: Email OTP length **6** (it was 8, which the app can't accept); password min 8 with lowercase, uppercase and digits (matches `AuthValidation.kt`); Site URL `https://fitcal.tecaa.xyz`; code-free subjects. Leaked-password protection needs the Pro plan, so it's skipped. Email rate limit 30/h.
+- [ ] Real email test: Claude sends a code email to an address you choose.
+
 ## Production setup (only you can do these)
 Domain: **`tecaa.xyz`** (Name.com). FitCal lives at **`fitcal.tecaa.xyz`**. Contact: **`fitcal@tecaa.xyz`**. Auth emails are sent from **`no-reply@tecaa.xyz`** via Resend. DNS records go in Name.com → Manage DNS Records; the Host field is relative (`fitcal`, not `fitcal.tecaa.xyz`).
 
@@ -78,7 +99,7 @@ Domain: **`tecaa.xyz`** (Name.com). FitCal lives at **`fitcal.tecaa.xyz`**. Cont
    - Same page → Passwords: minimum length **8**, requirements **lowercase, uppercase letters and digits**. Also turn on **leaked password protection** (the security advisor flags it).
    - Authentication → Sign In / Providers: **Allow manual linking ON** (needed for Google linking to a guest).
    - Authentication → URL Configuration: Site URL `https://fitcal.tecaa.xyz`.
-   - Authentication → Emails → Templates: paste `supabase/templates/email_change.html` into **Change email address** (subject `Your FitCal code: {{ .Token }}`), and `recovery.html` into **Reset password** (subject `Your FitCal password reset code: {{ .Token }}`). Optionally `confirmation.html` into **Confirm signup**. The default templates send links, but the app asks for a 6-digit code, so **account creation and password reset don't work until this is done**.
+   - Authentication → Emails → Templates: paste `supabase/templates/email_change.html` into **Change email address** — superseded: see the new-project section above. The default templates send links, but the app asks for a 6-digit code, so **account creation and password reset don't work until this is done**.
    - Authentication → Rate limits: raise "emails per hour" from the default to about 100 once SMTP is on.
    - [x] ~~add `fitcal` to Exposed schemas~~ (done). [ ] Remove `fitter` from Exposed schemas, then Claude drops the empty placeholder.
    - Then let Claude run a real end-to-end test: guest → create account with a code → sign out → reset password.

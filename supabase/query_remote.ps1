@@ -1,7 +1,7 @@
 param(
     [string]$Sql,
     [string]$SqlFile,
-    [string]$ProjectRef = "mpsqdaptkkasjoepamwl"
+    [string]$ProjectRef = "uedtovphilwstzdpzjrk"  # FitCal-only project
 )
 
 $ProgressPreference = 'SilentlyContinue'

@@ -6,7 +6,7 @@ Product analytics go to our own Supabase database through the `analyze-meal` gat
 App ─ Analytics.track() ─▶ on-device queue (survives restarts, max 500)
     └─ every 60 s, on background, at boot ─▶ POST /v1/events (JWT) ─▶ fitcal.log_events()
 Gateway ─ its own events for each AI call, quota denial and reward claim (source = 'server')
-Database ─▶ fitcal.analytics_events ─▶ views in schema fitcal_analytics (SQL editor only)
+Database (FitCal project uedtovphilwstzdpzjrk) ─▶ fitcal.analytics_events ─▶ views in schema fitcal_analytics (SQL editor only)
 Crashes ─▶ Sentry (Android, after consent, off if the user opts out)
 ```
 
@@ -96,7 +96,7 @@ Every client event also carries `session_id`, `client_ts`, `app_version` and `pl
 
 ## Dashboards
 
-Open Supabase → SQL editor and run, for example:
+Open the **FitCal** Supabase project (`uedtovphilwstzdpzjrk`, https://supabase.com/dashboard/project/uedtovphilwstzdpzjrk/sql), not the old shared project, → SQL editor, and run, for example:
 
 ```sql
 select * from fitcal_analytics.daily_kpis limit 14;      -- users, scans, meals, ads, revenue, errors
