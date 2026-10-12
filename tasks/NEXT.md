@@ -8,7 +8,7 @@ Code-side fixes done this session:
 
 Still blocking launch (only you can do these):
 1. [ ] **Upload keystore:** create it, add `RELEASE_KEYSTORE_PATH/PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` to `local.properties`, and back it up off this PC. Without it the release build is signed with the **debug key**.
-2. [ ] **DNS `CNAME fitcal → cname.vercel-dns.com`**, then deploy `site/` (Claude can do it once you approve the production deploy).
+2. [ ] **DNS `CNAME fitcal → cname.vercel-dns.com`.** `site/` is already deployed to Vercel project `fitcal-site` (2026-10-12) with `fitcal.tecaa.xyz` attached; it goes live once the CNAME resolves. The `*.vercel.app` URLs stay behind Vercel login on purpose, and the custom domain is public. Redeploy whenever `site/` changes.
 3. [ ] **MX conflict:** `tecaa.xyz` has both Zoho and Name.com MX records at priority 10. Keep one provider.
 4. [ ] **Play Console:** closed test (12 testers × 14 days if the account is personal and new), Data safety, Health declaration, 18+, store assets.
 5. [ ] **Google sign-in:** OAuth clients (Web + Android with upload *and* Play App Signing SHA-1), Supabase Google provider, `GOOGLE_WEB_CLIENT_ID` in `local.properties`.
