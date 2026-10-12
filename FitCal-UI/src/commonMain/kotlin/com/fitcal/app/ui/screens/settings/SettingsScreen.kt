@@ -30,7 +30,16 @@ import com.fitcal.app.notifications.MealReminder
 import com.fitcal.app.notifications.MealReminderManager
 import com.fitcal.app.ui.components.FitCalTextField
 import com.fitcal.app.ui.components.PressableBox
-import com.fitcal.app.ui.components.calculateBmr
+import com.fitcal.app.getCurrentDateString
+import com.fitcal.app.plan.PlanGoal
+import com.fitcal.app.plan.PlanPace
+import com.fitcal.app.plan.TargetsMode
+import com.fitcal.app.plan.currentPlanTargets
+import com.fitcal.app.plan.formatKg
+import com.fitcal.app.plan.formatPlanDate
+import com.fitcal.app.plan.projectedTargetDate
+import com.fitcal.app.plan.resolvedTargetsMode
+import com.fitcal.app.plan.withPlanTargetsRecomputed
 import com.fitcal.app.ui.components.plateSizeInchesToCmString
 import com.fitcal.app.privacy.PrivacyConsent
 import com.fitcal.app.telemetry.Analytics
@@ -52,6 +61,8 @@ fun SettingsScreen(
     signingOut: Boolean = false,
     onSave: (UserProfile) -> Unit,
     onBack: () -> Unit,
+    onOpenPlan: () -> Unit = {},
+    onEndPlan: () -> Unit = {},
     onDeleteAllData: (() -> Unit)? = null,
     deletingAccount: Boolean = false,
     deleteAccountMessage: String? = null,
@@ -62,18 +73,19 @@ fun SettingsScreen(
     val scrollState = rememberScrollState()
     var showFeedback by remember { mutableStateOf(false) }
 
-    var heightStr by remember { mutableStateOf(profile.height.toString()) }
-    var weightStr by remember { mutableStateOf(profile.weight.toString()) }
-    var ageStr by remember { mutableStateOf(profile.age.toString()) }
+    var heightStr by remember(profile) { mutableStateOf(profile.height.toString()) }
+    var weightStr by remember(profile) { mutableStateOf(profile.weight.toString()) }
+    var ageStr by remember(profile) { mutableStateOf(profile.age.toString()) }
 
-    var genderOption by remember { mutableStateOf(profile.gender) }
-    var goalOption by remember { mutableStateOf(profile.goalType) }
+    var genderOption by remember(profile) { mutableStateOf(profile.gender) }
 
-    var calGoalStr by remember { mutableStateOf(profile.calGoal.toString()) }
-    var proteinGoalStr by remember { mutableStateOf(profile.proteinGoal.toString()) }
-    var carbsGoalStr by remember { mutableStateOf(profile.carbsGoal.toString()) }
-    var fatGoalStr by remember { mutableStateOf(profile.fatGoal.toString()) }
-    var plateSize by remember { mutableStateOf(profile.defaultPlateSize) }
+    // Daily targets are optional: none, from the personal plan, or the user's own numbers.
+    var targetsMode by remember(profile) { mutableStateOf(profile.resolvedTargetsMode()) }
+    var calGoalStr by remember(profile) { mutableStateOf(profile.calGoal.toString()) }
+    var proteinGoalStr by remember(profile) { mutableStateOf(profile.proteinGoal.toString()) }
+    var carbsGoalStr by remember(profile) { mutableStateOf(profile.carbsGoal.toString()) }
+    var fatGoalStr by remember(profile) { mutableStateOf(profile.fatGoal.toString()) }
+    var plateSize by remember(profile) { mutableStateOf(profile.defaultPlateSize) }
 
     var remindersEnabled by remember { mutableStateOf(MealReminderManager.isMasterEnabled()) }
     var mealReminders by remember { mutableStateOf(MealReminderManager.getReminders()) }
@@ -89,23 +101,8 @@ fun SettingsScreen(
 
     var isError by remember { mutableStateOf(false) }
 
-    // Dynamic suggested targets based on Mifflin-St Jeor Formula
-    val suggestedCal = remember(weightStr, heightStr, ageStr, genderOption, goalOption) {
-        val w = weightStr.toFloatOrNull() ?: 70f
-        val h = heightStr.toFloatOrNull() ?: 175f
-        val a = ageStr.toIntOrNull() ?: 25
-        val baseBmr = if (genderOption == "Male") {
-            (10f * w) + (6.25f * h) - (5f * a) + 5f
-        } else {
-            (10f * w) + (6.25f * h) - (5f * a) - 161f
-        }
-        val maintenance = (baseBmr * 1.2f).toInt()
-        when (goalOption) {
-            "Lose Weight" -> (maintenance - 500).coerceAtLeast(1200)
-            "Gain Muscle" -> maintenance + 300
-            else -> maintenance
-        }
-    }
+    val planTargets = remember(profile) { profile.currentPlanTargets() }
+    val today = remember { getCurrentDateString() }
 
     Scaffold(
         bottomBar = {
@@ -355,7 +352,7 @@ fun SettingsScreen(
             }
         }
 
-        // Section 2: Goal Type Card
+        // Section 2: Personal plan (optional; never required to use the app)
         Card(
             colors = CardDefaults.cardColors(containerColor = CardBackground),
             shape = RoundedCornerShape(RadiusL),
@@ -369,83 +366,66 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "FITNESS GOAL",
+                    text = "PERSONAL PLAN",
                     style = BrandTypography.CardTitle,
                     color = MutedTextColor
                 )
-
-                // F4.3: Goal chips — FilterChip with full semantics
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    listOf("Lose Weight", "Maintain", "Gain Muscle").forEach { gType ->
-                        val selected = goalOption == gType
-                        FilterChip(
-                            selected = selected,
-                            onClick = { goalOption = gType },
-                            label = {
-                                Text(
-                                    text = gType,
-                                    style = BrandTypography.BodySmall,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    softWrap = false
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = PrimaryAccent,
-                                selectedLabelColor = Color.White,
-                                containerColor = SurfaceTint, // F1.1: was Color(0xFFF1F5F9)
-                                labelColor = TextColor
-                            ),
-                            border = FilterChipDefaults.filterChipBorder(
-                                borderColor = BorderColor,
-                                selectedBorderColor = PrimaryAccent,
-                                borderWidth = 1.dp,
-                                selectedBorderWidth = 2.dp,
-                                enabled = true,
-                                selected = selected
-                            ),
-                            modifier = Modifier.heightIn(min = 44.dp) // F0.3
+                val plan = profile.plan
+                if (profile.resolvedTargetsMode() == TargetsMode.PLAN && plan != null && planTargets != null) {
+                    val goal = PlanGoal.fromKey(profile.goalType)
+                    Text(
+                        text = if (goal == PlanGoal.MAINTAIN) goal.label
+                        else "${goal.label} · ${PlanPace.fromKey(plan.pace).label} (${formatKg(planTargets.kgPerWeek)} kg/week)",
+                        style = BrandTypography.SectionTitle,
+                        color = TextColor
+                    )
+                    val target = plan.targetWeightKg
+                    if (target != null) {
+                        val eta = profile.projectedTargetDate(today)
+                        Text(
+                            text = "${formatKg(profile.weight)} → ${formatKg(target)} kg" +
+                                (eta?.let { " · around ${formatPlanDate(it)}" } ?: ""),
+                            style = BrandTypography.BodySmall,
+                            color = TextColor
                         )
                     }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Suggestion Prompt Box — F3.1: PressableBox replaces .clickable
-                // F1.1: InfoPanel replaces Color(0xFFF8FAFC)
-                PressableBox(
-                    onTap = {
-                        calGoalStr = suggestedCal.toString()
-                        proteinGoalStr = ((suggestedCal * 0.30f) / 4f).toInt().toString()
-                        carbsGoalStr = ((suggestedCal * 0.45f) / 4f).toInt().toString()
-                        fatGoalStr = ((suggestedCal * 0.25f) / 9f).toInt().toString()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(InfoPanel, RoundedCornerShape(RadiusM)) // F1.1+F1.2
-                        .border(1.dp, BorderColor, RoundedCornerShape(RadiusM))
-                        .padding(16.dp)
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = "METABOLIC SUGGESTION",
-                            style = BrandTypography.CardTitle,
-                            color = PrimaryAccent
-                        )
-                        Text(
-                            text = "Based on BMR, your recommended intake is $suggestedCal kcal.",
-                            style = BrandTypography.BodySmall,
-                            fontWeight = FontWeight.Bold,
-                            color = TextColor
-                        )
-                        Text(
-                            text = "👉 Tap here to automatically apply Calorie & Macro splits (30% Protein, 45% Carbs, 25% Fat).",
-                            style = BrandTypography.BodySmall,
-                            color = TextColor
-                        )
+                    Text(
+                        text = "${planTargets.calories} kcal · P ${planTargets.proteinG} g · C ${planTargets.carbsG} g · F ${planTargets.fatG} g",
+                        style = BrandTypography.BodySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = TextColor
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(
+                            onClick = onOpenPlan,
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryAccent),
+                            shape = RoundedCornerShape(RadiusM),
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                        ) {
+                            Text("Edit Plan", style = BrandTypography.CardTitle, color = Color.White)
+                        }
+                        OutlinedButton(
+                            onClick = onEndPlan,
+                            shape = RoundedCornerShape(RadiusM),
+                            border = BorderStroke(1.dp, BorderColor),
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                        ) {
+                            Text("End Plan", style = BrandTypography.CardTitle, color = TextColor)
+                        }
+                    }
+                } else {
+                    Text(
+                        text = "Optional. Get daily calorie and macro targets made for your body, activity and goal, at a pace you choose. Change or end it any time.",
+                        style = BrandTypography.BodySmall,
+                        color = TextColor
+                    )
+                    Button(
+                        onClick = onOpenPlan,
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryAccent),
+                        shape = RoundedCornerShape(RadiusM),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                    ) {
+                        Text("Set Up a Plan", style = BrandTypography.CardTitle, color = Color.White)
                     }
                 }
             }
@@ -535,7 +515,7 @@ fun SettingsScreen(
             }
         }
 
-        // Section 3: Daily Target Goals Override
+        // Section 3: Daily targets — none, from the plan, or the user's own numbers
         Card(
             colors = CardDefaults.cardColors(containerColor = CardBackground),
             shape = RoundedCornerShape(RadiusL),
@@ -549,41 +529,68 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "CUSTOM TARGETS",
+                    text = "DAILY TARGETS",
                     style = BrandTypography.CardTitle,
                     color = MutedTextColor
                 )
 
-                FitCalTextField(
-                    value = calGoalStr,
-                    onValueChange = { calGoalStr = it },
-                    label = "Calories Budget",
-                    unit = "kcal",
-                    modifier = Modifier.fillMaxWidth()
-                )
+                when (targetsMode) {
+                    TargetsMode.PLAN -> {
+                        Text(
+                            text = "Set by your personal plan. Edit the plan above to change them.",
+                            style = BrandTypography.BodySmall,
+                            color = TextColor
+                        )
+                        TextButton(onClick = { targetsMode = TargetsMode.CUSTOM }) {
+                            Text("Use my own numbers instead (ends the plan when saved)", color = PrimaryAccent)
+                        }
+                    }
+                    TargetsMode.NONE -> {
+                        Text(
+                            text = "No daily targets. Your dashboard shows what you eat, without goals.",
+                            style = BrandTypography.BodySmall,
+                            color = TextColor
+                        )
+                        TextButton(onClick = { targetsMode = TargetsMode.CUSTOM }) {
+                            Text("Enter my own numbers", color = PrimaryAccent)
+                        }
+                    }
+                    TargetsMode.CUSTOM -> {
+                        FitCalTextField(
+                            value = calGoalStr,
+                            onValueChange = { calGoalStr = it },
+                            label = "Calories Budget",
+                            unit = "kcal",
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    FitCalTextField(
-                        value = proteinGoalStr,
-                        onValueChange = { proteinGoalStr = it },
-                        label = "Protein",
-                        unit = "g",
-                        modifier = Modifier.weight(1f)
-                    )
-                    FitCalTextField(
-                        value = carbsGoalStr,
-                        onValueChange = { carbsGoalStr = it },
-                        label = "Carbs",
-                        unit = "g",
-                        modifier = Modifier.weight(1f)
-                    )
-                    FitCalTextField(
-                        value = fatGoalStr,
-                        onValueChange = { fatGoalStr = it },
-                        label = "Fat",
-                        unit = "g",
-                        modifier = Modifier.weight(1f)
-                    )
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            FitCalTextField(
+                                value = proteinGoalStr,
+                                onValueChange = { proteinGoalStr = it },
+                                label = "Protein",
+                                unit = "g",
+                                modifier = Modifier.weight(1f)
+                            )
+                            FitCalTextField(
+                                value = carbsGoalStr,
+                                onValueChange = { carbsGoalStr = it },
+                                label = "Carbs",
+                                unit = "g",
+                                modifier = Modifier.weight(1f)
+                            )
+                            FitCalTextField(
+                                value = fatGoalStr,
+                                onValueChange = { fatGoalStr = it },
+                                label = "Fat",
+                                unit = "g",
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        TextButton(onClick = { targetsMode = TargetsMode.NONE }) {
+                            Text("Remove my targets", color = MutedTextColor)
+                        }
+                    }
                 }
             }
         }
@@ -967,25 +974,38 @@ fun SettingsScreen(
                 val carbs = carbsGoalStr.toIntOrNull()
                 val fat = fatGoalStr.toIntOrNull()
 
-                if (weight != null && height != null && age != null && calories != null && protein != null && carbs != null && fat != null &&
-                    weight > 0 && height > 0 && age > 0 && calories > 0 && protein > 0 && carbs > 0 && fat > 0
-                ) {
+                val bodyValid = weight != null && height != null && age != null &&
+                    weight > 0 && height > 0 && age > 0
+                // Targets are only required when the user chose their own numbers.
+                val goalsValid = targetsMode != TargetsMode.CUSTOM ||
+                    (calories != null && protein != null && carbs != null && fat != null &&
+                        calories > 0 && protein > 0 && carbs > 0 && fat > 0)
+
+                if (bodyValid && goalsValid) {
                     isError = false
                     MealReminderManager.syncNotifications()
+                    val base = profile.copy(
+                        weight = weight!!,
+                        height = height!!,
+                        age = age!!,
+                        gender = genderOption,
+                        // G2: stored in in.; VLM API expects in. (analyzeMealImage)
+                        defaultPlateSize = plateSize,
+                        targetsMode = targetsMode.key,
+                        plan = if (targetsMode == TargetsMode.PLAN) profile.plan else null,
+                    )
                     onSave(
-                        UserProfile(
-                            weight = weight,
-                            height = height,
-                            age = age,
-                            gender = genderOption,
-                            goalType = goalOption,
-                            calGoal = calories,
-                            proteinGoal = protein,
-                            carbsGoal = carbs,
-                            fatGoal = fat,
-                            // G2: stored in in.; VLM API expects in. (analyzeMealImage)
-                            defaultPlateSize = plateSize
-                        )
+                        when (targetsMode) {
+                            // New weight/height/age → the plan's targets follow.
+                            TargetsMode.PLAN -> base.withPlanTargetsRecomputed()
+                            TargetsMode.CUSTOM -> base.copy(
+                                calGoal = calories!!,
+                                proteinGoal = protein!!,
+                                carbsGoal = carbs!!,
+                                fatGoal = fat!!,
+                            )
+                            TargetsMode.NONE -> base
+                        }
                     )
                 } else {
                     isError = true

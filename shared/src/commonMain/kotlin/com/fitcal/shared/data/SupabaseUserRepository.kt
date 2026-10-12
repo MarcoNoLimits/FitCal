@@ -56,8 +56,13 @@ class SupabaseUserRepository(
                     age = row.age ?: current.age,
                     gender = row.gender ?: current.gender,
                     goalType = row.goal_type ?: current.goalType,
-                    defaultPlateSize = row.default_plate_size ?: current.defaultPlateSize
-                )
+                    defaultPlateSize = row.default_plate_size ?: current.defaultPlateSize,
+                    activityLevel = row.activity_level ?: current.activityLevel,
+                    targetsMode = row.targets_mode ?: current.targetsMode
+                ).let { merged ->
+                    // A plan only counts while the mode is "plan"; an ended plan may still be in the row.
+                    merged.copy(plan = if (merged.targetsMode == "plan") row.plan ?: current.plan else null)
+                }
                 localRepo.saveUserProfile(updated)
             }
 

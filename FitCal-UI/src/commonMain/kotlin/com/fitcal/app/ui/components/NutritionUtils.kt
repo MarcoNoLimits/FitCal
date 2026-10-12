@@ -1,14 +1,32 @@
 ﻿package com.fitcal.app.ui.components
 
 import com.fitcal.shared.model.UserProfile
+import kotlin.math.roundToInt
 
-fun calculateBmr(profile: UserProfile): Float {
-    return if (profile.gender == "Male") {
-        (10f * profile.weight) + (6.25f * profile.height) - (5f * profile.age) + 5f
-    } else {
-        (10f * profile.weight) + (6.25f * profile.height) - (5f * profile.age) - 161f
+fun calculateBmr(profile: UserProfile): Float =
+    mifflinStJeorBmr(profile.weight, profile.height, profile.age, profile.gender)
+
+/** Resting energy (kcal/day), Mifflin-St Jeor. */
+fun mifflinStJeorBmr(weightKg: Float, heightCm: Float, age: Int, gender: String): Float {
+    val base = (10f * weightKg) + (6.25f * heightCm) - (5f * age)
+    return if (gender == "Male") base + 5f else base - 161f
+}
+
+/** Activity levels as stored in UserProfile.activityLevel, with their TDEE multipliers. */
+enum class ActivityLevel(val key: String, val label: String, val description: String, val factor: Float) {
+    SEDENTARY("Sedentary", "Sedentary", "Desk job, little exercise", 1.2f),
+    LIGHT("Light", "Light", "Exercise 1–3 days a week", 1.375f),
+    MODERATE("Moderate", "Moderate", "Exercise 3–5 days a week", 1.55f),
+    VERY_ACTIVE("Very Active", "Very active", "Hard exercise 6–7 days a week or a physical job", 1.725f);
+
+    companion object {
+        fun fromKey(key: String?): ActivityLevel = entries.firstOrNull { it.key == key } ?: SEDENTARY
     }
 }
+
+/** Maintenance calories (TDEE) for the profile's activity level. */
+fun maintenanceCalories(profile: UserProfile): Int =
+    (calculateBmr(profile) * ActivityLevel.fromKey(profile.activityLevel).factor).roundToInt()
 
 /** Share of the user's daily goal that [amountG] covers, in whole percent; 0 when no goal is set. */
 fun macroPercentOfGoal(amountG: Float, goalG: Int): Int =
