@@ -538,6 +538,7 @@ fun App() {
                     ResultScreen(
                         apiClient = apiClient,
                         data = nutritionData,
+                        profile = userProfile,
                         isMock = isMockMode,
                         capturedImageBytes = lastCapturedImageBytes,
                         onMealLogged = { mealName, cal, p, c, f ->
