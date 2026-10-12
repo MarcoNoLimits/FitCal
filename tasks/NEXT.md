@@ -7,7 +7,7 @@ Code-side fixes done this session:
 - **R8 on:** `isMinifyEnabled` + `isShrinkResources`; Ktor/Sentry keep rules added. Release AAB builds, and the release APK launches on the emulator without crashing. A full click-through of the release build is still needed (see the device test below).
 
 Still blocking launch (only you can do these):
-1. [ ] **Upload keystore:** create it, add `RELEASE_KEYSTORE_PATH/PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` to `local.properties`, and back it up off this PC. Without it the release build is signed with the **debug key**.
+1. [x] **Upload keystore** (done 2026-10-12: `C:/Users/ahmed/keys/fitcal-upload.jks`, alias `fitcal`, upload-key SHA-1 `AF:EF:50:74:40:53:97:C4:A5:BD:DE:4A:3E:82:E4:A1:6C:9A:14:7A`). Original note: create it, add `RELEASE_KEYSTORE_PATH/PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` to `local.properties`, and back it up off this PC. Without it the release build is signed with the **debug key**.
 2. [ ] **DNS `CNAME fitcal → cname.vercel-dns.com`.** `site/` is already deployed to Vercel project `fitcal-site` (2026-10-12) with `fitcal.tecaa.xyz` attached; it goes live once the CNAME resolves. The `*.vercel.app` URLs stay behind Vercel login on purpose, and the custom domain is public. Redeploy whenever `site/` changes.
 3. [ ] **MX conflict:** `tecaa.xyz` has both Zoho and Name.com MX records at priority 10. Keep one provider.
 4. [ ] **Play Console:** closed test (12 testers × 14 days if the account is personal and new), Data safety, Health declaration, 18+, store assets.
