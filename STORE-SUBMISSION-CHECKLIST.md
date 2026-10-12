@@ -30,7 +30,7 @@ the conservative answer protects you in review:
 | Data collected | Account email (optional), Photos/Pictures, Fitness/Health, App activity, Crash logs, Device IDs |
 | Encrypted in transit? | **Yes** (TLS only; `usesCleartextTraffic=false`) |
 | Can users request data deletion? | **Yes** — in-app: Settings → Privacy → "Delete my account and data"; web link: `…/privacy.html#delete` |
-| Data shared with third parties | **Yes** — advertising partner (Google AdMob), and AI inference providers (OpenRouter, Google, Groq). Sentry (crash reports) is a service provider acting for us, which Play does not count as "sharing", but declare Crash logs + Diagnostics as *collected* |
+| Data shared with third parties | **Yes** — advertising partner (Google AdMob), and AI inference providers (Google, OpenRouter). Sentry (crash reports) is a service provider acting for us, which Play does not count as "sharing", but declare Crash logs + Diagnostics as *collected* |
 | Feedback | Declare **Other user-generated content** (feedback messages) and **Email address** (optional reply address). Purpose: App functionality / Developer communications. Optional, user-initiated |
 | App activity detail | App interactions (screens, scan funnel, corrections as counts), in-app actions. Purpose: **Analytics**. Optional: users can turn it off in Settings → Privacy → Share usage analytics |
 | Purposes | Analytics, Advertising or marketing, App functionality, Personalization |
@@ -79,7 +79,6 @@ WHAT YOU GET
 • Built-in Food Library: browse verified macros for 100+ everyday foods, offline
 • Water tracking, weight logging, and meal history
 • Daily scan quota, extendable with rewarded ads
-• Optional Premium: unlimited scans, ad-free
 
 BUILT FOR ACCURACY
 Every estimate is editable. If the portion looks off, change the weight and the

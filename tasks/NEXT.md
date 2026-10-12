@@ -1,5 +1,22 @@
 # FitCal — where to pick up
 
+## Launch review (2026-10-12)
+Code-side fixes done this session:
+- **Premium deferred to v1.1** (owner decision). Removed Premium/subscription/RevenueCat claims from the in-app policy, `site/privacy.html`, the delete-account dialog and the store description. Deleted the `SubscriptionManager.purchasePlan(productId)` overload that granted Premium locally without payment.
+- Groq removed from the policy, consent screen and Data safety notes, because it isn't configured. **If you add `GROQ_API_KEY`, add Groq back to all three first.**
+- **R8 on:** `isMinifyEnabled` + `isShrinkResources`; Ktor/Sentry keep rules added. Release AAB builds, and the release APK launches on the emulator without crashing. A full click-through of the release build is still needed (see the device test below).
+
+Still blocking launch (only you can do these):
+1. [ ] **Upload keystore:** create it, add `RELEASE_KEYSTORE_PATH/PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` to `local.properties`, and back it up off this PC. Without it the release build is signed with the **debug key**.
+2. [ ] **DNS `CNAME fitcal → cname.vercel-dns.com`**, then deploy `site/` (Claude can do it once you approve the production deploy).
+3. [ ] **MX conflict:** `tecaa.xyz` has both Zoho and Name.com MX records at priority 10. Keep one provider.
+4. [ ] **Play Console:** closed test (12 testers × 14 days if the account is personal and new), Data safety, Health declaration, 18+, store assets.
+5. [ ] **Google sign-in:** OAuth clients (Web + Android with upload *and* Play App Signing SHA-1), Supabase Google provider, `GOOGLE_WEB_CLIENT_ID` in `local.properties`.
+6. [ ] `SENTRY_DSN` in `local.properties`; upload `mapping.txt` per release now that R8 is on.
+7. [ ] Real-device test of the **signed release** build: consent, age gate, scan, quota wall, interstitial, rewarded, account create/reset, delete.
+8. [ ] Supabase Pro on launch day (backups, no auto-pause). Budget caps on Gemini and OpenRouter.
+9. [ ] Old worktree `.claude/worktrees/zealous-bhabha-fb5c78` has uncommitted edits (App.kt, AdManager.kt, tests). Keep or discard them, then remove it.
+
 Scope decision: **Android-only for v1.** iOS code stays in the repo but isn't a release target.
 
 ## Done

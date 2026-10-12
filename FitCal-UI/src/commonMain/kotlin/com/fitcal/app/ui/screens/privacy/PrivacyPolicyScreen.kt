@@ -148,12 +148,11 @@ private fun PrivacyPolicyContent() {
 
     PolicySection("Who processes your data") {
         "Our backend runs on Supabase, hosted in the EU (Ireland). Photographs are " +
-            "forwarded to third-party AI providers — OpenRouter, Google, and Groq — solely " +
+            "forwarded to third-party AI providers — Google and OpenRouter — solely " +
             "to generate estimates. " +
             "Account data and usage events are stored in Supabase. Crash reports are " +
             "processed by Sentry. Account emails (sign-up and password codes) are sent " +
-            "through Resend. Payments are handled by RevenueCat and " +
-            "the relevant app store; we never see your full card details."
+            "through Resend."
     }
 
     PolicySection("International transfers") {
@@ -224,20 +223,12 @@ private fun TermsContent() {
             "or breastfeeding, or are taking medication."
     }
 
-    PolicySection("Subscriptions") {
-        "FitCal Premium is available as a monthly or annual subscription, billed through " +
-            "the app store you purchased from. Prices are shown in your store's currency.\n\n" +
-            "Subscriptions renew automatically unless cancelled at least 24 hours before " +
-            "the end of the current period. You can cancel in your store's subscription " +
-            "settings; refunds are handled by the store under its own policy."
-    }
-
     PolicySection("Acceptable use") {
         "You agree not to:\n" +
             "• Upload photographs of other people without their consent\n" +
             "• Reverse engineer, resell, or redistribute the app\n" +
             "• Use the app to harass, harm, or defraud anyone\n" +
-            "• Attempt to circumvent quota limits or premium access"
+            "• Attempt to circumvent quota limits"
     }
 
     PolicySection("Content and results") {
@@ -247,8 +238,8 @@ private fun TermsContent() {
     }
 
     PolicySection("Third-party services") {
-        "FitCal relies on third-party services including Supabase, OpenRouter, Google, " +
-            "Groq, and RevenueCat. Their terms also apply to you in " +
+        "FitCal relies on third-party services including Supabase, Google, OpenRouter, " +
+            "Sentry and Resend. Their terms also apply to you in " +
             "relation to their services."
     }
 
