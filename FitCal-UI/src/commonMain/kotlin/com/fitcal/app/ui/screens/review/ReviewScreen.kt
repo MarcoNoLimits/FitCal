@@ -42,6 +42,9 @@ import com.fitcal.app.ui.components.FitCalTextField
 import com.fitcal.app.ui.components.PressableBox
 import com.fitcal.app.ui.components.macroPercentOfGoal
 import com.fitcal.app.ui.screens.review.components.EditableFoodItem
+import com.fitcal.app.ui.screens.review.components.caloriesAtCurrentWeight
+import com.fitcal.app.ui.screens.review.components.toEditable
+import com.fitcal.app.ui.screens.review.components.toFoodItems
 import com.fitcal.app.ui.screens.review.components.MacroGridCard
 import com.fitcal.app.ui.screens.review.components.WeightInputPill
 import com.fitcal.app.ui.theme.*
@@ -50,6 +53,7 @@ import com.fitcal.app.ui.screens.feedback.ScanAccuracyPrompt
 import com.fitcal.shared.api.FoodDatabase
 import com.fitcal.shared.api.FoodDbEntry
 import com.fitcal.shared.api.NutritionClient
+import com.fitcal.shared.model.FoodItem
 import com.fitcal.shared.model.NutritionResponse
 import com.fitcal.shared.model.UserProfile
 import kotlinx.coroutines.launch
@@ -61,8 +65,11 @@ fun ResultScreen(
     profile: UserProfile,
     isMock: Boolean,
     capturedImageBytes: ByteArray?,
-    onMealLogged: (String, Int, Float, Float, Float) -> Unit,
+    onMealLogged: (String, Int, Float, Float, Float, List<FoodItem>) -> Unit,
     onLogAgain: () -> Unit,
+    // Reopened from the dashboard: save in place and go back, no scan-only prompts or analytics.
+    isEditingLoggedMeal: Boolean = false,
+    ingredientsNote: String? = null,
     shouldSuggestSignIn: () -> Boolean = { false },
     onSignInSuggestionShown: () -> Unit = {},
     onSignInSuggestionDismissed: () -> Unit = {},
@@ -73,18 +80,7 @@ fun ResultScreen(
 
     val editableItems = remember(data) {
         mutableStateListOf<EditableFoodItem>().apply {
-            addAll(data.items.mapIndexed { index, item ->
-                EditableFoodItem(
-                    id = "${item.item}_$index",
-                    name = item.item,
-                    currentWeightStr = item.weight_est_g.toString(),
-                    calPerGram = if (item.weight_est_g > 0) item.calories.toFloat() / item.weight_est_g else 0f,
-                    proteinPerGram = if (item.weight_est_g > 0) item.protein_g / item.weight_est_g else 0f,
-                    carbsPerGram = if (item.weight_est_g > 0) item.carbs_g / item.weight_est_g else 0f,
-                    fatPerGram = if (item.weight_est_g > 0) item.fat_g / item.weight_est_g else 0f,
-                    confidence = item.confidence
-                )
-            })
+            addAll(data.items.mapIndexed { index, item -> item.toEditable(index) })
         }
     }
 
@@ -103,7 +99,7 @@ fun ResultScreen(
     val currentItemCount by rememberUpdatedState(editableItems.size)
     DisposableEffect(data) {
         onDispose {
-            if (!mealLogged) {
+            if (!mealLogged && !isEditingLoggedMeal) {
                 Analytics.track(
                     "review_abandoned",
                     "items_ai" to data.items.size,
@@ -124,10 +120,7 @@ fun ResultScreen(
         }
     }
 
-    val totalCalories = editableItems.sumOf {
-        val weight = it.currentWeightStr.toIntOrNull() ?: 0
-        (it.calPerGram * weight).toInt()
-    }
+    val totalCalories = editableItems.sumOf { it.caloriesAtCurrentWeight() }
     val totalProtein = editableItems.sumOf {
         val weight = it.currentWeightStr.toIntOrNull() ?: 0
         (it.proteinPerGram * weight).toDouble()
@@ -190,7 +183,7 @@ fun ResultScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // F2.1: ScreenTitle replaces headlineSmall override (≈24sp matches)
                 Text(
-                    text = "Review Meal",
+                    text = if (isEditingLoggedMeal) "Edit Meal" else "Review Meal",
                     style = BrandTypography.ScreenTitle,
                     color = TextColor
                 )
@@ -232,8 +225,8 @@ fun ResultScreen(
                 .border(1.dp, BorderColor, RoundedCornerShape(RadiusXL))
         ) {
             Column {
-                // Banner Image
-                Box(
+                // Banner Image (a reopened meal has no photo; don't show the stock one)
+                if (capturedImageBytes != null || !isEditingLoggedMeal) Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
@@ -265,11 +258,19 @@ fun ResultScreen(
                         .padding(24.dp)
                 ) {
                     Text(
-                        text = "DETECTED INGREDIENTS",
+                        text = if (isEditingLoggedMeal) "INGREDIENTS" else "DETECTED INGREDIENTS",
                         style = BrandTypography.Eyebrow, // F2.1
                         color = MutedTextColor,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
+                    if (ingredientsNote != null) {
+                        Text(
+                            text = ingredientsNote,
+                            style = BrandTypography.BodySmall,
+                            color = MutedTextColor,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
 
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         editableItems.forEachIndexed { index, item ->
@@ -443,7 +444,7 @@ fun ResultScreen(
                     modifier = Modifier.padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    if (data.items.isNotEmpty()) {
+                    if (data.items.isNotEmpty() && !isEditingLoggedMeal) {
                         ScanAccuracyPrompt(onRate = onRateEstimate)
                     }
 
@@ -464,18 +465,7 @@ fun ResultScreen(
                                         }
                                         val response = apiClient.recalculateMealNutrition(itemsList)
                                         editableItems.clear()
-                                        editableItems.addAll(response.items.mapIndexed { index, item ->
-                                            EditableFoodItem(
-                                                id = "${item.item}_$index",
-                                                name = item.item,
-                                                currentWeightStr = item.weight_est_g.toString(),
-                                                calPerGram = if (item.weight_est_g > 0) item.calories.toFloat() / item.weight_est_g else 0f,
-                                                proteinPerGram = if (item.weight_est_g > 0) item.protein_g / item.weight_est_g else 0f,
-                                                carbsPerGram = if (item.weight_est_g > 0) item.carbs_g / item.weight_est_g else 0f,
-                                                fatPerGram = if (item.weight_est_g > 0) item.fat_g / item.weight_est_g else 0f,
-                                                confidence = item.confidence
-                                            )
-                                        })
+                                        editableItems.addAll(response.items.mapIndexed { index, item -> item.toEditable(index) })
                                         recalculateError = null
                                         Analytics.track(
                                             "recalculate_succeeded",
@@ -527,6 +517,12 @@ fun ResultScreen(
 
                     Button(
                         onClick = {
+                            if (isEditingLoggedMeal) {
+                                mealLogged = true
+                                onMealLogged(data.meal_name, totalCalories, totalProtein, totalCarbs, totalFat, editableItems.toFoodItems())
+                                onLogAgain()
+                                return@Button
+                            }
                             val corrections = summarizeCorrections(
                                 original = data.items,
                                 final = editableItems.map { it.name to (it.currentWeightStr.toIntOrNull() ?: 0) },
@@ -548,7 +544,7 @@ fun ResultScreen(
                                 "review_seconds" to (getCurrentEpochMillis() - reviewOpenedAt) / 1000,
                             )
                             mealLogged = true
-                            onMealLogged(data.meal_name, totalCalories, totalProtein, totalCarbs, totalFat)
+                            onMealLogged(data.meal_name, totalCalories, totalProtein, totalCarbs, totalFat, editableItems.toFoodItems())
                             showSuccessDialog = true
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryAccent),
@@ -558,13 +554,13 @@ fun ResultScreen(
                             .height(54.dp)
                     ) {
                         Text(
-                            text = "Log Meal to Dashboard",
+                            text = if (isEditingLoggedMeal) "Save Changes" else "Log Meal to Dashboard",
                             style = BrandTypography.SectionTitle,
                             color = Color.White
                         )
                     }
 
-                    OutlinedButton(
+                    if (!isEditingLoggedMeal) OutlinedButton(
                         onClick = onLogAgain,
                         shape = RoundedCornerShape(RadiusM),
                         border = BorderStroke(1.dp, BorderColor),

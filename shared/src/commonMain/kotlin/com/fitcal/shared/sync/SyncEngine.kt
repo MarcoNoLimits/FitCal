@@ -2,6 +2,7 @@ package com.fitcal.shared.sync
 
 import com.fitcal.shared.auth.SupabaseClientFactory
 import com.fitcal.shared.data.KeyValueStorage
+import com.fitcal.shared.model.FoodItem
 import com.fitcal.shared.model.LoggedMeal
 import com.fitcal.shared.model.UserProfile
 import io.github.jan.supabase.SupabaseClient
@@ -47,7 +48,8 @@ data class SupabaseMealRow(
     val fat_g: Float,
     val eaten_at: String? = null,     // timestamptz ISO string from server
     val photo_url: String? = null,
-    val deleted_at: String? = null
+    val deleted_at: String? = null,
+    val items: List<FoodItem> = emptyList()   // jsonb, migration 0004
 )
 
 /**
@@ -150,7 +152,8 @@ class SyncEngine(
                         protein_g = item.meal.protein,
                         carbs_g = item.meal.carbs,
                         fat_g = item.meal.fat,
-                        eaten_at = eatenAt
+                        eaten_at = eatenAt,
+                        items = item.meal.items
                     )
                     client.from("meals").upsert(row)
                     true
