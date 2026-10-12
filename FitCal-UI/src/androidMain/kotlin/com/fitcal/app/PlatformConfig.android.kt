@@ -33,6 +33,9 @@ actual fun createSecureStringStore(): com.fitcal.shared.auth.SecureStringStore? 
 
 lateinit var appContext: Context
 
+/** False in JVM unit tests, where no Activity ever sets [appContext]. */
+val isAppContextReady: Boolean get() = ::appContext.isInitialized
+
 actual fun savePreference(key: String, value: String) {
     val sharedPref = appContext.getSharedPreferences("fitcal_prefs", Context.MODE_PRIVATE)
     sharedPref.edit().putString(key, value).apply()

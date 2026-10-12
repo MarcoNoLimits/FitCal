@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.sentryAndroid)
 }
 
 kotlin {
@@ -194,4 +195,32 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         checkReleaseBuilds = false
         abortOnError = false
     }
+}
+
+// Sentry: upload the R8 mapping on release builds so crash stack traces are readable.
+// SENTRY_AUTH_TOKEN (org token, CI scope) and SENTRY_PROJECT come from local.properties and are
+// never committed. Without both, the upload is skipped and the build still succeeds.
+val sentryProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+val sentryAuthToken: String? = sentryProps.getProperty("SENTRY_AUTH_TOKEN")?.takeIf { it.isNotBlank() }
+val sentryProject: String? = sentryProps.getProperty("SENTRY_PROJECT")?.takeIf { it.isNotBlank() }
+
+sentry {
+    org.set(sentryProps.getProperty("SENTRY_ORG") ?: "tecaa")
+    sentryProject?.let { projectName.set(it) }
+    sentryAuthToken?.let { authToken.set(it) }
+    url.set("https://us.sentry.io/")
+
+    includeProguardMapping.set(sentryAuthToken != null && sentryProject != null)
+    autoUploadProguardMapping.set(sentryAuthToken != null && sentryProject != null)
+    ignoredBuildTypes.set(setOf("debug"))
+
+    // The SDK version is pinned in libs.versions.toml; don't let the plugin add or upgrade it.
+    autoInstallation { enabled.set(false) }
+    // No automatic performance instrumentation (privacy: crash/ANR reporting only).
+    tracingInstrumentation { enabled.set(false) }
+    includeSourceContext.set(false)
+    includeDependenciesReport.set(false)
+    telemetry.set(false)
 }

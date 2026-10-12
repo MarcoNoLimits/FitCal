@@ -13,7 +13,7 @@ private var sentryStarted = false
 
 actual fun setCrashReportingEnabled(enabled: Boolean) {
     val dsn = BuildConfig.SENTRY_DSN
-    if (dsn.isBlank()) return
+    if (dsn.isBlank() || !isAppContextReady) return
     if (enabled && !sentryStarted) {
         SentryAndroid.init(appContext) { options ->
             options.dsn = dsn
