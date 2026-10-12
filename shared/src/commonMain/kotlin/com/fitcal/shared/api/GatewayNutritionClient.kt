@@ -186,6 +186,9 @@ class GatewayNutritionClient(
             }
         }
 
+        if (response.status == HttpStatusCode.TooManyRequests) {
+            throw Exception("You've reached today's recalculation limit. Try again tomorrow.")
+        }
         if (!response.status.isSuccess()) {
             val errorBody = response.bodyAsText()
             throw Exception("Gateway recalculate error (${response.status.value}): $errorBody")
