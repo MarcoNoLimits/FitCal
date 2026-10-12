@@ -54,6 +54,13 @@ const ACCOUNT_BONUS = 1;
 const REWARD_BONUS_PER_AD = 2;
 const REWARD_BONUS_DAILY_CAP = 10;
 
+// /v1/recalculate: text-only AI call when a user edits portions. Capped per user per day
+// (fitcal.consume_recalc, migration 0002) and per request, so it can't be used as a free LLM.
+const RECALC_DAILY_CAP = 50;
+const RECALC_MAX_ITEMS = 30;
+const RECALC_MAX_NAME_CHARS = 80;
+const RECALC_MAX_GRAMS = 5000;
+
 const SYSTEM_PROMPT = `You are a food-recognition assistant that estimates nutrition from a meal photo
 or from a list of food items with weights.
 You are NOT a medical professional and must never give medical advice.
@@ -118,7 +125,7 @@ function err401(message = "Authentication required"): Response {
 
 function err402Quota(): Response {
   return jsonResponse(
-    { error: "quota_exhausted", message: "Daily scan quota exceeded. Upgrade to FitCal Premium for unlimited scans." },
+    { error: "quota_exhausted", message: "Daily scan quota exceeded." },
     402
   );
 }
@@ -687,13 +694,43 @@ Deno.serve(async (req: Request) => {
 
     // ── POST /v1/recalculate ────────────────────────────────────────────────
     if (req.method === "POST" && url.pathname.endsWith("/v1/recalculate")) {
-      const body: any = await req.json();
-      const items = body.items;
-      if (!Array.isArray(items) || items.length === 0) {
+      const body: any = await req.json().catch(() => null);
+      const rawItems = body?.items;
+      if (!Array.isArray(rawItems) || rawItems.length === 0) {
         return jsonResponse({ error: "Bad Request", message: "items array is required with {name, grams}" }, 400);
       }
+      if (rawItems.length > RECALC_MAX_ITEMS) {
+        return jsonResponse({ error: "Bad Request", message: `At most ${RECALC_MAX_ITEMS} items per request` }, 400);
+      }
+      // Names are user-editable text that goes into the prompt: strip control characters and cap the length.
+      // Weights are clamped rather than rejected: the review screen can legitimately send 0 g.
+      const items = rawItems.map((it: any) => ({
+        name: String(it?.name ?? it?.item ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, RECALC_MAX_NAME_CHARS) || "Food item",
+        grams: Number(it?.grams ?? it?.weight_est_g),
+      }));
+      if (items.some((it) => !Number.isFinite(it.grams))) {
+        return jsonResponse({ error: "Bad Request", message: "Each item needs numeric grams" }, 400);
+      }
+      for (const it of items) it.grams = Math.min(Math.max(it.grams, 0), RECALC_MAX_GRAMS);
+
+      // Counted before the AI call, so failed calls count too; fails closed if the counter is unavailable.
+      let withinCap: boolean;
+      try {
+        withinCap = await callFitcalRpc<boolean>("consume_recalc", { p_user_id: userId, p_daily_cap: RECALC_DAILY_CAP });
+      } catch (capErr: any) {
+        console.error("consume_recalc RPC error:", capErr.message);
+        return jsonResponse({ error: "Service temporarily unavailable", message: "Could not verify limit. Try again." }, 503);
+      }
+      if (!withinCap) {
+        trackServerEvent(userId, "recalc_denied", { cap: RECALC_DAILY_CAP });
+        return jsonResponse(
+          { error: "recalc_limit", message: `Maximum of ${RECALC_DAILY_CAP} recalculations per day reached.` },
+          429
+        );
+      }
+
       const itemsPrompt = items
-        .map((it: any) => `- ${it.name || it.item}: ${it.grams || it.weight_est_g}g`)
+        .map((it) => `- ${it.name}: ${Math.round(it.grams)}g`)
         .join("\n");
       const prompt = `Analyze these food items and estimate their nutritional contents based on the given weights.\nItems:\n${itemsPrompt}`;
 
