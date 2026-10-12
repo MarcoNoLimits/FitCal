@@ -10,7 +10,7 @@ Play Console / AdMob account setup.
 ### App content
 | Field | Value | Why |
 |---|---|---|
-| Privacy policy URL | *(host `site/privacy.html` — see §4)* | **Mandatory.** Rejection without it. |
+| Privacy policy URL | `https://fitcal.tecaa.xyz/privacy.html` (live) | **Mandatory.** Rejection without it. |
 | Ads | Yes | AdMob SDKs are bundled |
 | Target audience — age group | **18 and over only** | FitCal is a calorie/nutrition app. Declaring 13–17 triggers the **Families policy** and mandatory child-directed treatment (Certified Ads Program, no personalized ads, restricted SDKs). Declaring 18+ is honest *and* far cheaper to satisfy. |
 | News app | No | |
@@ -36,8 +36,8 @@ the conservative answer protects you in review:
 | Purposes | Analytics, Advertising or marketing, App functionality, Personalization |
 
 ### Required store assets
-- **Feature graphic** 1024×500
-- **Icon** 512×512
+- **Feature graphic** 1024×500: done, `store-assets/feature-graphic-1024x500.png`
+- **Icon** 512×512: done, `store-assets/icon-512.png`
 - **Phone screenshots** — min 2, 16:9 or 9:16. Show: scan flow, Review screen with the estimate banner, Food Library, consent + age gate.
 - **Short description** (≤80 chars): `Snap a meal. Get instant nutrition estimates.`
 - **Full description** (≤4000 chars) — draft below.
@@ -100,7 +100,7 @@ for adults 18+. It is not a substitute for professional medical or dietary advic
 
 `site/` is ready to publish as-is, with no build step:
 - `site/index.html`: a small landing page (it can be your Play "developer website").
-- `site/privacy.html`: the privacy policy and terms. The **`#delete`** section is the
+- `site/privacy.html`: the privacy policy (terms are in `site/terms.html`). The **`#delete`** section is the
   "delete account" web link Play asks for in the Data safety form.
 - `site/app-ads.txt`: your AdMob seller line (publisher id from the App ID in the manifest).
 
@@ -144,9 +144,9 @@ the onboarding claim.
 - [x] `./gradlew :FitCal-UI:testDebugUnitTest` and `:FitCal-UI:bundleRelease` pass (fully compiler-verified & release AAB generated)
 - [x] Hardened `analyze-meal` Edge Function deployed (v8, 2026-10-07)
 - [x] Migrations 0005–0009 applied to production
-- [ ] `REVENUECAT_WEBHOOK_SECRET` set in Supabase Edge Function secrets (entitlements fail closed without it)
+- [ ] ~~`REVENUECAT_WEBHOOK_SECRET`~~: Premium deferred to v1.1; not needed for launch
 - [ ] ~~Real iOS AdMob app id~~ — iOS is out of v1
-- [ ] Privacy policy published at a public URL
+- [x] Privacy policy, terms and app-ads.txt live at `https://fitcal.tecaa.xyz/` (Vercel, auto-deploys `site/` from `main`)
 - [ ] Data safety form completed per §1
 - [ ] Target audience set to **18+** (NOT 13–17)
 - [ ] Consent screen → age gate → app verified on a real device
