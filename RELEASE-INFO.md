@@ -74,7 +74,8 @@ All form answers (Data safety, content rating, Health declaration, target audien
 - [ ] Closed test: 12 testers for 14 days, if the account is personal and new. Collect testers' Gmail addresses now: _list them here_.
 - [ ] First AAB upload → fill in §2 → second Android OAuth client.
 - [ ] Email: `tecaa.xyz` has both Zoho and Name.com MX records. Keep one.
-- [ ] `SENTRY_DSN` in `local.properties`; upload `mapping.txt` with every release (R8 is on).
+- [x] `SENTRY_DSN` set (2026-10-12, Sentry org `tecaa`, US region); a test event was accepted.
+- [ ] Readable crash stack traces: create a **new** Sentry org token (revoke the one pasted in chat), put it in `local.properties` as `SENTRY_AUTH_TOKEN`, then Claude adds the Sentry Gradle plugin to upload `mapping.txt` automatically.
 - [ ] Gemini budget alert + OpenRouter credit cap.
 - [x] R8/Kotlin version warning fixed: R8 pinned to 9.4.28 in the root `build.gradle.kts`. Remove the pin when AGP is upgraded to 9.x.
 - [ ] Real-device test of the signed release build.
