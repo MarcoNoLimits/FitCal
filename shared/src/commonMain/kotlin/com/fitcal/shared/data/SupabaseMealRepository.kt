@@ -83,7 +83,8 @@ class SupabaseMealRepository(
                     carbs = row.carbs_g,
                     fat = row.fat_g,
                     timestamp = derivedTime,
-                    date = derivedDate
+                    date = derivedDate,
+                    items = row.items
                 )
                 localRepo.saveMeal(meal)
             }

@@ -12,6 +12,10 @@ object CameraDestination
 @Serializable
 data class ResultDestination(val responseJson: String)
 
+/** A logged meal reopened from the dashboard for correction. */
+@Serializable
+data class EditMealDestination(val mealId: String)
+
 @Serializable
 object MonetizationDestination
 

@@ -63,6 +63,7 @@ fun DashboardScreen(
     onMonetizationClicked: () -> Unit,
     onOpenFoodLibrary: () -> Unit = {},
     onDeleteMeal: (LoggedMeal) -> Unit,
+    onMealClicked: (LoggedMeal) -> Unit,
     onRestoreMeal: (LoggedMeal) -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -491,98 +492,101 @@ fun DashboardScreen(
                     }
                 } else {
                     filteredMeals.forEachIndexed { filteredIndex, meal ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .shadow(1.dp, RoundedCornerShape(RadiusM))
-                                .background(Color.White, RoundedCornerShape(RadiusM))
-                                .border(1.dp, BorderColor, RoundedCornerShape(RadiusM))
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            val emoji = remember(meal.name) {
-                                val lower = meal.name.lowercase()
-                                when {
-                                    lower.contains("salad") || lower.contains("bowl") || lower.contains("quinoa") || lower.contains("avocado") -> "🥗"
-                                    lower.contains("salmon") || lower.contains("fish") || lower.contains("seafood") -> "🐟"
-                                    lower.contains("egg") -> "🍳"
-                                    lower.contains("steak") || lower.contains("beef") || lower.contains("pork") || lower.contains("meat") -> "🥩"
-                                    lower.contains("chicken") || lower.contains("turkey") || lower.contains("poultry") -> "🍗"
-                                    lower.contains("fruit") || lower.contains("apple") || lower.contains("banana") -> "🍎"
-                                    else -> "🍱"
-                                }
-                            }
-
-                            Box(
-                                contentAlignment = Alignment.Center,
+                        // Tap a logged meal to reopen its ingredients and correct them.
+                        PressableBox(onTap = { onMealClicked(meal) }) {
+                            Row(
                                 modifier = Modifier
-                                    .size(48.dp)
-                                    // F1.1: was Color(0xFFF1F5F9) → SurfaceTint
-                                    .background(SurfaceTint, CircleShape)
+                                    .fillMaxWidth()
+                                    .shadow(1.dp, RoundedCornerShape(RadiusM))
+                                    .background(Color.White, RoundedCornerShape(RadiusM))
+                                    .border(1.dp, BorderColor, RoundedCornerShape(RadiusM))
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                Text(text = emoji, fontSize = 24.sp) // non-interactive decoration
-                            }
+                                val emoji = remember(meal.name) {
+                                    val lower = meal.name.lowercase()
+                                    when {
+                                        lower.contains("salad") || lower.contains("bowl") || lower.contains("quinoa") || lower.contains("avocado") -> "🥗"
+                                        lower.contains("salmon") || lower.contains("fish") || lower.contains("seafood") -> "🐟"
+                                        lower.contains("egg") -> "🍳"
+                                        lower.contains("steak") || lower.contains("beef") || lower.contains("pork") || lower.contains("meat") -> "🥩"
+                                        lower.contains("chicken") || lower.contains("turkey") || lower.contains("poultry") -> "🍗"
+                                        lower.contains("fruit") || lower.contains("apple") || lower.contains("banana") -> "🍎"
+                                        else -> "🍱"
+                                    }
+                                }
 
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = meal.name,
-                                    style = BrandTypography.SectionTitle,
-                                    color = TextColor
-                                )
-                                Text(
-                                    text = "${meal.timestamp} | P: ${meal.protein.toInt()}g C: ${meal.carbs.toInt()}g F: ${meal.fat.toInt()}g",
-                                    // F2.2: Micro (11sp) at MutedTextColor — 11sp >= 12sp threshold? No — spec says nothing below 12sp
-                                    // in MutedTextColor. Substitution: use BodySmall (12sp) for this secondary line.
-                                    style = BrandTypography.BodySmall,
-                                    color = MutedTextColor
-                                )
-                            }
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        // F1.1: was Color(0xFFF1F5F9) → SurfaceTint
+                                        .background(SurfaceTint, CircleShape)
+                                ) {
+                                    Text(text = emoji, fontSize = 24.sp) // non-interactive decoration
+                                }
 
-                            Column(
-                                horizontalAlignment = Alignment.End,
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text(
-                                    text = "${meal.calories} kcal",
-                                    style = BrandTypography.SectionTitle,
-                                    color = TextColor
-                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = meal.name,
+                                        style = BrandTypography.SectionTitle,
+                                        color = TextColor
+                                    )
+                                    Text(
+                                        text = "${meal.timestamp} | P: ${meal.protein.toInt()}g C: ${meal.carbs.toInt()}g F: ${meal.fat.toInt()}g",
+                                        // F2.2: Micro (11sp) at MutedTextColor — 11sp >= 12sp threshold? No — spec says nothing below 12sp
+                                        // in MutedTextColor. Substitution: use BodySmall (12sp) for this secondary line.
+                                        style = BrandTypography.BodySmall,
+                                        color = MutedTextColor
+                                    )
+                                }
 
-                                // F0.3: wrap delete icon in IconButton (≥44dp hit area)
-                                // F0.2: onDeleteMeal now receives the meal object; undo slot updated
-                                IconButton(
-                                    onClick = {
-                                        val position = filteredIndex
-                                        pendingUndoMeal = Pair(meal, position)
-                                        onDeleteMeal(meal)
-                                        // Auto-dismiss snackbar after 5s; the LaunchedEffect below handles it
-                                        coroutineScope.launch {
-                                            val result = snackbarHostState.showSnackbar(
-                                                message = "Meal deleted",
-                                                actionLabel = "Undo",
-                                                duration = SnackbarDuration.Short // ~4s — closest to 5s in M3
-                                            )
-                                            if (result == SnackbarResult.ActionPerformed) {
-                                                val toRestore = pendingUndoMeal
-                                                if (toRestore != null) {
-                                                    onRestoreMeal(toRestore.first)
+                                Column(
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "${meal.calories} kcal",
+                                        style = BrandTypography.SectionTitle,
+                                        color = TextColor
+                                    )
+
+                                    // F0.3: wrap delete icon in IconButton (≥44dp hit area)
+                                    // F0.2: onDeleteMeal now receives the meal object; undo slot updated
+                                    IconButton(
+                                        onClick = {
+                                            val position = filteredIndex
+                                            pendingUndoMeal = Pair(meal, position)
+                                            onDeleteMeal(meal)
+                                            // Auto-dismiss snackbar after 5s; the LaunchedEffect below handles it
+                                            coroutineScope.launch {
+                                                val result = snackbarHostState.showSnackbar(
+                                                    message = "Meal deleted",
+                                                    actionLabel = "Undo",
+                                                    duration = SnackbarDuration.Short // ~4s — closest to 5s in M3
+                                                )
+                                                if (result == SnackbarResult.ActionPerformed) {
+                                                    val toRestore = pendingUndoMeal
+                                                    if (toRestore != null) {
+                                                        onRestoreMeal(toRestore.first)
+                                                        pendingUndoMeal = null
+                                                    }
+                                                } else {
                                                     pendingUndoMeal = null
                                                 }
-                                            } else {
-                                                pendingUndoMeal = null
                                             }
-                                        }
-                                    },
-                                    modifier = Modifier.size(44.dp) // F0.3: ≥44dp
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Delete meal ${meal.name}",
-                                        // F1.1: was Color(0xFFEF4444) → DangerColor
-                                        tint = DangerColor.copy(alpha = 0.8f),
-                                        modifier = Modifier.size(20.dp)
-                                    )
+                                        },
+                                        modifier = Modifier.size(44.dp) // F0.3: ≥44dp
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "Delete meal ${meal.name}",
+                                            // F1.1: was Color(0xFFEF4444) → DangerColor
+                                            tint = DangerColor.copy(alpha = 0.8f),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
                                 }
                             }
                         }

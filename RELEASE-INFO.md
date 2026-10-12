@@ -93,6 +93,7 @@ All form answers (Data safety, content rating, Health declaration, target audien
 - [x] Spend caps (2026-10-12): an OpenRouter key credit limit and a Google Cloud budget alert. Gemini is billed to the owner's **Google Cloud credits** (paid tier, so prompts aren't used for training). When the credits run out, usage is charged to the linked billing account; the budget alert is the warning. Emergency stop: Supabase secret `KILL_SWITCH=true`.
 - [x] R8/Kotlin version warning fixed: R8 pinned to 9.4.28 in the root `build.gradle.kts`. Remove the pin when AGP is upgraded to 9.x.
 - [x] Abuse limits (2026-10-12, migration 0002 + gateway v3, tested live): clients can only read their own quota rows; recalculate is capped at 50/day per user with 30 items and 80-char names. Per user per day: up to 16 photo scans (6 free + 10 rewarded).
+- [x] Editable logged meals (2026-10-12, migration 0004 applied to production): `fitcal.meals.items` (jsonb, default `[]`, max 50 items / 32 KB) stores each meal's ingredients so it can be reopened from the dashboard. App builds from before this don't send the column; builds from after need it, so it has to stay applied.
 - [ ] Supabase → Authentication → Rate Limits: lower anonymous sign-ins from 30 to 10 per hour per IP.
 - [ ] Later: AdMob server-side verification for rewarded ads, so bonus scans can't be claimed without watching an ad.
 - [ ] Real-device test of the signed release build.

@@ -19,6 +19,7 @@ import com.fitcal.app.telemetry.CohortRetentionTracker
 import com.fitcal.app.ui.navigation.AuthDestination
 import com.fitcal.app.ui.navigation.CameraDestination
 import com.fitcal.app.ui.navigation.DashboardDestination
+import com.fitcal.app.ui.navigation.EditMealDestination
 import com.fitcal.app.ui.navigation.MonetizationDestination
 import com.fitcal.app.ui.navigation.ResultDestination
 import com.fitcal.app.ui.navigation.SettingsDestination
@@ -49,6 +50,8 @@ import com.fitcal.app.ui.screens.camera.CameraScreen
 import com.fitcal.app.ui.screens.dashboard.DashboardScreen
 import com.fitcal.app.ui.screens.monetization.MonetizationScreen
 import com.fitcal.app.ui.screens.review.ResultScreen
+import com.fitcal.app.ui.screens.review.components.LEGACY_PORTION_GRAMS
+import com.fitcal.app.ui.screens.review.components.toEditableResponse
 import com.fitcal.app.ui.screens.settings.SettingsScreen
 import com.fitcal.app.ui.theme.BgColor
 import com.fitcal.app.ui.theme.FitCalTheme
@@ -477,6 +480,10 @@ fun App() {
                                 mealRepository.deleteMeal(mealToDelete.id)
                             }
                         },
+                        onMealClicked = { meal ->
+                            Analytics.track("meal_opened", "has_items" to meal.items.isNotEmpty())
+                            navController.navigate(EditMealDestination(meal.id))
+                        },
                         onRestoreMeal = { mealToRestore ->
                             Analytics.track("meal_delete_undone")
                             coroutineScope.launch {
@@ -541,7 +548,7 @@ fun App() {
                         profile = userProfile,
                         isMock = isMockMode,
                         capturedImageBytes = lastCapturedImageBytes,
-                        onMealLogged = { mealName, cal, p, c, f ->
+                        onMealLogged = { mealName, cal, p, c, f, items ->
                             val newMeal = LoggedMeal(
                                 id = newMealId(), // F0.1: collision-proof UUID v4
                                 name = mealName,
@@ -550,7 +557,8 @@ fun App() {
                                 carbs = c,
                                 fat = f,
                                 timestamp = getCurrentTimeString(),
-                                date = selectedDateKey
+                                date = selectedDateKey,
+                                items = items
                             )
                             totalMealsLogged += 1
                             if (totalMealsLogged == 1) Analytics.track("first_meal_logged")
@@ -606,6 +614,45 @@ fun App() {
                                 popUpTo(DashboardDestination)
                             }
                         },
+                    )
+                }
+
+                composable<EditMealDestination> { backStackEntry ->
+                    val destination = backStackEntry.toRoute<EditMealDestination>()
+                    // Looked up once on open; the meal keeps its id, date and time when saved.
+                    val meal = remember(destination.mealId) {
+                        loggedMeals.firstOrNull { it.id == destination.mealId }
+                    }
+                    if (meal == null) {
+                        LaunchedEffect(Unit) { navController.popBackStack() }
+                        return@composable
+                    }
+                    val editData = remember(meal) { meal.toEditableResponse() }
+                    ResultScreen(
+                        apiClient = apiClient,
+                        data = editData,
+                        profile = userProfile,
+                        isMock = isMockMode,
+                        capturedImageBytes = null,
+                        isEditingLoggedMeal = true,
+                        ingredientsNote = if (meal.items.isEmpty()) {
+                            "This meal was logged before ingredients were saved. $LEGACY_PORTION_GRAMS g = the amount you logged; change it to scale the whole meal."
+                        } else {
+                            null
+                        },
+                        onMealLogged = { _, cal, p, c, f, items ->
+                            val updated = meal.copy(calories = cal, protein = p, carbs = c, fat = f, items = items)
+                            Analytics.track(
+                                "meal_edited",
+                                "calories_delta" to (cal - meal.calories),
+                                "items_before" to meal.items.size,
+                                "items_after" to items.size,
+                            )
+                            coroutineScope.launch {
+                                mealRepository.updateMeal(updated)
+                            }
+                        },
+                        onLogAgain = { navController.popBackStack() },
                     )
                 }
 

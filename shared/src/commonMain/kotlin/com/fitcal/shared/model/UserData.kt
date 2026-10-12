@@ -25,7 +25,10 @@ data class LoggedMeal(
     val carbs: Float,
     val fat: Float,
     val timestamp: String,
-    val date: String = ""
+    val date: String = "",
+    // Ingredients as logged, so the meal can be reopened and corrected. Empty for meals logged
+    // before ingredients were saved; those are edited as a single portion (see toEditableResponse).
+    val items: List<FoodItem> = emptyList()
 )
 
 @Serializable
