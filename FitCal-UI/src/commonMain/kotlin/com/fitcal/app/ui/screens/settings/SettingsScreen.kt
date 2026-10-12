@@ -1189,7 +1189,7 @@ private fun DeleteDataConfirmDialog(
             Text(
                 "This permanently deletes your account, meal photos, nutrition history, " +
                     "water logs and settings from our servers and this device. It cannot be " +
-                    "undone. Your Premium subscription will not be refunded.",
+                    "undone.",
                 color = TextColor,
                 fontSize = 14.sp,
                 lineHeight = 19.sp,

@@ -100,7 +100,7 @@ fun PrivacyConsentScreen(
                 "• Your account email, if you create one\n" +
                 "• Meal, water and weight entries you log\n\n" +
                 "Images are processed by our server and forwarded to third-party AI " +
-                "providers (OpenRouter, Google, Groq) to generate estimates.",
+                "providers (Google, OpenRouter) to generate estimates.",
         )
 
         InfoCard(

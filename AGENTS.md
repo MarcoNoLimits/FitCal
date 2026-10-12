@@ -44,7 +44,7 @@ This file is the authoritative instruction set for any agent (AI or human) worki
 | 7 | Keep `ScanQuotaManagerTest` green (expanded to 9 tests) | **DONE** | 9/9 passing |
 | 8 | Production Architecture: Secure Serverless Gateway | **DONE** | Supabase Edge Function `analyze-meal`: verified JWT on every call, server-side quota and allowance, kill switch, API key isolation |
 | 9 | Commercial VLM Provider Migration (Pay-As-You-Go) | **DONE** | Gemini 2.0 Flash primary with x-goog-api-key header isolation, Qwen/Groq automated edge failover |
-| 10 | FitCal Premium Subscription Paywall (RevenueCat) | **DONE** | $4.99/mo & $39.99/yr plans, entitlement gates ad flow + grants unlimited scans |
+| 10 | FitCal Premium Subscription Paywall (RevenueCat) | **DEFERRED to v1.1** | Owner decision 2026-10-12: launch without Premium. Server side exists (webhook, `fitcal.entitlements`, `/v1/entitlements`, `SubscriptionManager`); missing: RevenueCat SDK, paywall UI, app user ID = Supabase user ID, `REVENUECAT_WEBHOOK_SECRET`. Do not advertise Premium in store text or policies until it ships. |
 
 ## 5. THE MONETIZATION TASK (Canonical Specification)
 
@@ -130,7 +130,7 @@ When the user has exhausted their free daily quota and attempts another scan:
 - [x] ~~App Open ad respects `sessionCount > 3` + 4h cooldown.~~ (App Open ads removed 2026-10-07)
 - [x] Deploy secure serverless gateway proxy (Task 8).
 - [x] Upgrade VLM pipeline to Vertex AI / Gemini 2.0 Flash Pay-As-You-Go with zero data retention (Task 9).
-- [x] Integrate RevenueCat subscription paywall for FitCal Premium (Task 10).
+- [ ] Integrate RevenueCat subscription paywall for FitCal Premium (Task 10) — deferred to v1.1.
 - [ ] Merge via PR with the monetization spec referenced in the description.
 
 ---
