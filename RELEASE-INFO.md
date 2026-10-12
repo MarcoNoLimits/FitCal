@@ -1,0 +1,83 @@
+# FitCal — Release Info (keep this current)
+
+Everything needed to ship and re-ship FitCal from one place. **No passwords or API keys go in this file.**
+Passwords live in your password manager and in `local.properties` (git-ignored).
+
+---
+
+## 1. Upload key (created 2026-10-12)
+
+| Item | Value |
+|---|---|
+| Keystore file | `C:/Users/ahmed/keys/fitcal-upload.jks` (outside the repo; `*.jks` is git-ignored) |
+| Alias | `fitcal` |
+| Owner | `CN=FitCal, OU=FitCal, O=FitCal` |
+| Valid | 2026-10-12 → 2054-02-27 |
+| **SHA-1** | `AF:EF:50:74:40:53:97:C4:A5:BD:DE:4A:3E:82:E4:A1:6C:9A:14:7A` |
+| **SHA-256** | `F4:49:9F:52:4B:02:0E:06:75:5B:76:97:EF:8B:A2:D8:0E:AE:B1:75:29:84:6C:F5:13:3A:E9:ED:1F:59:F7:1E` |
+| Password | In your password manager (not here) |
+
+- [ ] **Backup:** copy `fitcal-upload.jks` and its password somewhere other than this PC.
+
+`local.properties` needs these four lines for release builds (if they're missing, Gradle silently signs with the **debug** key):
+```
+RELEASE_KEYSTORE_PATH=C:/Users/ahmed/keys/fitcal-upload.jks
+RELEASE_KEYSTORE_PASSWORD=...
+RELEASE_KEY_ALIAS=fitcal
+RELEASE_KEY_PASSWORD=...
+```
+
+Check which key signed a bundle (no password needed; the Owner line must say `CN=FitCal`):
+```bash
+"C:/Program Files/Android/Android Studio1/jbr/bin/keytool.exe" -printcert -jarfile FitCal-UI/build/outputs/bundle/release/FitCal-UI-release.aab
+```
+
+## 2. App signing key (Google holds it)
+
+With Play App Signing, Google re-signs the app that users install. Its fingerprint only exists after the first upload.
+
+| Item | Value |
+|---|---|
+| App signing SHA-1 | _TODO: Play Console → Test and release → App integrity → App signing_ |
+| App signing SHA-256 | _TODO_ |
+
+## 3. Where each fingerprint goes
+
+| Where | Which SHA-1 | Why |
+|---|---|---|
+| Google Cloud → Credentials → OAuth client **Android** `com.fitcal.app` #1 | Upload key (§1) | Google sign-in on builds you install yourself |
+| Google Cloud → OAuth client **Android** `com.fitcal.app` #2 | App signing key (§2) | Google sign-in for **real users** installing from Play |
+| Google Cloud → OAuth client **Web** | none | Its client ID goes in `local.properties` as `GOOGLE_WEB_CLIENT_ID`, and its ID + secret go in Supabase → Auth → Providers → Google |
+
+## 4. Identifiers and URLs
+
+| Item | Value |
+|---|---|
+| Package name | `com.fitcal.app` |
+| Version | `versionCode 1`, `versionName 1.0` (raise `versionCode` on every upload) |
+| AdMob App ID | `ca-app-pub-8255091497626517~5945613703` |
+| Supabase project | `uedtovphilwstzdpzjrk` (EU, Free plan) |
+| Website (Vercel `fitcal-site`, auto-deploys `site/` from `main`) | https://fitcal.tecaa.xyz/ |
+| Privacy policy | https://fitcal.tecaa.xyz/privacy.html |
+| Account deletion URL | https://fitcal.tecaa.xyz/privacy.html#delete |
+| app-ads.txt | https://fitcal.tecaa.xyz/app-ads.txt |
+| Contact / developer email | `fitcal@tecaa.xyz` |
+| Repo | https://github.com/MarcoNoLimits/MacroVision-KMP |
+
+## 5. Play Console answers
+
+All form answers (Data safety, content rating, Health declaration, target audience 18+, store description, reviewer note) are in [`STORE-SUBMISSION-CHECKLIST.md`](STORE-SUBMISSION-CHECKLIST.md). Copy from there instead of answering from memory, so the answers stay consistent with the privacy policy.
+
+## 6. Status (2026-10-12)
+
+- [ ] **Play developer account: $25 one-time fee, not paid yet.** Everything below that touches Play waits on this.
+- [ ] Closed test: 12 testers for 14 days, if the account is personal and new. Collect testers' Gmail addresses now: _list them here_.
+- [ ] First AAB upload → fill in §2 → second Android OAuth client.
+- [ ] Email: `tecaa.xyz` has both Zoho and Name.com MX records. Keep one.
+- [ ] `SENTRY_DSN` in `local.properties`; upload `mapping.txt` with every release (R8 is on).
+- [ ] Gemini budget alert + OpenRouter credit cap.
+- [ ] R8/Kotlin version warning: R8 in AGP 8.9.1 can't fully parse Kotlin 2.3 metadata. Fix before release.
+- [ ] Real-device test of the signed release build.
+- [ ] Supabase Pro once there's real traffic or revenue (Free = no backups).
+
+The full backlog is in [`tasks/NEXT.md`](tasks/NEXT.md).
