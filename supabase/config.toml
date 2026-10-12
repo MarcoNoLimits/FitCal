@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "fitcal"
+project_id = "fitcal"  # hosted ref: uedtovphilwstzdpzjrk
 
 [api]
 enabled = true
@@ -253,17 +253,19 @@ pass = "env(RESEND_API_KEY)"
 admin_email = "no-reply@tecaa.xyz"
 sender_name = "FitCal"
 
-# The app verifies 6-digit codes ({{ .Token }}), never links. Keep the hosted templates in sync.
+# FitCal-only project (uedtovphilwstzdpzjrk): the app verifies 6-digit codes ({{ .Token }}), never links.
+# Codes go in the body only, never the subject: subjects show on lock screens and notifications.
+# Keep the hosted templates in sync.
 [auth.email.template.email_change]
-subject = "Your FitCal code: {{ .Token }}"
+subject = "Your FitCal verification code"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.email.template.recovery]
-subject = "Your FitCal password reset code: {{ .Token }}"
+subject = "Reset your FitCal password"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.confirmation]
-subject = "Your FitCal code: {{ .Token }}"
+subject = "Your FitCal verification code"
 content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize notification email template
