@@ -58,6 +58,8 @@ With Play App Signing, Google re-signs the app that users install. Its fingerpri
 | Android (debug key) | `846576167463-dcabg4jeusrht2nq34lfqtqlci3atp7m.apps.googleusercontent.com` (assumed) | SHA-1 `D4:72:F3:85:6B:50:1F:13:3A:20:7D:CB:9C:41:36:1B:6F:D5:78:D4` (this PC's `~/.android/debug.keystore`) |
 | Android (Play app signing) | _TODO after the first upload_ | SHA-1 from Play Console → App integrity |
 
+**Testing (2026-10-12):** on the emulator the Google button opens Credential Manager and reaches Google's account step. The full flow is **not tested yet**: picking an account, the SHA-1/client-ID match, and Supabase accepting the token. Test it on a real phone: guest with a logged meal → Continue with Google → the meal is still there. If it fails with "developer error" or code 10, the SHA-1 or package doesn't match an Android client.
+
 Branding was validated by Google on 2026-10-12. Scopes: email, profile and openid only, with no logo (a logo would trigger brand verification).
 
 ## 4. Identifiers and URLs
