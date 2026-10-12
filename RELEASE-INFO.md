@@ -76,7 +76,7 @@ All form answers (Data safety, content rating, Health declaration, target audien
 - [ ] Email: `tecaa.xyz` has both Zoho and Name.com MX records. Keep one.
 - [ ] `SENTRY_DSN` in `local.properties`; upload `mapping.txt` with every release (R8 is on).
 - [ ] Gemini budget alert + OpenRouter credit cap.
-- [ ] R8/Kotlin version warning: R8 in AGP 8.9.1 can't fully parse Kotlin 2.3 metadata. Fix before release.
+- [x] R8/Kotlin version warning fixed: R8 pinned to 9.4.28 in the root `build.gradle.kts`. Remove the pin when AGP is upgraded to 9.x.
 - [ ] Real-device test of the signed release build.
 - [ ] Supabase Pro once there's real traffic or revenue (Free = no backups).
 
