@@ -20,6 +20,17 @@ import com.fitcal.app.ui.navigation.AuthDestination
 import com.fitcal.app.ui.navigation.CameraDestination
 import com.fitcal.app.ui.navigation.DashboardDestination
 import com.fitcal.app.ui.navigation.EditMealDestination
+import com.fitcal.app.ui.navigation.PlanDestination
+import com.fitcal.app.ui.screens.plan.PlanSetupScreen
+import com.fitcal.app.plan.BodyStats
+import com.fitcal.app.plan.PlanGoal
+import com.fitcal.app.plan.PlanPace
+import com.fitcal.app.plan.addDays
+import com.fitcal.app.plan.checkIn
+import com.fitcal.app.plan.endPlan
+import com.fitcal.app.plan.hasReachedTarget
+import com.fitcal.app.plan.resolvedTargetsMode
+import com.fitcal.app.plan.startPlan
 import com.fitcal.app.ui.navigation.MonetizationDestination
 import com.fitcal.app.ui.navigation.ResultDestination
 import com.fitcal.app.ui.navigation.SettingsDestination
@@ -75,6 +86,9 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+
+private const val KEY_PLAN_PROMPT_DISMISSED = "plan_prompt_dismissed"
+private const val KEY_PLAN_CHECKIN_SNOOZED_UNTIL = "plan_checkin_snoozed_until"
 
 @Composable
 fun App() {
@@ -166,6 +180,13 @@ fun App() {
     }
 
     var selectedDateKey by remember { mutableStateOf(getCurrentDateString()) }
+
+    // Optional personal plan: the dashboard invitation can be dismissed for good, and the
+    // two-weekly check-in can be snoozed for a few days. Both are per-device conveniences.
+    var planPromptDismissed by remember { mutableStateOf(loadPreference(KEY_PLAN_PROMPT_DISMISSED, "") == "true") }
+    var checkInSnoozedUntil by remember {
+        mutableStateOf(loadPreference(KEY_PLAN_CHECKIN_SNOOZED_UNTIL, "").ifBlank { null })
+    }
 
     val mealsFlow = remember(selectedDateKey, mealRepository) {
         mealRepository.observeMealsForDate(selectedDateKey)
@@ -489,7 +510,62 @@ fun App() {
                             coroutineScope.launch {
                                 mealRepository.saveMeal(mealToRestore)
                             }
-                        }
+                        },
+                        today = getCurrentDateString(),
+                        showPlanPrompt = !planPromptDismissed,
+                        onSetUpPlan = {
+                            Analytics.track("plan_setup_opened", "source" to "dashboard")
+                            navController.navigate(PlanDestination)
+                        },
+                        onDismissPlanPrompt = {
+                            Analytics.track("plan_prompt_dismissed")
+                            planPromptDismissed = true
+                            savePreference(KEY_PLAN_PROMPT_DISMISSED, "true")
+                        },
+                        checkInSnoozedUntil = checkInSnoozedUntil,
+                        onCheckIn = { newWeight ->
+                            val today = getCurrentDateString()
+                            val updated = userProfile.checkIn(newWeight, today)
+                            Analytics.track(
+                                "plan_checked_in",
+                                "weight_change_kg" to (newWeight - userProfile.weight),
+                                "calories_change" to (updated.calGoal - userProfile.calGoal),
+                                "target_reached" to hasReachedTarget(
+                                    PlanGoal.fromKey(updated.goalType), newWeight, updated.plan?.targetWeightKg
+                                ),
+                            )
+                            coroutineScope.launch {
+                                userRepository.saveUserProfile(updated)
+                                userProfile = updated
+                            }
+                        },
+                        onSnoozeCheckIn = {
+                            Analytics.track("plan_check_in_snoozed")
+                            val until = addDays(getCurrentDateString(), 3)
+                            checkInSnoozedUntil = until
+                            savePreference(KEY_PLAN_CHECKIN_SNOOZED_UNTIL, until.orEmpty())
+                        },
+                        onSwitchToMaintain = {
+                            val body = BodyStats.from(userProfile)
+                            if (body != null) {
+                                val updated = userProfile.startPlan(
+                                    body, PlanGoal.MAINTAIN, PlanPace.STEADY, null, getCurrentDateString()
+                                )
+                                Analytics.track("plan_target_reached_maintain")
+                                coroutineScope.launch {
+                                    userRepository.saveUserProfile(updated)
+                                    userProfile = updated
+                                }
+                            }
+                        },
+                        onEndPlan = {
+                            val updated = userProfile.endPlan()
+                            Analytics.track("plan_ended", "source" to "dashboard", "restored_own_numbers" to (updated.targetsMode == "custom"))
+                            coroutineScope.launch {
+                                userRepository.saveUserProfile(updated)
+                                userProfile = updated
+                            }
+                        },
                     )
                 }
 
@@ -617,6 +693,29 @@ fun App() {
                     )
                 }
 
+                composable<PlanDestination> {
+                    PlanSetupScreen(
+                        profile = userProfile,
+                        today = getCurrentDateString(),
+                        onSave = { updated ->
+                            val wasPlan = userProfile.plan != null
+                            Analytics.track(
+                                if (wasPlan) "plan_edited" else "plan_started",
+                                "goal_type" to updated.goalType,
+                                "pace" to (updated.plan?.pace ?: ""),
+                                "activity_level" to updated.activityLevel,
+                                "has_target_weight" to (updated.plan?.targetWeightKg != null),
+                            )
+                            coroutineScope.launch {
+                                userRepository.saveUserProfile(updated)
+                                userProfile = updated
+                            }
+                            navController.popBackStack()
+                        },
+                        onBack = { navController.popBackStack() },
+                    )
+                }
+
                 composable<EditMealDestination> { backStackEntry ->
                     val destination = backStackEntry.toRoute<EditMealDestination>()
                     // Looked up once on open; the meal keeps its id, date and time when saved.
@@ -707,7 +806,7 @@ fun App() {
                                     updated.proteinGoal != userProfile.proteinGoal ||
                                     updated.carbsGoal != userProfile.carbsGoal ||
                                     updated.fatGoal != userProfile.fatGoal),
-                                "goal_type" to updated.goalType,
+                                "targets_mode" to updated.resolvedTargetsMode().key,
                                 "plate_size_changed" to (updated.defaultPlateSize != userProfile.defaultPlateSize),
                             )
                             coroutineScope.launch {
@@ -718,6 +817,18 @@ fun App() {
                         },
                         onBack = {
                             navController.popBackStack()
+                        },
+                        onOpenPlan = {
+                            Analytics.track("plan_setup_opened", "source" to "settings")
+                            navController.navigate(PlanDestination)
+                        },
+                        onEndPlan = {
+                            val updated = userProfile.endPlan()
+                            Analytics.track("plan_ended", "source" to "settings", "restored_own_numbers" to (updated.targetsMode == "custom"))
+                            coroutineScope.launch {
+                                userRepository.saveUserProfile(updated)
+                                userProfile = updated
+                            }
                         },
                         deletingAccount = deletingAccount,
                         deleteAccountMessage = deleteAccountMessage,

@@ -37,12 +37,21 @@ import coil3.compose.AsyncImage
 import com.fitcal.app.ads.AdBanner
 import com.fitcal.app.getCurrentDateString
 import com.fitcal.app.ui.components.PressableBox
-import com.fitcal.app.ui.components.calculateBmr
+import com.fitcal.app.ui.components.maintenanceCalories
 import com.fitcal.app.ui.components.getAiCoachFeedback
 import com.fitcal.app.ui.screens.dashboard.components.CalendarStrip
 import com.fitcal.app.ui.screens.dashboard.components.CircularCalorieProgressRing
 import com.fitcal.app.ui.screens.dashboard.components.DashboardMacroCard
+import com.fitcal.app.ui.screens.dashboard.components.PlanCheckInCard
+import com.fitcal.app.ui.screens.dashboard.components.PlanPromptCard
+import com.fitcal.app.ui.screens.dashboard.components.PlanTargetReachedCard
 import com.fitcal.app.ui.screens.dashboard.components.WaterTrackerCard
+import com.fitcal.app.plan.PlanGoal
+import com.fitcal.app.plan.TargetsMode
+import com.fitcal.app.plan.hasReachedTarget
+import com.fitcal.app.plan.isCheckInDue
+import com.fitcal.app.plan.projectedTargetDate
+import com.fitcal.app.plan.resolvedTargetsMode
 import com.fitcal.app.ui.theme.*
 import com.fitcal.shared.model.LoggedMeal
 import com.fitcal.shared.model.UserProfile
@@ -64,7 +73,17 @@ fun DashboardScreen(
     onOpenFoodLibrary: () -> Unit = {},
     onDeleteMeal: (LoggedMeal) -> Unit,
     onMealClicked: (LoggedMeal) -> Unit,
-    onRestoreMeal: (LoggedMeal) -> Unit
+    onRestoreMeal: (LoggedMeal) -> Unit,
+    // Optional personal plan
+    today: String = getCurrentDateString(),
+    showPlanPrompt: Boolean = false,
+    onSetUpPlan: () -> Unit = {},
+    onDismissPlanPrompt: () -> Unit = {},
+    checkInSnoozedUntil: String? = null,
+    onCheckIn: (Float) -> Unit = {},
+    onSnoozeCheckIn: () -> Unit = {},
+    onSwitchToMaintain: () -> Unit = {},
+    onEndPlan: () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -88,6 +107,14 @@ fun DashboardScreen(
     val totalCarbs = filteredMeals.sumOf { it.carbs.toDouble() }.toFloat()
     val totalFat = filteredMeals.sumOf { it.fat.toDouble() }.toFloat()
 
+    // Targets are optional: without a plan or own numbers, show what was eaten, no goals.
+    val targetsMode = remember(profile) { profile.resolvedTargetsMode() }
+    val hasTargets = targetsMode != TargetsMode.NONE
+    val planGoal = PlanGoal.fromKey(profile.goalType)
+    val planTarget = profile.plan?.targetWeightKg
+    val targetReached = targetsMode == TargetsMode.PLAN && hasReachedTarget(planGoal, profile.weight, planTarget)
+    val checkInDue = !targetReached && profile.isCheckInDue(today, checkInSnoozedUntil)
+
     val caloriePercent = if (profile.calGoal > 0) ((totalCalories.toFloat() / profile.calGoal) * 100).toInt() else 0
     val proteinPercent = if (profile.proteinGoal > 0) ((totalProtein / profile.proteinGoal) * 100).toInt() else 0
     val carbsPercent = if (profile.carbsGoal > 0) ((totalCarbs / profile.carbsGoal) * 100).toInt() else 0
@@ -98,10 +125,8 @@ fun DashboardScreen(
         getAiCoachFeedback(totalProtein, totalCarbs, totalFat, totalCalories, profile)
     }
 
-    // Calculate BMR
-    val bmr = remember(profile) { calculateBmr(profile) }
-    val activeBurnMultiplier = 1.2f
-    val maintenanceCal = (bmr * activeBurnMultiplier).toInt()
+    // Maintenance calories for the user's activity level
+    val maintenanceCal = remember(profile) { maintenanceCalories(profile) }
     val deficitBalance = maintenanceCal - totalCalories
 
     Scaffold(
@@ -226,7 +251,7 @@ fun DashboardScreen(
                 ) {
                     CircularCalorieProgressRing(
                         consumed = totalCalories,
-                        goal = profile.calGoal
+                        goal = if (hasTargets) profile.calGoal else 0
                     )
 
                     Column(
@@ -255,7 +280,7 @@ fun DashboardScreen(
                             )
                         }
 
-                        Column {
+                        if (hasTargets) Column {
                             Text(
                                 text = "Daily Budget",
                                 style = BrandTypography.BodySmall,
@@ -266,9 +291,16 @@ fun DashboardScreen(
                                 style = BrandTypography.KpiNumeral,
                                 color = PrimaryAccent
                             )
+                        } else {
+                            Text(
+                                text = "No daily target set",
+                                style = BrandTypography.BodySmall,
+                                color = MutedTextColor
+                            )
                         }
 
-                        Column {
+                        // Maintenance needs real body stats, which only a plan guarantees.
+                        if (targetsMode == TargetsMode.PLAN) Column {
                             Text(
                                 text = "BMR Deficit",
                                 style = BrandTypography.BodySmall,
@@ -292,14 +324,34 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Box(modifier = Modifier.weight(1f)) {
-                    DashboardMacroCard("Protein", "${totalProtein.toInt()}g", "$proteinPercent%", ProteinColor)
+                    DashboardMacroCard("Protein", "${totalProtein.toInt()}g", if (hasTargets) "$proteinPercent%" else "", ProteinColor)
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    DashboardMacroCard("Carbs", "${totalCarbs.toInt()}g", "$carbsPercent%", CarbsColor)
+                    DashboardMacroCard("Carbs", "${totalCarbs.toInt()}g", if (hasTargets) "$carbsPercent%" else "", CarbsColor)
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    DashboardMacroCard("Fats", "${totalFat.toInt()}g", "$fatPercent%", FatColor)
+                    DashboardMacroCard("Fats", "${totalFat.toInt()}g", if (hasTargets) "$fatPercent%" else "", FatColor)
                 }
+            }
+
+            // Optional personal plan: invitation, check-in, or target reached
+            when {
+                targetReached && planTarget != null -> PlanTargetReachedCard(
+                    targetWeightKg = planTarget,
+                    onMaintain = onSwitchToMaintain,
+                    onNewTarget = onSetUpPlan,
+                    onEndPlan = onEndPlan,
+                )
+                checkInDue -> PlanCheckInCard(
+                    currentWeightKg = profile.weight,
+                    projectedDate = profile.projectedTargetDate(today),
+                    onUpdate = onCheckIn,
+                    onNotNow = onSnoozeCheckIn,
+                )
+                targetsMode == TargetsMode.NONE && showPlanPrompt -> PlanPromptCard(
+                    onSetUp = onSetUpPlan,
+                    onDismiss = onDismissPlanPrompt,
+                )
             }
 
             // Water Intake Logger
@@ -309,7 +361,8 @@ fun DashboardScreen(
             )
 
             // F1.1 + F2.1: AI Coach card — was Color(0xFFF8FAFC)/9.sp → InfoPanel/Eyebrow
-            Card(
+            // Its advice compares intake with targets, so it needs targets.
+            if (hasTargets) Card(
                 colors = CardDefaults.cardColors(containerColor = InfoPanel),
                 shape = RoundedCornerShape(RadiusL), // F1.2: was 20.dp → RadiusL=24
                 modifier = Modifier
