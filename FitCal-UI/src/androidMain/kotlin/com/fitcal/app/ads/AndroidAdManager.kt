@@ -7,7 +7,6 @@ import com.fitcal.app.telemetry.AdRevenuePayload
 import com.fitcal.app.telemetry.AdTelemetryManager
 import com.fitcal.app.telemetry.DiagnosticsCrashHook
 import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -58,7 +57,7 @@ class AndroidAdManager(
         InterstitialAd.load(
             contextProvider(),
             AdConfig.ANDROID_INTERSTITIAL,
-            AdRequest.Builder().build(),
+            fitCalAdRequest(),
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {
                     ad.setOnPaidEventListener { value ->
@@ -86,7 +85,7 @@ class AndroidAdManager(
         RewardedAd.load(
             contextProvider(),
             AdConfig.ANDROID_REWARDED,
-            AdRequest.Builder().build(),
+            fitCalAdRequest(),
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
                     ad.setOnPaidEventListener { value ->

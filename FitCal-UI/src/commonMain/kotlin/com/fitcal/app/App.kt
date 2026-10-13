@@ -579,7 +579,7 @@ fun App() {
                         isMockMode = isMockMode,
                         plateSizeInches = userProfile.defaultPlateSize,
                         adManager = adManager,
-                        playAdDuringScan = showAdsForUser || ScanQuotaManager.shouldForceInterstitialAd(selectedDateKey),
+                        playAdDuringScan = ScanQuotaManager.shouldPlayScanAd(selectedDateKey, adsAllowed = showAdsForUser),
                         onScanConsumed = {
                             // Record local consumption immediately for responsive UI; the Gateway already
                             // consumed 1 server-side quota after VLM inference succeeded, so sync from

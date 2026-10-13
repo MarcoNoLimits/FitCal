@@ -116,6 +116,11 @@ actual fun initPrivacyConsentStore() {
  * Returns true only when the user grants tracking authorization.
  */
 @Suppress("unused", "OPT_IN_USAGE")
+// iOS is not a v1 release target; UMP privacy options are Android-only for now.
+actual fun isAdPrivacyOptionsRequired(): Boolean = false
+
+actual fun showAdPrivacyOptions(onDone: () -> Unit) = onDone()
+
 actual suspend fun requestPlatformAdConsent(): Boolean = suspendCancellableCoroutine { cont ->
     try {
         val status = ATTrackingManager.trackingAuthorizationStatus

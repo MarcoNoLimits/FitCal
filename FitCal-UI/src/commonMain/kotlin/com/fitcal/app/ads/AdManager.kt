@@ -193,6 +193,14 @@ object ScanQuotaManager {
         return !hasQuota(dateKey)
     }
 
+    /**
+     * Whether a scan plays the processing interstitial (AGENTS.md 5.1/5.2): only once the free
+     * quota is used up, and only for users who can be shown ads at all. Free scans, including
+     * the whole first week's allowance, never play one.
+     */
+    fun shouldPlayScanAd(dateKey: String, adsAllowed: Boolean): Boolean =
+        adsAllowed && shouldForceInterstitialAd(dateKey)
+
     fun consumeScan(dateKey: String) {
         val currentUsed = getUsedScans(dateKey)
         preferenceWriter("quota_used_$dateKey", (currentUsed + 1).toString())

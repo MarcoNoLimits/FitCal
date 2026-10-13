@@ -66,6 +66,15 @@ expect fun syncPlatformMealReminders(
 expect suspend fun requestPlatformAdConsent(): Boolean
 
 /**
+ * Whether Google's consent tool (UMP) requires a "privacy options" entry point for this user
+ * (EEA/UK and similar). When true, Settings offers a way to reopen the consent form.
+ */
+expect fun isAdPrivacyOptionsRequired(): Boolean
+
+/** Reopens Google's consent form so the user can change their ad consent. */
+expect fun showAdPrivacyOptions(onDone: () -> Unit)
+
+/**
  * Binds the platform preference store into [PrivacyConsent] so consent
  * decisions persist across launches. Called once during app composition.
  *

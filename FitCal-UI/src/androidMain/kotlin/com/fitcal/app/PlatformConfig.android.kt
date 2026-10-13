@@ -7,6 +7,7 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import com.fitcal.app.ads.AndroidAdManager
 import com.fitcal.app.privacy.PrivacyConsent
+import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -163,6 +164,26 @@ actual suspend fun requestPlatformAdConsent(): Boolean = suspendCancellableCorou
         // Fail closed: an unexpected CMP failure must never silently become consent.
         android.util.Log.w("FitCal_Privacy", "CMP exception: ${t.message}")
         cont.resume(false)
+    }
+}
+
+actual fun isAdPrivacyOptionsRequired(): Boolean {
+    val activity = AndroidAdManager.currentActivityRef?.get() ?: return false
+    return UserMessagingPlatform.getConsentInformation(activity).privacyOptionsRequirementStatus ==
+        ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+}
+
+actual fun showAdPrivacyOptions(onDone: () -> Unit) {
+    val activity = AndroidAdManager.currentActivityRef?.get()
+    if (activity == null) {
+        onDone()
+        return
+    }
+    UserMessagingPlatform.showPrivacyOptionsForm(activity) { formError ->
+        if (formError != null) {
+            android.util.Log.w("FitCal_Privacy", "UMP privacy options error: ${formError.message}")
+        }
+        onDone()
     }
 }
 
