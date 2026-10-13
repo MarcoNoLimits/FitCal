@@ -69,7 +69,17 @@ object Guides {
             sections = listOf(
                 GuideSection(
                     paragraphs = listOf(
-                        "A calorie is a unit of energy. The \"calories\" on food labels and in FitCal are kilocalories (kcal): 1 kcal is 1,000 small calories. When people say a meal has 500 calories, they mean 500 kcal.",
+                        "A calorie is a unit of energy. When people talk about food they say \"calories\" but mean kilocalories (kcal). Some labels write it as \"Calorie\" with a capital C to show the difference.",
+                    ),
+                    bullets = listOf(
+                        "1 kcal = 1,000 small calories",
+                        "1,000 kcal = 1,000,000 small calories",
+                        "In everyday speech, 1,000 kcal is called \"1,000 calories\"",
+                    ),
+                ),
+                GuideSection(
+                    paragraphs = listOf(
+                        "So a 500-calorie meal on a food label or in FitCal is 500 kcal. That equals 500,000 small calories, but nobody counts food that way.",
                         "Some countries also show kilojoules (kJ). 1 kcal = 4.184 kJ, so a 2,000 kcal day is about 8,370 kJ. EU labels show both.",
                     ),
                 ),
