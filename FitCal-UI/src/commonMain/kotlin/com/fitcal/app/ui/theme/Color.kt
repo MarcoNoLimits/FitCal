@@ -27,6 +27,7 @@ val DangerTextStrong = Color(0xFFB91C1C)  // Red 700 — diagnostics header
 val DangerTextDeep = Color(0xFF7F1D1D)    // Red 900 — monospace error body
 
 // Accent / surface tokens
-val WaterAccent = Color(0xFF38BDF8)       // Sky 400  — water tracker accent
+val WaterAccent = Color(0xFF38BDF8)       // Sky 400  — water tracker accent (dots, outlines, bar)
+val WaterSoft = Color(0xFFE0F2FE)         // Sky 100  — water fill inside the glasses
 val SurfaceTint = Color(0xFFF1F5F9)       // Slate 100 — chips/pills/track backgrounds
 val InfoPanel = Color(0xFFF8FAFC)         // Slate 50  — coach / info card background

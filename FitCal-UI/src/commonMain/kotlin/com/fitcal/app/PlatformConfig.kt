@@ -25,7 +25,6 @@ expect fun getCurrentTimeString(): String
 
 expect fun getCurrentDateString(): String
 expect fun getCurrentEpochMillis(): Long
-expect fun getLastSevenDays(): List<Pair<String, String>>
 
 expect fun compressImage(imageBytes: ByteArray): ByteArray
 
