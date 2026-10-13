@@ -16,7 +16,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.fitcal.app.telemetry.AdTelemetryManager
 import com.fitcal.app.telemetry.DiagnosticsCrashHook
 import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
@@ -53,7 +52,7 @@ actual fun AdBanner(modifier: Modifier) {
                     setOnPaidEventListener { value ->
                         AndroidAdManager.trackPaidEvent(value, adUnitId, "BANNER", responseInfo)
                     }
-                    loadAd(AdRequest.Builder().build())
+                    loadAd(fitCalAdRequest())
                 }
             },
             onRelease = { adView -> adView.destroy() }

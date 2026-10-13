@@ -31,6 +31,8 @@ import com.fitcal.app.notifications.MealReminderManager
 import com.fitcal.app.ui.components.FitCalTextField
 import com.fitcal.app.ui.components.PressableBox
 import com.fitcal.app.getCurrentDateString
+import com.fitcal.app.isAdPrivacyOptionsRequired
+import com.fitcal.app.showAdPrivacyOptions
 import com.fitcal.app.plan.PlanGoal
 import com.fitcal.app.plan.PlanPace
 import com.fitcal.app.plan.TargetsMode
@@ -809,6 +811,39 @@ fun SettingsScreen(
                         uncheckedTrackColor = BorderColor,
                     ),
                 )
+            }
+
+            // Google's consent tool requires a way to reopen its consent form where it applies
+            // (EEA/UK and similar); elsewhere this row is hidden.
+            if (remember { isAdPrivacyOptionsRequired() }) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(CardBackground, RoundedCornerShape(12.dp))
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = "Ad consent choices",
+                            style = BrandTypography.SectionTitle,
+                            color = TextColor,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = "Review or change the consent you gave to our ad partners.",
+                            style = BrandTypography.BodySmall,
+                            color = MutedTextColor,
+                        )
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    TextButton(onClick = {
+                        Analytics.track("ad_privacy_options_opened")
+                        showAdPrivacyOptions {}
+                    }) {
+                        Text("Manage", color = PrimaryAccent, fontWeight = FontWeight.SemiBold)
+                    }
+                }
             }
 
             Row(

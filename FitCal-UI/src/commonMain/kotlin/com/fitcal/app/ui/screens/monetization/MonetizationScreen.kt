@@ -138,7 +138,8 @@ fun MonetizationScreen(
                     color = MutedTextColor
                 )
                 Text(
-                    text = "Hit your daily limit? Watch a short sponsored video to earn 2 bonus scans instantly. No payment needed — ads keep FitCal free.",
+                    // Rewarded-ad policy: describe only the action and the reward, nothing that nudges.
+                    text = "Hit your daily limit? Watch a short video ad to get 2 bonus scans for today.",
                     style = BrandTypography.BodySmall,
                     color = TextColor
                 )
