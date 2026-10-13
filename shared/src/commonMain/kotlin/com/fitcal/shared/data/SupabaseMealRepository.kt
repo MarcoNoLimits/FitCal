@@ -86,7 +86,8 @@ class SupabaseMealRepository(
                     date = derivedDate,
                     items = row.items
                 )
-                localRepo.saveMeal(meal)
+                // Download only what this device lacks; saving every row appended duplicates.
+                localRepo.saveIfAbsent(meal)
             }
         } catch (e: Exception) {
             println("SupabaseMealRepository pullRemote failed: ${e.message}")
