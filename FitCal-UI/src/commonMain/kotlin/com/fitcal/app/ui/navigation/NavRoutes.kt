@@ -37,3 +37,7 @@ object TermsDestination
 
 @Serializable
 object FoodLibraryDestination
+
+/** A nutrition guide; [source] says where it was opened from (for analytics). */
+@Serializable
+data class GuideDestination(val guideId: String, val source: String)

@@ -35,6 +35,9 @@ import com.fitcal.app.ui.navigation.MonetizationDestination
 import com.fitcal.app.ui.navigation.ResultDestination
 import com.fitcal.app.ui.navigation.SettingsDestination
 import com.fitcal.app.ui.navigation.FoodLibraryDestination
+import com.fitcal.app.ui.navigation.GuideDestination
+import com.fitcal.app.ui.screens.library.GuideScreen
+import com.fitcal.app.learn.Guides
 import com.fitcal.app.ui.navigation.PrivacyPolicyDestination
 import com.fitcal.app.ui.navigation.TermsDestination
 import com.fitcal.app.ui.screens.privacy.PrivacyPolicyScreen
@@ -566,6 +569,7 @@ fun App() {
                                 userProfile = updated
                             }
                         },
+                        onOpenGuide = { id -> navController.navigate(GuideDestination(id, "dashboard")) },
                     )
                 }
 
@@ -713,6 +717,25 @@ fun App() {
                             navController.popBackStack()
                         },
                         onBack = { navController.popBackStack() },
+                        onOpenGuide = { id -> navController.navigate(GuideDestination(id, "plan_setup")) },
+                    )
+                }
+
+                composable<GuideDestination> { backStackEntry ->
+                    val destination = backStackEntry.toRoute<GuideDestination>()
+                    val guide = remember(destination.guideId) { Guides.byId(destination.guideId) }
+                    if (guide == null) {
+                        LaunchedEffect(Unit) { navController.popBackStack() }
+                        return@composable
+                    }
+                    LaunchedEffect(guide.id) {
+                        Analytics.track("guide_opened", "guide" to guide.id, "source" to destination.source)
+                    }
+                    GuideScreen(
+                        guide = guide,
+                        profile = userProfile,
+                        onBack = { navController.popBackStack() },
+                        onOpenGuide = { id -> navController.navigate(GuideDestination(id, "related")) },
                     )
                 }
 
@@ -900,6 +923,7 @@ fun App() {
                 composable<FoodLibraryDestination> {
                     FoodLibraryScreen(
                         onBack = { navController.popBackStack() },
+                        onOpenGuide = { id -> navController.navigate(GuideDestination(id, "library")) },
                     )
                 }
 

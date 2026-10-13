@@ -66,6 +66,7 @@ fun PlanCheckInCard(
     projectedDate: String?,
     onUpdate: (Float) -> Unit,
     onNotNow: () -> Unit,
+    onWhyFluctuates: () -> Unit = {},
 ) {
     var weightStr by remember { mutableStateOf(formatKg(currentWeightKg)) }
     val weight = weightStr.replace(',', '.').toFloatOrNull()
@@ -78,6 +79,9 @@ fun PlanCheckInCard(
             style = BrandTypography.BodySmall,
             color = TextColor
         )
+        TextButton(onClick = onWhyFluctuates, contentPadding = PaddingValues(0.dp)) {
+            Text("Why does my weight jump around?", color = PrimaryAccent, style = BrandTypography.BodySmall, fontWeight = FontWeight.SemiBold)
+        }
         FitCalTextField(
             value = weightStr,
             onValueChange = { weightStr = it },

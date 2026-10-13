@@ -48,6 +48,9 @@ import com.fitcal.app.ui.screens.dashboard.components.PlanPromptCard
 import com.fitcal.app.ui.screens.dashboard.components.PlanTargetReachedCard
 import com.fitcal.app.ui.screens.dashboard.components.WaterTrackerCard
 import com.fitcal.app.plan.PlanGoal
+import com.fitcal.app.learn.GuideIds
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.Role
 import com.fitcal.app.plan.TargetsMode
 import com.fitcal.app.plan.hasReachedTarget
 import com.fitcal.app.plan.isCheckInDue
@@ -85,6 +88,8 @@ fun DashboardScreen(
     onSnoozeCheckIn: () -> Unit = {},
     onSwitchToMaintain: () -> Unit = {},
     onEndPlan: () -> Unit = {},
+    // Opens a guide from Library → Guides by id (see com.fitcal.app.learn.Guides).
+    onOpenGuide: (String) -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -264,6 +269,16 @@ fun DashboardScreen(
                             )
                         }
 
+                        Text(
+                            text = "What's a kcal?",
+                            style = BrandTypography.BodySmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = PrimaryAccent,
+                            modifier = Modifier
+                                .clickable(role = Role.Button) { onOpenGuide(GuideIds.CALORIES) }
+                                .padding(vertical = 6.dp)
+                        )
+
                         // Maintenance needs real body stats, which only a plan guarantees.
                         if (targetsMode == TargetsMode.PLAN) Column {
                             Text(
@@ -289,13 +304,13 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Box(modifier = Modifier.weight(1f)) {
-                    DashboardMacroCard("Protein", "${totalProtein.toInt()}g", if (hasTargets) "$proteinPercent%" else "", ProteinColor)
+                    DashboardMacroCard("Protein", "${totalProtein.toInt()}g", if (hasTargets) "$proteinPercent%" else "", ProteinColor) { onOpenGuide(GuideIds.PROTEIN) }
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    DashboardMacroCard("Carbs", "${totalCarbs.toInt()}g", if (hasTargets) "$carbsPercent%" else "", CarbsColor)
+                    DashboardMacroCard("Carbs", "${totalCarbs.toInt()}g", if (hasTargets) "$carbsPercent%" else "", CarbsColor) { onOpenGuide(GuideIds.CARBS) }
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    DashboardMacroCard("Fats", "${totalFat.toInt()}g", if (hasTargets) "$fatPercent%" else "", FatColor)
+                    DashboardMacroCard("Fats", "${totalFat.toInt()}g", if (hasTargets) "$fatPercent%" else "", FatColor) { onOpenGuide(GuideIds.FAT) }
                 }
             }
 
@@ -312,6 +327,7 @@ fun DashboardScreen(
                     projectedDate = profile.projectedTargetDate(today),
                     onUpdate = onCheckIn,
                     onNotNow = onSnoozeCheckIn,
+                    onWhyFluctuates = { onOpenGuide(GuideIds.TRACKING_WEIGHT) },
                 )
                 targetsMode == TargetsMode.NONE && showPlanPrompt -> PlanPromptCard(
                     onSetUp = onSetUpPlan,
