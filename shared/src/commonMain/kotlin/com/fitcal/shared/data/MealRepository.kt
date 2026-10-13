@@ -10,4 +10,6 @@ interface MealRepository {
     suspend fun deleteMeal(mealId: String)
     suspend fun updateMeal(meal: LoggedMeal)
     fun observeMealsForDate(date: String): Flow<List<LoggedMeal>>
+    /** Every meal on the device, for views that span days (e.g. the dashboard ring scale). */
+    fun observeAllMeals(): Flow<List<LoggedMeal>>
 }
