@@ -53,7 +53,8 @@ fun DashboardMacroCard(
             // F2.1: BodySmall (12sp) replaces 9.sp — raises it above the 12sp min threshold
             // Note: 9.sp eliminated per spec; BodySmall is the closest permitted size for muted text
             Text(
-                text = "$percent of goal",
+                // Without targets (no plan or own numbers) there is no goal to compare with.
+                text = if (percent.isEmpty()) "eaten" else "$percent of goal",
                 style = BrandTypography.BodySmall,
                 color = MutedTextColor
             )

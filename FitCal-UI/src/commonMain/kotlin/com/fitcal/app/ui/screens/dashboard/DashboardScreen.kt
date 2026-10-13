@@ -15,8 +15,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -139,7 +140,10 @@ fun DashboardScreen(
                     .navigationBarsPadding()
             )
         },
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        // The content applies statusBarsPadding() itself; the default insets would add the
+        // status bar a second time and leave a big gap above the header.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -173,63 +177,24 @@ fun DashboardScreen(
                     )
                 }
 
-                Row {
+                // Spaced so the circles never touch; each keeps a 44dp hit area (F0.3).
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     // Food Library — browsable reference content. First-class surface
                     // (not buried in Settings): AdMob rejected earlier builds partly for thin
                     // content, and this is genuine user value independent of scanning.
-                    IconButton(
-                        onClick = onOpenFoodLibrary,
-                        modifier = Modifier
-                            .size(44.dp) // F0.3: min 44dp hit area
-                            .shadow(1.dp, CircleShape)
-                            .background(Color.White, CircleShape)
-                            .border(1.dp, BorderColor, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Food Library",
-                            tint = TextColor,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    // Search icon: the library is searched; a ☰ read as "open the menu".
+                    HeaderIconButton(Icons.Default.Search, "Food Library", onOpenFoodLibrary)
                     // Ads & Perks - monetization is a first-class surface, NOT buried in Settings.
                     // Star icon opens the dedicated Ads & Perks screen (quota, rewarded ads, provider).
-                    IconButton(
-                        onClick = onMonetizationClicked,
-                        modifier = Modifier
-                            .size(44.dp) // F0.3: min 44dp hit area
-                            .shadow(1.dp, CircleShape)
-                            .background(Color.White, CircleShape)
-                            .border(1.dp, BorderColor, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Ads & Perks",
-                            tint = TextColor,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    IconButton(
-                        onClick = onSettingsClicked,
-                        modifier = Modifier
-                            .size(44.dp) // F0.3: min 44dp hit area
-                            .shadow(1.dp, CircleShape)
-                            .background(Color.White, CircleShape)
-                            .border(1.dp, BorderColor, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
-                            tint = TextColor,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    HeaderIconButton(Icons.Default.Star, "Ads & Perks", onMonetizationClicked)
+                    HeaderIconButton(Icons.Default.Settings, "Settings", onSettingsClicked)
                 }
             }
 
             // Calendar Day Selection Strip
             CalendarStrip(
                 selectedDate = selectedDate,
+                today = today,
                 onDateSelected = onDateSelected
             )
 
@@ -647,5 +612,25 @@ fun DashboardScreen(
                 }
             }
         }
+    }
+}
+
+/** Round header action: 44dp hit area, white surface with a hairline border. */
+@Composable
+private fun HeaderIconButton(icon: ImageVector, description: String, onClick: () -> Unit) {
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier
+            .size(44.dp)
+            .shadow(1.dp, CircleShape)
+            .background(Color.White, CircleShape)
+            .border(1.dp, BorderColor, CircleShape)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            tint = TextColor,
+            modifier = Modifier.size(20.dp)
+        )
     }
 }

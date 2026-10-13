@@ -155,41 +155,6 @@ actual fun getCurrentDateString(): String {
 
 actual fun getCurrentEpochMillis(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 
-actual fun getLastSevenDays(): List<Pair<String, String>> {
-    val list = mutableListOf<Pair<String, String>>()
-    val calendar = NSCalendar.currentCalendar
-    val formatterKey = NSDateFormatter().apply { dateFormat = "yyyy-MM-dd" }
-    val formatterDay = NSDateFormatter().apply { dateFormat = "EEE" }
-    
-    val today = NSDate()
-    val todayKey = formatterKey.stringFromDate(today)
-    
-    val yesterday = calendar.dateByAddingUnit(
-        NSCalendarUnitDay,
-        value = -1,
-        toDate = today,
-        options = 0
-    )!!
-    val yesterdayKey = formatterKey.stringFromDate(yesterday)
-    
-    for (i in -6..0) {
-        val date = calendar.dateByAddingUnit(
-            NSCalendarUnitDay,
-            value = i.toLong(),
-            toDate = today,
-            options = 0
-        )!!
-        val key = formatterKey.stringFromDate(date)
-        val dayLabel = when (key) {
-            todayKey -> "Today"
-            yesterdayKey -> "Yest"
-            else -> formatterDay.stringFromDate(date)
-        }
-        list.add(Pair(key, dayLabel))
-    }
-    return list
-}
-
 @OptIn(ExperimentalForeignApi::class)
 actual fun compressImage(imageBytes: ByteArray): ByteArray {
     try {

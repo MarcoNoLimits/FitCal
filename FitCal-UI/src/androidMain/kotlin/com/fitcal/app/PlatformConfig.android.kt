@@ -178,35 +178,6 @@ actual fun getCurrentDateString(): String {
 
 actual fun getCurrentEpochMillis(): Long = System.currentTimeMillis()
 
-actual fun getLastSevenDays(): List<Pair<String, String>> {
-    val list = mutableListOf<Pair<String, String>>()
-    val cal = Calendar.getInstance()
-    val sdfKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val sdfDay = SimpleDateFormat("EEE", Locale.getDefault())
-    
-    val todayKey = sdfKey.format(Date())
-    
-    // Start 6 days ago
-    cal.add(Calendar.DAY_OF_YEAR, -6)
-    
-    for (i in 0..6) {
-        val date = cal.time
-        val key = sdfKey.format(date)
-        val dayLabel = when (key) {
-            todayKey -> "Today"
-            else -> {
-                val tempCal = Calendar.getInstance()
-                tempCal.add(Calendar.DAY_OF_YEAR, -1)
-                val yesterdayKey = sdfKey.format(tempCal.time)
-                if (key == yesterdayKey) "Yest" else sdfDay.format(date)
-            }
-        }
-        list.add(Pair(key, dayLabel))
-        cal.add(Calendar.DAY_OF_YEAR, 1)
-    }
-    return list
-}
-
 actual fun compressImage(imageBytes: ByteArray): ByteArray {
     try {
         // Parse EXIF orientation to detect vertical/portrait rotation
