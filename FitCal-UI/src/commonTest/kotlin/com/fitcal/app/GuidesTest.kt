@@ -1,5 +1,6 @@
 package com.fitcal.app
 
+import com.fitcal.app.ads.AdConfig
 import com.fitcal.app.learn.GuideIds
 import com.fitcal.app.learn.Guides
 import com.fitcal.app.plan.BodyStats
@@ -76,6 +77,16 @@ class GuidesTest {
         val protein = Guides.byId(GuideIds.PROTEIN)!!.personalNote(withPlan)!!
         assertTrue("96 to 160 g" in protein, protein)   // 80 kg × 1.2–2.0
         assertTrue("160 g" in protein, protein)
+    }
+
+    @Test
+    fun onlyTheSensitiveGuideIsAdFree() {
+        assertEquals(listOf(GuideIds.PROFESSIONAL_HELP), Guides.all.filter { it.adFree }.map { it.id })
+    }
+
+    @Test
+    fun weightLossAdsAreBlocked() {
+        assertTrue("Weight Loss" in AdConfig.BLOCKED_AD_CATEGORIES)
     }
 
     @Test

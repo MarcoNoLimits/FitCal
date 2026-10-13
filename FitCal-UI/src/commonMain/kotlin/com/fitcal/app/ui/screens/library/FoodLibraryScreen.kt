@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.consumeWindowInsets
+import com.fitcal.app.ads.BannerScaffold
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.selection.selectable
@@ -82,10 +84,14 @@ fun FoodLibraryScreen(
         if (query.isBlank()) FoodDatabase.foods else FoodDatabase.searchFoods(query, 60)
     }
 
+    // Passive reading screen: bottom banner allowed (AGENTS.md 5.5).
+    BannerScaffold { inner ->
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BgColor)
+            .padding(inner)
+            .consumeWindowInsets(inner)
             // Keep content clear of the status bar and gesture bar (edge-to-edge).
             .statusBarsPadding()
             .navigationBarsPadding(),
@@ -255,6 +261,7 @@ fun FoodLibraryScreen(
                 )
             }
         }
+    }
     }
 }
 

@@ -49,7 +49,10 @@ object AdConfig {
         "Cosmetic Surgery",
         "Sexual Health",
         "Unverified Apps",
-        "Low-quality Clickbait"
+        "Low-quality Clickbait",
+        // Diet pills and rapid-weight-loss offers contradict FitCal's guides and safety limits.
+        // Mirror of the AdMob "Weight loss" sensitive-category block (set in the AdMob dashboard).
+        "Weight Loss"
     )
     val ALLOWED_AD_CATEGORIES = listOf(
         "Fitness",

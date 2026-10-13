@@ -95,6 +95,7 @@ All form answers (Data safety, content rating, Health declaration, target audien
 - [x] Abuse limits (2026-10-12, migration 0002 + gateway v3, tested live): clients can only read their own quota rows; recalculate is capped at 50/day per user with 30 items and 80-char names. Per user per day: up to 16 photo scans (6 free + 10 rewarded).
 - [x] Editable logged meals (2026-10-12, migration 0004 applied to production): `fitcal.meals.items` (jsonb, default `[]`, max 50 items / 32 KB) stores each meal's ingredients so it can be reopened from the dashboard. App builds from before this don't send the column; builds from after need it, so it has to stay applied.
 - [x] Optional personal plan (2026-10-12, migration 0005 applied to production): `fitcal.profiles` gained `activity_level`, `targets_mode` (`none`/`plan`/`custom`) and `plan` (jsonb, max 4 KB). All nullable; older builds don't send them. Builds from after need them, so they have to stay applied.
+- [ ] AdMob → Blocking controls → Sensitive categories: block **Weight loss** (added to `AdConfig.BLOCKED_AD_CATEGORIES` 2026-10-13; banners now also run on Library and Guides).
 - [ ] Supabase → Authentication → Rate Limits: lower anonymous sign-ins from 30 to 10 per hour per IP.
 - [ ] Later: AdMob server-side verification for rewarded ads, so bonus scans can't be claimed without watching an ad.
 - [ ] Real-device test of the signed release build.
