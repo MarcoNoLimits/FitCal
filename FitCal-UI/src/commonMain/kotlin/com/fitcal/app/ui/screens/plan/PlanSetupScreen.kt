@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.fitcal.app.learn.GuideIds
 import com.fitcal.app.plan.BodyStats
 import com.fitcal.app.plan.PlanGoal
 import com.fitcal.app.plan.PlanPace
@@ -50,6 +51,7 @@ fun PlanSetupScreen(
     today: String,
     onSave: (UserProfile) -> Unit,
     onBack: () -> Unit,
+    onOpenGuide: (String) -> Unit = {},
 ) {
     val editing = profile.resolvedTargetsMode() == TargetsMode.PLAN && profile.plan != null
     // A fresh profile still holds the 70 kg / 175 cm placeholders; prefill only what the user set.
@@ -181,7 +183,18 @@ fun PlanSetupScreen(
                         supportingText = "Between ${formatKg(range.start)} and ${formatKg(range.endInclusive)} kg",
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Text(text = "How fast?", style = BrandTypography.BodySmall, fontWeight = FontWeight.Bold, color = MutedTextColor)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "How fast?",
+                            style = BrandTypography.BodySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MutedTextColor,
+                            modifier = Modifier.weight(1f)
+                        )
+                        TextButton(onClick = { onOpenGuide(GuideIds.TRACKING_WEIGHT) }) {
+                            Text("What's a healthy pace?", color = PrimaryAccent, style = BrandTypography.BodySmall)
+                        }
+                    }
                     PlanPace.entries.forEach { option ->
                         val allowed = isPaceAllowed(body, goal, option)
                         val optionTargets = planTargets(body, goal, option)
@@ -234,6 +247,15 @@ fun PlanSetupScreen(
                     style = BrandTypography.BodySmall,
                     color = MutedTextColor
                 )
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(onClick = { onOpenGuide(GuideIds.ENERGY_BALANCE) }, contentPadding = PaddingValues(horizontal = 0.dp)) {
+                        Text("What's maintenance?", color = PrimaryAccent, style = BrandTypography.BodySmall, fontWeight = FontWeight.SemiBold)
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    TextButton(onClick = { onOpenGuide(GuideIds.PROTEIN) }, contentPadding = PaddingValues(horizontal = 0.dp)) {
+                        Text("Why this much protein?", color = PrimaryAccent, style = BrandTypography.BodySmall, fontWeight = FontWeight.SemiBold)
+                    }
+                }
                 when (targets.note) {
                     SuggestionNote.UNDERWEIGHT -> Text(
                         text = "Your BMI is below the healthy range, so these targets maintain your weight.",

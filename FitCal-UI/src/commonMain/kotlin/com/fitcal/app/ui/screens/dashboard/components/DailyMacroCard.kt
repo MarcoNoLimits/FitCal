@@ -5,7 +5,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
+import com.fitcal.app.ui.components.PressableBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,8 +25,15 @@ fun DashboardMacroCard(
     title: String,
     value: String,
     percent: String,
-    color: Color
+    color: Color,
+    onLearnMore: (() -> Unit)? = null
 ) {
+    // Tapping opens the guide for this macro; the small info icon hints that it's tappable.
+    PressableBox(
+        onTap = { onLearnMore?.invoke() },
+        modifier = Modifier
+            .semantics { if (onLearnMore != null) onClick(label = "Learn about $title") { onLearnMore(); true } }
+    ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,11 +50,21 @@ fun DashboardMacroCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // F2.1: Eyebrow replaces 10.sp inline
-                Text(
-                    text = title,
-                    style = BrandTypography.Eyebrow,
-                    color = MutedTextColor
-                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = title,
+                        style = BrandTypography.Eyebrow,
+                        color = MutedTextColor
+                    )
+                    if (onLearnMore != null) {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = null,
+                            tint = MutedTextColor.copy(alpha = 0.6f),
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                }
                 Box(modifier = Modifier.size(5.dp).background(color, CircleShape))
             }
             // F2.1: KpiNumeral replaces 16.sp inline
@@ -59,5 +82,6 @@ fun DashboardMacroCard(
                 color = MutedTextColor
             )
         }
+    }
     }
 }
