@@ -30,6 +30,8 @@ data class Guide(
     val sections: List<GuideSection>,
     val sources: List<String>,
     val related: List<String> = emptyList(),
+    /** No banner ad on this guide (sensitive topics such as health conditions and eating disorders). */
+    val adFree: Boolean = false,
     /** A line using the user's own numbers, when they have them. */
     val personalNote: (UserProfile) -> String? = { null },
 ) {
@@ -422,6 +424,7 @@ object Guides {
                 "NHS, Losing weight: getting started",
             ),
             related = listOf(GuideIds.TRACKING_WEIGHT),
+            adFree = true,
         ),
     )
 

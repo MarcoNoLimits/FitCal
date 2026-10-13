@@ -39,7 +39,7 @@ This file is the authoritative instruction set for any agent (AI or human) worki
 | 2 | Forced interstitial on scan #4+ | **DONE** | Scan never blocked; routes to `showScanProcessingAd` |
 | 3 | AppLovin MAX mediation | **REMOVED** | Owner decision 2026-10-07: AdMob only for launch; MAX was never configured |
 | 4 | App Open Ads | **REMOVED** | Owner decision 2026-10-07: dropped for launch (retention over low-value impressions) |
-| 5 | Adaptive banners on secondary tabs only | **DONE** | Isolated to Dashboard & Settings; zero ads on Camera/Review |
+| 5 | Adaptive banners on secondary tabs only | **DONE** | Dashboard, Settings, Library and Guides (owner decision 2026-10-13; not on sensitive guides such as "When to talk to a professional"); zero ads on Camera/Review |
 | 6 | Brand-safety ad filtering | **DONE** | Codified blocked/allowed categories in `AdConfig` |
 | 7 | Keep `ScanQuotaManagerTest` green (expanded to 9 tests) | **DONE** | 9/9 passing |
 | 8 | Production Architecture: Secure Serverless Gateway | **DONE** | Supabase Edge Function `analyze-meal`: verified JWT on every call, server-side quota and allowance, kill switch, API key isolation |
@@ -88,13 +88,13 @@ When the user has exhausted their free daily quota and attempts another scan:
 
 ### 5.5 Banner Ads (Task 5)
 
-- **Adaptive banners ONLY** on passive screens: Macro History, Profile/Settings, Recipe Detail.
+- **Adaptive banners ONLY** on passive screens: Macro History, Profile/Settings, Recipe Detail, Library and Guides. Guides marked `adFree` (health conditions, eating disorders) never show one.
 - **NEVER** on the Camera/Scan view or the scan results flow.
 - Banners are a low-eCPM baseline floor ($0.50–$2.50); they must never block the primary action.
 
 ### 5.6 Brand Safety (Task 6)
 
-- In MAX/AdMob dashboards enable **strict category blocking**: Block Gambling, Dating, Politics, Religion, Cosmetic Surgery, Sexual Health, Unverified Apps, Low-quality Clickbait.
+- In MAX/AdMob dashboards enable **strict category blocking**: Block Gambling, Dating, Politics, Religion, Cosmetic Surgery, Sexual Health, Unverified Apps, Low-quality Clickbait, Weight Loss (diet pills and rapid-loss offers contradict the guides and plan safety limits).
 - Allow only: Fitness, Food & Beverage, Sports, Technology, Productivity, Mobile Games.
 - Users must never see disturbing/repulsive ads — this is the explicit failure condition.
 

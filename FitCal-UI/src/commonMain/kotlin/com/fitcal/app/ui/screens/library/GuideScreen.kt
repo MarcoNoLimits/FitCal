@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fitcal.app.ads.BannerScaffold
 import com.fitcal.app.learn.Guide
 import com.fitcal.app.learn.Guides
 import com.fitcal.app.ui.components.PressableBox
@@ -40,10 +41,14 @@ fun GuideScreen(
 ) {
     val personal = remember(guide.id, profile) { guide.personalNote(profile) }
 
+    // Bottom banner on reading screens, except sensitive guides (Guide.adFree).
+    BannerScaffold(showBanner = !guide.adFree) { inner ->
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BgColor)
+            .padding(inner)
+            .consumeWindowInsets(inner)
             .statusBarsPadding()
             .navigationBarsPadding()
             .verticalScroll(rememberScrollState())
@@ -138,6 +143,7 @@ fun GuideScreen(
             Text(text = "KEEP READING", style = BrandTypography.Eyebrow, color = MutedTextColor, modifier = Modifier.padding(top = 4.dp))
             related.forEach { r -> GuideCard(guide = r, onClick = { onOpenGuide(r.id) }) }
         }
+    }
     }
 }
 
