@@ -93,8 +93,10 @@ fun CalendarStrip(
     val atToday = windowEnd == today
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Fixed height: the "Today" TextButton (48dp touch target) appears only away from today,
+        // and without this the row grew from 44 to 48dp, nudging everything below it.
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
