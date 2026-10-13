@@ -118,14 +118,21 @@ private fun PrivacyPolicyContent() {
     PolicySection("What FitCal is") {
         "FitCal is a mobile application that estimates the nutritional content of a meal " +
             "from a photograph you take. It also tracks water intake, weight, and logged " +
-            "meals. It is an informational tool only and is not a medical device."
+            "meals, and can suggest optional daily calorie and macro targets. It is an " +
+            "informational tool only and is not a medical device."
     }
 
     PolicySection("What we collect") {
         "• Meal photographs you choose to capture\n" +
             "• Nutrition estimates generated from those photographs\n" +
             "• Account email address, if you choose to create an account\n" +
-            "• Water intake, weight, and meal log entries you record\n" +
+            "• Meal log entries you record, including each meal's foods, portion weights and " +
+            "nutrition values\n" +
+            "• Water intake you record\n" +
+            "• Profile details you enter: height, weight, age, sex and activity level, and your " +
+            "daily calorie and macro targets\n" +
+            "• If you start the optional personal plan: your goal, chosen pace, target weight, " +
+            "and the weight you enter at check-ins\n" +
             "• App usage events: which screens and features you use, scan timing and errors, " +
             "and how much you changed an estimate before logging it (counts only, never meal " +
             "names, nutrition values or photos)\n" +

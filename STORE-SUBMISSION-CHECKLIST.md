@@ -27,7 +27,7 @@ the conservative answer protects you in review:
 | Question | Answer |
 |---|---|
 | Does your app collect or share user data? | **Yes** |
-| Data collected | Account email (optional), Photos/Pictures, Fitness/Health, App activity, Crash logs, Device IDs |
+| Data collected | Account email (optional), Photos/Pictures, Fitness/Health (meals with foods and nutrition, water, height, weight, age, sex, activity level, targets, optional plan: goal, pace, target weight, check-in weights), App activity, Crash logs, Device IDs |
 | Encrypted in transit? | **Yes** (TLS only; `usesCleartextTraffic=false`) |
 | Can users request data deletion? | **Yes** — in-app: Settings → Privacy → "Delete my account and data"; web link: `…/privacy.html#delete` |
 | Data shared with third parties | **Yes** — advertising partner (Google AdMob), and AI inference providers (Google, OpenRouter). Sentry (crash reports) is a service provider acting for us, which Play does not count as "sharing", but declare Crash logs + Diagnostics as *collected* |
@@ -77,8 +77,12 @@ WHAT YOU GET
 • Editable portions — correct a weight and totals recalculate instantly
 • Search-to-swap: replace any item with one of 100+ foods
 • Built-in Food Library: browse verified macros for 100+ everyday foods, offline
-• Water tracking, weight logging, and meal history
-• Daily scan quota, extendable with rewarded ads
+• Reopen any logged meal to correct it later
+• Optional personal plan: daily calorie and macro targets for your goal, at a
+  pace you choose, with optional weight check-ins. Change or end it any time
+• Short, sourced guides on calories, protein, carbs, fat and tracking
+• Water tracking and meal history
+• Free daily scans, with bonus scans from optional rewarded ads
 
 BUILT FOR ACCURACY
 Every estimate is editable. If the portion looks off, change the weight and the
