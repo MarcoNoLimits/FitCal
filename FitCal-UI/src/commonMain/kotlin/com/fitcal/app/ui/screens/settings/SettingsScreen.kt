@@ -113,7 +113,10 @@ fun SettingsScreen(
                     .navigationBarsPadding()
             )
         },
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        // The content applies statusBarsPadding() itself; the default insets would add the
+        // status bar a second time and leave a big gap above the header.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
     Column(
         modifier = Modifier
