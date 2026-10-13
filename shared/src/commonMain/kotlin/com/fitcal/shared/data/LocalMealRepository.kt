@@ -30,7 +30,9 @@ class LocalMealRepository(
                             if (raw.isBlank() || raw == "[]") {
                                 emptyList()
                             } else {
+                                // distinctBy heals duplicates saved by older builds (same meal id twice).
                                 json.decodeFromString(ListSerializer(LoggedMeal.serializer()), raw)
+                                    .distinctBy { it.id }
                             }
                         } catch (e: Exception) {
                             emptyList()
@@ -68,11 +70,28 @@ class LocalMealRepository(
         }
     }
 
+    /** Adds the meal, or replaces the one with the same id, so a meal is never stored twice. */
     override suspend fun saveMeal(meal: LoggedMeal) {
         ensureInitialized()
         mutex.withLock {
-            val updated = _mealsFlow.value + meal
+            val current = _mealsFlow.value
+            val updated = if (current.any { it.id == meal.id }) {
+                current.map { if (it.id == meal.id) meal else it }
+            } else {
+                current + meal
+            }
             persistLocked(updated)
+        }
+    }
+
+    /**
+     * Adds a meal downloaded from the server only if this device doesn't have it yet. The local
+     * copy wins: it holds the ingredient list and any edits not yet uploaded.
+     */
+    suspend fun saveIfAbsent(meal: LoggedMeal) {
+        ensureInitialized()
+        mutex.withLock {
+            if (_mealsFlow.value.none { it.id == meal.id }) persistLocked(_mealsFlow.value + meal)
         }
     }
 
