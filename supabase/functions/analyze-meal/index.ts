@@ -190,7 +190,14 @@ async function callGemini(prompt: string, base64Image?: string, model = "gemini-
         // 4096 tokens prevents truncated JSON on complex multi-item meals.
         // gemini-2.5-flash still returns markdown fences despite responseMimeType;
         // cleanJson() strips them before parsing.
-        generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 4096 },
+        // thinkingBudget 0 turns off 2.5-flash's default "thinking" step, which roughly
+        // tripled scan time (~10 s) without improving this structured estimate.
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.2,
+          maxOutputTokens: 4096,
+          thinkingConfig: { thinkingBudget: 0 },
+        },
       }),
     }
   );
