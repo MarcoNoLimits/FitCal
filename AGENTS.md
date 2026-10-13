@@ -40,7 +40,7 @@ This file is the authoritative instruction set for any agent (AI or human) worki
 | 3 | AppLovin MAX mediation | **REMOVED** | Owner decision 2026-10-07: AdMob only for launch; MAX was never configured |
 | 4 | App Open Ads | **REMOVED** | Owner decision 2026-10-07: dropped for launch (retention over low-value impressions) |
 | 5 | Adaptive banners on secondary tabs only | **DONE** | Dashboard, Settings, Library and Guides (owner decision 2026-10-13; not on sensitive guides such as "When to talk to a professional"); zero ads on Camera/Review |
-| 6 | Brand-safety ad filtering | **DONE** | Codified blocked/allowed categories in `AdConfig` |
+| 6 | Brand-safety ad filtering | **DONE** | Listed in `AdConfig`; all 11 AdMob sensitive categories blocked in the dashboard on 2026-10-13 |
 | 7 | Keep `ScanQuotaManagerTest` green (expanded to 9 tests) | **DONE** | 9/9 passing |
 | 8 | Production Architecture: Secure Serverless Gateway | **DONE** | Supabase Edge Function `analyze-meal`: verified JWT on every call, server-side quota and allowance, kill switch, API key isolation |
 | 9 | Commercial VLM Provider Migration (Pay-As-You-Go) | **DONE** | Gemini 2.0 Flash primary with x-goog-api-key header isolation, Qwen/Groq automated edge failover |
