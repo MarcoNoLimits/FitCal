@@ -115,6 +115,8 @@ class LocalMealRepository(
         return _mealsFlow.map { list -> list.filter { it.date == date } }
     }
 
+    override fun observeAllMeals(): Flow<List<LoggedMeal>> = _mealsFlow
+
     /** Gives every meal a fresh ID and returns the re-keyed list. */
     suspend fun reassignIds(newId: () -> String): List<LoggedMeal> {
         ensureInitialized()

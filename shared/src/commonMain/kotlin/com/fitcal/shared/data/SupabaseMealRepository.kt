@@ -42,6 +42,8 @@ class SupabaseMealRepository(
         return localRepo.observeMealsForDate(date)
     }
 
+    override fun observeAllMeals(): Flow<List<LoggedMeal>> = localRepo.observeAllMeals()
+
     /**
      * Phase 5 fix: date-scoped bounded pullRemote.
      *

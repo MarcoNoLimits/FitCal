@@ -90,6 +90,8 @@ fun DashboardScreen(
     onEndPlan: () -> Unit = {},
     // Opens a guide from Library → Guides by id (see com.fitcal.app.learn.Guides).
     onOpenGuide: (String) -> Unit = {},
+    // Without a calorie target, a full ring = this many kcal (the recent daily high).
+    ringScaleKcal: Int = 0,
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -221,7 +223,8 @@ fun DashboardScreen(
                 ) {
                     CircularCalorieProgressRing(
                         consumed = totalCalories,
-                        goal = if (hasTargets) profile.calGoal else 0
+                        goal = if (hasTargets) profile.calGoal else 0,
+                        scaleKcal = ringScaleKcal
                     )
 
                     Column(

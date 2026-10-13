@@ -36,6 +36,7 @@ import com.fitcal.app.ui.navigation.ResultDestination
 import com.fitcal.app.ui.navigation.SettingsDestination
 import com.fitcal.app.ui.navigation.FoodLibraryDestination
 import com.fitcal.app.ui.navigation.GuideDestination
+import com.fitcal.app.ui.screens.dashboard.components.ringScaleWithoutTarget
 import com.fitcal.app.ui.screens.library.GuideScreen
 import com.fitcal.app.learn.Guides
 import com.fitcal.app.ui.navigation.PrivacyPolicyDestination
@@ -195,6 +196,14 @@ fun App() {
         mealRepository.observeMealsForDate(selectedDateKey)
     }
     val loggedMeals by mealsFlow.collectAsState(initial = emptyList())
+    // Daily totals across all days, so the ring has a scale when there's no calorie target.
+    val allMeals by remember(mealRepository) { mealRepository.observeAllMeals() }.collectAsState(initial = emptyList())
+    val ringScaleKcal = remember(allMeals) {
+        ringScaleWithoutTarget(
+            allMeals.groupBy { it.date }.mapValues { (_, meals) -> meals.sumOf { it.calories } },
+            getCurrentDateString(),
+        )
+    }
 
     val waterFlow = remember(selectedDateKey, userRepository) {
         userRepository.observeWaterIntake(selectedDateKey)
@@ -570,6 +579,7 @@ fun App() {
                             }
                         },
                         onOpenGuide = { id -> navController.navigate(GuideDestination(id, "dashboard")) },
+                        ringScaleKcal = ringScaleKcal,
                     )
                 }
 
