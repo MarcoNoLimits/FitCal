@@ -75,28 +75,56 @@ class SupabaseMealRepository(
                 }
                 .decodeList<SupabaseMealRow>()
 
-            for (row in rows) {
-                val (derivedDate, derivedTime) = parseEatenAt(row.eaten_at, dateKey)
-                val meal = LoggedMeal(
-                    id = row.id,
-                    name = row.name,
-                    calories = row.calories,
-                    protein = row.protein_g,
-                    carbs = row.carbs_g,
-                    fat = row.fat_g,
-                    timestamp = derivedTime,
-                    date = derivedDate,
-                    items = row.items
-                )
-                // Download only what this device lacks; saving every row appended duplicates.
-                localRepo.saveIfAbsent(meal)
-            }
+            saveMissing(rows, dateKey)
         } catch (e: Exception) {
             println("SupabaseMealRepository pullRemote failed: ${e.message}")
         }
     }
 
+    /**
+     * Downloads every meal eaten on or after [fromDateKey] that this device doesn't have,
+     * so a reinstall or a new phone gets the account's history back, not just today.
+     */
+    suspend fun pullHistory(fromDateKey: String) {
+        try {
+            val rows = client.from("meals")
+                .select {
+                    filter {
+                        exact("deleted_at", null)
+                        gte("eaten_at", "${fromDateKey}T00:00:00Z")
+                    }
+                    limit(HISTORY_LIMIT)
+                    order("eaten_at", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
+                }
+                .decodeList<SupabaseMealRow>()
+            saveMissing(rows, fromDateKey)
+        } catch (e: Exception) {
+            println("SupabaseMealRepository pullHistory failed: ${e.message}")
+        }
+    }
+
+    private suspend fun saveMissing(rows: List<SupabaseMealRow>, fallbackDate: String) {
+        for (row in rows) {
+            val (derivedDate, derivedTime) = parseEatenAt(row.eaten_at, fallbackDate)
+            val meal = LoggedMeal(
+                id = row.id,
+                name = row.name,
+                calories = row.calories,
+                protein = row.protein_g,
+                carbs = row.carbs_g,
+                fat = row.fat_g,
+                timestamp = derivedTime,
+                date = derivedDate,
+                items = row.items
+            )
+            // Download only what this device lacks; saving every row appended duplicates.
+            localRepo.saveIfAbsent(meal)
+        }
+    }
+
     companion object {
+        private const val HISTORY_LIMIT = 3000L
+
         /**
          * Parse an ISO 8601 string into (date, displayTime).
          * "2026-09-05T14:30:00Z" → ("2026-09-05", "02:30 PM")

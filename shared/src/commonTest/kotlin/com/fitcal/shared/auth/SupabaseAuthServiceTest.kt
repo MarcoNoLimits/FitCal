@@ -1,4 +1,4 @@
-﻿package com.fitcal.shared.auth
+package com.fitcal.shared.auth
 
 import com.fitcal.shared.telemetry.TelemetryUploader
 import kotlinx.coroutines.runBlocking
@@ -11,8 +11,22 @@ class SupabaseAuthServiceTest {
         var failuresBeforeSuccess: Int = 0
     ) : SupabaseAuthService() {
         var signInAttempts: Int = 0
+        var sessionLoaded = true
+        var savedSessionUserId: String? = null
+        var restoreFailures = 0
 
-        override fun getUserId(): String? = mockUserId
+        override fun getUserId(): String? = if (sessionLoaded) mockUserId else null
+
+        override suspend fun awaitSessionLoaded() {
+            sessionLoaded = true
+        }
+
+        override suspend fun restoreSavedSession(): String? {
+            val saved = savedSessionUserId ?: return null
+            if (restoreFailures-- > 0) throw RuntimeException("Simulated refresh failure")
+            mockUserId = saved
+            return saved
+        }
 
         override suspend fun signInAnonymously(): String {
             signInAttempts++
@@ -94,5 +108,21 @@ class SupabaseAuthServiceTest {
         assertTrue(ex.message?.contains("Simulated auth failure #3") == true)
         assertEquals(3, fake.signInAttempts)
         assertEquals(listOf(1, 2, 3), reportedFailures)
+    }
+
+    @Test
+    fun keepsTheSavedAccountWhenTheSessionIsStillLoading() = runBlocking {
+        // Startup race: the account is saved but not loaded yet. Must not become a guest.
+        val fake = FakeAuthService(mockUserId = "account-123").apply { sessionLoaded = false }
+        assertEquals("account-123", fake.ensureSignedIn())
+        assertEquals(0, fake.signInAttempts)
+    }
+
+    @Test
+    fun retriesTheSavedAccountInsteadOfCreatingAGuest() = runBlocking {
+        // Refresh failed earlier (offline): the saved account comes back, no guest is made.
+        val fake = FakeAuthService().apply { savedSessionUserId = "account-123"; restoreFailures = 1 }
+        assertEquals("account-123", fake.ensureSignedIn(maxAttempts = 2, backoffsMs = listOf(0L)))
+        assertEquals(0, fake.signInAttempts)
     }
 }

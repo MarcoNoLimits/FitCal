@@ -167,6 +167,30 @@ open class SupabaseAuthService(
             ?: throw IllegalStateException("Anonymous sign-in succeeded but no user ID returned")
     }
 
+    /** Waits until the session saved on the device has been loaded (or found missing). */
+    protected open suspend fun awaitSessionLoaded() {
+        client.auth.awaitInitialization()
+    }
+
+    /**
+     * Refreshes the session saved on the device when it couldn't be refreshed earlier.
+     * Returns its user ID, null when no session is saved, and throws when the refresh
+     * fails again so the caller retries instead of creating a guest.
+     */
+    protected open suspend fun restoreSavedSession(): String? {
+        if (client.auth.sessionStatus.value !is SessionStatus.RefreshFailure) return null
+        val saved = client.auth.sessionManager.loadSessionOrNull() ?: return null
+        val refreshed = try {
+            client.auth.refreshSession(saved.refreshToken)
+        } catch (e: AuthRestException) {
+            // The server rejected the token (signed out elsewhere, revoked): it is gone for good.
+            client.auth.clearSession()
+            return null
+        }
+        client.auth.importSession(refreshed)
+        return onSignedIn()
+    }
+
     private fun onSignedIn(): String {
         val userId = client.auth.currentUserOrNull()?.id
             ?: throw IllegalStateException("Sign-in succeeded but no user ID returned")
@@ -194,6 +218,9 @@ open class SupabaseAuthService(
         backoffsMs: List<Long> = emptyList(),
         onAttemptFailed: ((attempt: Int, error: Throwable) -> Unit)? = null
     ): String {
+        // The saved session loads in the background at startup. Checking before it has
+        // loaded saw "nobody signed in" and replaced the account with a new guest.
+        awaitSessionLoaded()
         val existingId = getUserId()
         if (!existingId.isNullOrBlank()) {
             // Already signed in — wire telemetry provider (idempotent)
@@ -204,7 +231,9 @@ open class SupabaseAuthService(
         var lastException: Throwable? = null
         for (attempt in 1..maxAttempts.coerceAtLeast(1)) {
             try {
-                val userId = signInAnonymously()
+                // A saved session whose refresh failed (offline, server hiccup) is still the
+                // user's account: retry it, and only fall back to a guest when none is saved.
+                val userId = restoreSavedSession() ?: signInAnonymously()
                 TelemetryUploader.userIdProvider = { userId }
                 return userId
             } catch (e: Throwable) {
