@@ -93,6 +93,7 @@ import kotlinx.serialization.json.Json
 
 private const val KEY_PLAN_PROMPT_DISMISSED = "plan_prompt_dismissed"
 private const val KEY_PLAN_CHECKIN_SNOOZED_UNTIL = "plan_checkin_snoozed_until"
+private const val HISTORY_DAYS = 365
 
 @Composable
 fun App() {
@@ -309,6 +310,14 @@ fun App() {
                 mutableStateOf(ScanQuotaManager.getRemainingScans(selectedDateKey))
             }
 
+            // Brings back the account's last year of meals and water, so a reinstall or a new
+            // phone shows the history and not only the day on screen.
+            suspend fun pullAccountHistory() {
+                val from = com.fitcal.app.plan.addDays(getCurrentDateString(), -HISTORY_DAYS) ?: selectedDateKey
+                (mealRepository as? com.fitcal.shared.data.SupabaseMealRepository)?.pullHistory(from)
+                (userRepository as? com.fitcal.shared.data.SupabaseUserRepository)?.pullWaterHistory(from)
+            }
+
             // Runs after any sign-in. When the user ID changed (a guest signed into an existing
             // account), the guest's meals are moved into that account before pulling its data.
             suspend fun switchAccount(signIn: suspend () -> Unit) {
@@ -329,7 +338,7 @@ fun App() {
                 signOutMessage = null
                 setCrashReportingUser(authService.getUserId())
                 try {
-                    (mealRepository as? com.fitcal.shared.data.SupabaseMealRepository)?.pullRemote(selectedDateKey)
+                    pullAccountHistory()
                     (userRepository as? com.fitcal.shared.data.SupabaseUserRepository)?.pullRemote(selectedDateKey)
                     userProfile = userRepository.getUserProfile()
                     syncEngine.flushOutbox()
@@ -405,7 +414,7 @@ fun App() {
                 // ── Step 2: Boot-side effects (only after JWT confirmed) ─────────────────
                 if (userId != null) {
                     // Background sync
-                    (mealRepository as? com.fitcal.shared.data.SupabaseMealRepository)?.pullRemote(selectedDateKey)
+                    pullAccountHistory()
                     (userRepository as? com.fitcal.shared.data.SupabaseUserRepository)?.pullRemote(selectedDateKey)
                     syncEngine.flushOutbox()
                     Analytics.flush()

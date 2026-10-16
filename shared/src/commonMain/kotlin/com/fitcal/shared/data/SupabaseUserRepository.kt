@@ -66,19 +66,34 @@ class SupabaseUserRepository(
                 localRepo.saveUserProfile(updated)
             }
 
-            val waters = client.from("water_intake")
-                .select {
-                    filter {
-                        eq("day", dateKey)
-                    }
-                }
-                .decodeList<SupabaseWaterRow>()
-
-            waters.firstOrNull()?.let { row ->
-                localRepo.setWaterIntake(dateKey, row.amount_ml)
-            }
+            pullWater(dateKey, onlyDay = true)
         } catch (e: Exception) {
             println("SupabaseUserRepository pullRemote failed: ${e.message}")
+        }
+    }
+
+    /** Water for every day from [fromDateKey] on, so a reinstall gets past days back. */
+    suspend fun pullWaterHistory(fromDateKey: String) {
+        try {
+            pullWater(fromDateKey, onlyDay = false)
+        } catch (e: Exception) {
+            println("SupabaseUserRepository pullWaterHistory failed: ${e.message}")
+        }
+    }
+
+    private suspend fun pullWater(dateKey: String, onlyDay: Boolean) {
+        val waters = client.from("water_intake")
+            .select {
+                filter {
+                    if (onlyDay) eq("day", dateKey) else gte("day", dateKey)
+                }
+                limit(1000)
+            }
+            .decodeList<SupabaseWaterRow>()
+        for (row in waters) {
+            // A day already tracked on this device keeps its value; only missing days fill in.
+            if (!onlyDay && localRepo.getWaterIntake(row.day) > 0) continue
+            localRepo.setWaterIntake(row.day, row.amount_ml)
         }
     }
 }
