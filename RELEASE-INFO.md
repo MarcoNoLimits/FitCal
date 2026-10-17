@@ -68,7 +68,7 @@ Branding was validated by Google on 2026-10-12. The Web client secret was rotate
 |---|---|
 | Package name | `com.fitcal.app` |
 | Version | `versionCode 1`, `versionName 1.0` (raise `versionCode` on every upload) |
-| AdMob App ID | `ca-app-pub-8255091497626517~5945613703` |
+| AdMob App ID | `ca-app-pub-6111686385218385~4832925123` |
 | Supabase project | `uedtovphilwstzdpzjrk` (EU, Free plan) |
 | Website (Vercel `fitcal-site`, auto-deploys `site/` from `main`) | https://fitcal.tecaa.xyz/ |
 | Privacy policy | https://fitcal.tecaa.xyz/privacy.html |
@@ -95,7 +95,7 @@ All form answers (Data safety, content rating, Health declaration, target audien
 - [x] Abuse limits (2026-10-12, migration 0002 + gateway v3, tested live): clients can only read their own quota rows; recalculate is capped at 50/day per user with 30 items and 80-char names. Per user per day: up to 16 photo scans (6 free + 10 rewarded).
 - [x] Editable logged meals (2026-10-12, migration 0004 applied to production): `fitcal.meals.items` (jsonb, default `[]`, max 50 items / 32 KB) stores each meal's ingredients so it can be reopened from the dashboard. App builds from before this don't send the column; builds from after need it, so it has to stay applied.
 - [x] Optional personal plan (2026-10-12, migration 0005 applied to production): `fitcal.profiles` gained `activity_level`, `targets_mode` (`none`/`plan`/`custom`) and `plan` (jsonb, max 4 KB). All nullable; older builds don't send them. Builds from after need them, so they have to stay applied.
-- [x] AdMob (2026-10-13, account **ahmed.kanadji1@gmail.com**, publisher `pub-8255091497626517`; the ahmed.teca.kanadji911 login has a separate, empty AdMob account): all 11 sensitive categories blocked, including Weight loss and Drugs & supplements; app renamed Fitter → FitCal; European regulations (GDPR) consent message published for FitCal with Consent / Do not consent / Manage options and the privacy policy URL. Policy center: no issues.
+- [x] AdMob moved (2026-10-18): the first account (ahmed.kanadji1@gmail.com, `pub-8255091497626517`) was **rejected** by Google on 2026-10-17, no reason given. FitCal now lives in the already-approved account of **ahmed.teca.kanadji911@gmail.com**, publisher `pub-6111686385218385`: app FitCal (Android, not yet on a store) with units FitCal Banner, FitCal Interstitial and FitCal Rewarded (2 Scans). All 11 sensitive categories blocked (alcohol and gambling were already blocked by default); European regulations (GDPR) message "FitCal GDPR consent" with Consent / Do not consent (all countries) / Manage options and the privacy policy URL.
 - [ ] AdMob app status is "Review required / limited ad serving": after the first Play upload, link the app to its Play listing in AdMob (App settings → app store details) so it can be reviewed. app-ads.txt is already live and correct.
 - [ ] Supabase → Authentication → Rate Limits: lower anonymous sign-ins from 30 to 10 per hour per IP.
 - [ ] Later: AdMob server-side verification for rewarded ads, so bonus scans can't be claimed without watching an ad.
