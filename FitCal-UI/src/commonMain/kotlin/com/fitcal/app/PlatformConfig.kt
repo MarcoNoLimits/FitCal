@@ -26,6 +26,9 @@ expect fun getCurrentTimeString(): String
 expect fun getCurrentDateString(): String
 expect fun getCurrentEpochMillis(): Long
 
+// Local hour, 0–23. Used to word the dashboard's scan prompt ("Snap your lunch").
+expect fun getCurrentHourOfDay(): Int
+
 expect fun compressImage(imageBytes: ByteArray): ByteArray
 
 expect val isDebugBuild: Boolean
