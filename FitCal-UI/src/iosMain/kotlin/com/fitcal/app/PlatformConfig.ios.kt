@@ -5,6 +5,7 @@ import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSCalendar
 import platform.Foundation.NSCalendarUnitDay
+import platform.Foundation.NSCalendarUnitHour
 import com.fitcal.app.privacy.PrivacyConsent
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
@@ -143,6 +144,9 @@ actual suspend fun requestPlatformAdConsent(): Boolean = suspendCancellableCorou
         cont.resume(false)
     }
 }
+
+actual fun getCurrentHourOfDay(): Int =
+    NSCalendar.currentCalendar.component(NSCalendarUnitHour, fromDate = NSDate()).toInt()
 
 actual fun getCurrentTimeString(): String {
     val formatter = NSDateFormatter().apply {

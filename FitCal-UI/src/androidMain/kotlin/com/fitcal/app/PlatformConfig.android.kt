@@ -192,6 +192,8 @@ actual fun getCurrentTimeString(): String {
     return sdf.format(Date())
 }
 
+actual fun getCurrentHourOfDay(): Int = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+
 actual fun getCurrentDateString(): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return sdf.format(Date())

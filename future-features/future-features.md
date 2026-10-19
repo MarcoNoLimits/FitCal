@@ -171,8 +171,10 @@ Source: the competitive teardown of October 2026, which compared FitCal against 
 - [ ] Make the main number "1,240 left" with consumed and target as secondary text. Cal AI, MyFitnessPal and Lose It! all lead with remaining calories.
 
 #### U-02 · Floating scan button (P1 · S)
-- [ ] Replace the 240dp "Snap and log" card with a floating camera button that's always reachable. Today the main action is below the fold on most phones.
-- [ ] Remove the remote Unsplash stock photo from that card. It costs a network request, and it shows someone else's food on the user's dashboard.
+- [x] A floating scan button is always reachable. It docks above the banner and lands in the "Snap and log" card's shutter slot when the card scrolls up to it (option A from the scan-button prototypes). Done 2026-10-19, still needs a device check.
+- [x] Remove the remote Unsplash stock photo from that card. It's replaced by a drawn plate illustration and a meal-time prompt ("Snap your lunch"). Done 2026-10-19.
+- [ ] Later: once meal photos are stored (F-30), consider showing the user's last meal photo, blurred, as the card background.
+- [ ] Later: move to a bottom bar with a center scan button (option C) when the Progress tab (F-20) ships.
 
 #### U-03 · Clear header icons (P1 · S)
 - [ ] The Food Library uses a hamburger icon (`Icons.Default.Menu`) and Ads & Perks uses a star. Use a book or search icon for the library, and a "gift" or "+ scans" chip that shows the remaining scan count.
