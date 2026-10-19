@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 /**
  * Google AdMob PRODUCTION ad unit IDs for FitCal.
  * Registered in the AdMob console under App "FitCal"
- * (App ID ca-app-pub-8255091497626517~5945613703).
+ * (App ID ca-app-pub-6111686385218385~4832925123).
  */
 object AdConfig {
     // Android Official Google Test Ad Units (enforced in debug builds to avoid NO_FILL & Invalid Traffic)
@@ -19,11 +19,11 @@ object AdConfig {
     const val ANDROID_TEST_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712"
     const val ANDROID_TEST_REWARDED = "ca-app-pub-3940256099942544/5224354917"
 
-    // Android Production Ad Units (FitCal — App ID ca-app-pub-8255091497626517~5945613703)
-    const val ANDROID_APP_ID = "ca-app-pub-8255091497626517~5945613703"
-    const val ANDROID_PROD_BANNER = "ca-app-pub-8255091497626517/2588822623"
-    const val ANDROID_PROD_INTERSTITIAL = "ca-app-pub-8255091497626517/3343676102"
-    const val ANDROID_PROD_REWARDED = "ca-app-pub-8255091497626517/2201061388"
+    // Android Production Ad Units (FitCal — App ID ca-app-pub-6111686385218385~4832925123)
+    const val ANDROID_APP_ID = "ca-app-pub-6111686385218385~4832925123"
+    const val ANDROID_PROD_BANNER = "ca-app-pub-6111686385218385/2729505961"
+    const val ANDROID_PROD_INTERSTITIAL = "ca-app-pub-6111686385218385/4814322830"
+    const val ANDROID_PROD_REWARDED = "ca-app-pub-6111686385218385/6678068844"
 
     val ANDROID_BANNER: String
         get() = if (com.fitcal.app.isDebugBuild) ANDROID_TEST_BANNER else ANDROID_PROD_BANNER
@@ -49,7 +49,10 @@ object AdConfig {
         "Cosmetic Surgery",
         "Sexual Health",
         "Unverified Apps",
-        "Low-quality Clickbait"
+        "Low-quality Clickbait",
+        // Diet pills and rapid-weight-loss offers contradict FitCal's guides and safety limits.
+        // Mirror of the AdMob "Weight loss" sensitive-category block (set in the AdMob dashboard).
+        "Weight Loss"
     )
     val ALLOWED_AD_CATEGORIES = listOf(
         "Fitness",
@@ -189,6 +192,14 @@ object ScanQuotaManager {
         }
         return !hasQuota(dateKey)
     }
+
+    /**
+     * Whether a scan plays the processing interstitial (AGENTS.md 5.1/5.2): only once the free
+     * quota is used up, and only for users who can be shown ads at all. Free scans, including
+     * the whole first week's allowance, never play one.
+     */
+    fun shouldPlayScanAd(dateKey: String, adsAllowed: Boolean): Boolean =
+        adsAllowed && shouldForceInterstitialAd(dateKey)
 
     fun consumeScan(dateKey: String) {
         val currentUsed = getUsedScans(dateKey)

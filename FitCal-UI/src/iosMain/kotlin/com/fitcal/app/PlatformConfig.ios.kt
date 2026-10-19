@@ -41,6 +41,14 @@ actual val gatewayUrl: String get() = PlatformConfig.gatewayUrl
 actual val supabaseUrl: String get() = PlatformConfig.supabaseUrl
 actual val supabaseAnonKey: String get() = PlatformConfig.supabaseAnonKey
 actual val isDebugBuild: Boolean = true
+actual val appVersionName: String
+    get() = platform.Foundation.NSBundle.mainBundle.infoDictionary?.get("CFBundleShortVersionString") as? String ?: "unknown"
+actual val platformName: String get() = "ios"
+
+// iOS is not a v1 release target; crash reporting is Android-only for now.
+actual fun setCrashReportingEnabled(enabled: Boolean) = Unit
+actual fun setCrashReportingUser(userId: String?) = Unit
+actual fun reportNonFatal(throwable: Throwable, tag: String) = Unit
 actual val googleWebClientId: String get() = PlatformConfig.googleWebClientId
 
 // compose-auth only signs in with Google natively on Android; iOS offers Sign in with Apple.
@@ -108,6 +116,11 @@ actual fun initPrivacyConsentStore() {
  * Returns true only when the user grants tracking authorization.
  */
 @Suppress("unused", "OPT_IN_USAGE")
+// iOS is not a v1 release target; UMP privacy options are Android-only for now.
+actual fun isAdPrivacyOptionsRequired(): Boolean = false
+
+actual fun showAdPrivacyOptions(onDone: () -> Unit) = onDone()
+
 actual suspend fun requestPlatformAdConsent(): Boolean = suspendCancellableCoroutine { cont ->
     try {
         val status = ATTrackingManager.trackingAuthorizationStatus
@@ -146,41 +159,6 @@ actual fun getCurrentDateString(): String {
 }
 
 actual fun getCurrentEpochMillis(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
-
-actual fun getLastSevenDays(): List<Pair<String, String>> {
-    val list = mutableListOf<Pair<String, String>>()
-    val calendar = NSCalendar.currentCalendar
-    val formatterKey = NSDateFormatter().apply { dateFormat = "yyyy-MM-dd" }
-    val formatterDay = NSDateFormatter().apply { dateFormat = "EEE" }
-    
-    val today = NSDate()
-    val todayKey = formatterKey.stringFromDate(today)
-    
-    val yesterday = calendar.dateByAddingUnit(
-        NSCalendarUnitDay,
-        value = -1,
-        toDate = today,
-        options = 0
-    )!!
-    val yesterdayKey = formatterKey.stringFromDate(yesterday)
-    
-    for (i in -6..0) {
-        val date = calendar.dateByAddingUnit(
-            NSCalendarUnitDay,
-            value = i.toLong(),
-            toDate = today,
-            options = 0
-        )!!
-        val key = formatterKey.stringFromDate(date)
-        val dayLabel = when (key) {
-            todayKey -> "Today"
-            yesterdayKey -> "Yest"
-            else -> formatterDay.stringFromDate(date)
-        }
-        list.add(Pair(key, dayLabel))
-    }
-    return list
-}
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun compressImage(imageBytes: ByteArray): ByteArray {

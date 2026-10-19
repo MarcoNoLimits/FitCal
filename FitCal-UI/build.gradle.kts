@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.sentryAndroid)
 }
 
 kotlin {
@@ -56,6 +57,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.sentry.android.core)
             
             // CameraX
             implementation(libs.camerax.core)
@@ -139,6 +141,10 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         // Optional: Google sign-in is hidden until the OAuth web client ID is configured.
         val googleWebClientId = properties.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
+
+        // Optional: crash reporting stays off until a Sentry DSN is configured.
+        val sentryDsn = properties.getProperty("SENTRY_DSN") ?: ""
+        buildConfigField("String", "SENTRY_DSN", "\"$sentryDsn\"")
     }
 
     
@@ -170,7 +176,8 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
     
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -188,4 +195,30 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         checkReleaseBuilds = false
         abortOnError = false
     }
+}
+
+// Sentry: upload the R8 mapping on release builds so crash stack traces are readable.
+// SENTRY_AUTH_TOKEN (org token, CI scope) comes from local.properties and is never committed.
+// Without it the upload is skipped and the build still succeeds.
+val sentryProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+val sentryAuthToken: String? = sentryProps.getProperty("SENTRY_AUTH_TOKEN")?.takeIf { it.isNotBlank() }
+
+sentry {
+    org.set(sentryProps.getProperty("SENTRY_ORG") ?: "tecaa")
+    projectName.set(sentryProps.getProperty("SENTRY_PROJECT") ?: "fitcal")
+    sentryAuthToken?.let { authToken.set(it) }
+
+    includeProguardMapping.set(sentryAuthToken != null)
+    autoUploadProguardMapping.set(sentryAuthToken != null)
+    ignoredBuildTypes.set(setOf("debug"))
+
+    // The SDK version is pinned in libs.versions.toml; don't let the plugin add or upgrade it.
+    autoInstallation { enabled.set(false) }
+    // No automatic performance instrumentation (privacy: crash/ANR reporting only).
+    tracingInstrumentation { enabled.set(false) }
+    includeSourceContext.set(false)
+    includeDependenciesReport.set(false)
+    telemetry.set(false)
 }

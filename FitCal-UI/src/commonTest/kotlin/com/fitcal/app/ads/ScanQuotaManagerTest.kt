@@ -222,6 +222,33 @@ class ScanQuotaManagerTest {
         assertTrue(ScanQuotaManager.shouldForceInterstitialAd(testDateToday))
     }
 
+    @Test
+    fun freeScansNeverPlayTheScanAd() {
+        // Week 2+: 3 free scans. Even for a user who can be shown ads, scans 1-3 play nothing.
+        repeat(3) {
+            assertFalse(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true), "free scan ${it + 1}")
+            ScanQuotaManager.consumeScan(testDateToday)
+        }
+        // Scan 4+: quota used up, so the processing interstitial plays.
+        assertTrue(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+    }
+
+    @Test
+    fun firstWeekScansWithinTheAllowanceAreAdFree() {
+        memoryStore["first_install_timestamp"] = simulatedTimeMillis.toString()   // installed today
+        repeat(5) {
+            assertFalse(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true), "week-1 scan ${it + 1}")
+            ScanQuotaManager.consumeScan(testDateToday)
+        }
+        assertTrue(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+    }
+
+    @Test
+    fun noScanAdWhenAdsAreNotAllowed() {
+        repeat(3) { ScanQuotaManager.consumeScan(testDateToday) }
+        assertFalse(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = false))
+    }
+
     private class FakeSupabaseQuotaManager(
         var consumeResult: Boolean? = true,
         var snapshotResult: QuotaSnapshot? = null,

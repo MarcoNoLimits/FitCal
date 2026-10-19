@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.fitcal.app.MainActivity
+import com.fitcal.app.R
 import com.fitcal.app.ads.AndroidAdManager
 import com.fitcal.app.appContext
 import java.util.Calendar
@@ -209,7 +210,8 @@ class MealReminderReceiver : BroadcastReceiver() {
 
             val (title, body) = MealReminderManager.getNotificationContent(label)
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_menu_camera)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setColor(0xFF10B981.toInt())   // brand emerald, as in the launcher icon
                 .setContentTitle(title)
                 .setContentText(body)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(body))

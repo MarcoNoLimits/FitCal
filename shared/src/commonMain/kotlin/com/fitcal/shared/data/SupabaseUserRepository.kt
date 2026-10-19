@@ -56,24 +56,44 @@ class SupabaseUserRepository(
                     age = row.age ?: current.age,
                     gender = row.gender ?: current.gender,
                     goalType = row.goal_type ?: current.goalType,
-                    defaultPlateSize = row.default_plate_size ?: current.defaultPlateSize
-                )
+                    defaultPlateSize = row.default_plate_size ?: current.defaultPlateSize,
+                    activityLevel = row.activity_level ?: current.activityLevel,
+                    targetsMode = row.targets_mode ?: current.targetsMode
+                ).let { merged ->
+                    // A plan only counts while the mode is "plan"; an ended plan may still be in the row.
+                    merged.copy(plan = if (merged.targetsMode == "plan") row.plan ?: current.plan else null)
+                }
                 localRepo.saveUserProfile(updated)
             }
 
-            val waters = client.from("water_intake")
-                .select {
-                    filter {
-                        eq("day", dateKey)
-                    }
-                }
-                .decodeList<SupabaseWaterRow>()
-
-            waters.firstOrNull()?.let { row ->
-                localRepo.setWaterIntake(dateKey, row.amount_ml)
-            }
+            pullWater(dateKey, onlyDay = true)
         } catch (e: Exception) {
             println("SupabaseUserRepository pullRemote failed: ${e.message}")
+        }
+    }
+
+    /** Water for every day from [fromDateKey] on, so a reinstall gets past days back. */
+    suspend fun pullWaterHistory(fromDateKey: String) {
+        try {
+            pullWater(fromDateKey, onlyDay = false)
+        } catch (e: Exception) {
+            println("SupabaseUserRepository pullWaterHistory failed: ${e.message}")
+        }
+    }
+
+    private suspend fun pullWater(dateKey: String, onlyDay: Boolean) {
+        val waters = client.from("water_intake")
+            .select {
+                filter {
+                    if (onlyDay) eq("day", dateKey) else gte("day", dateKey)
+                }
+                limit(1000)
+            }
+            .decodeList<SupabaseWaterRow>()
+        for (row in waters) {
+            // A day already tracked on this device keeps its value; only missing days fill in.
+            if (!onlyDay && localRepo.getWaterIntake(row.day) > 0) continue
+            localRepo.setWaterIntake(row.day, row.amount_ml)
         }
     }
 }

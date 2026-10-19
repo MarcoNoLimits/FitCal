@@ -13,7 +13,35 @@ data class UserProfile(
     val age: Int = 25,
     val gender: String = "Male",
     val goalType: String = "Maintain",
-    val defaultPlateSize: Float = 9.0f
+    val defaultPlateSize: Float = 9.0f,
+    // "Sedentary" | "Light" | "Moderate" | "Very Active"; scales maintenance calories.
+    val activityLevel: String = "Sedentary",
+    // Where the daily targets come from: "none" (no targets shown), "plan" (from [plan]) or
+    // "custom" (the user's own numbers). Null for profiles saved before plans existed; the app
+    // then infers it from whether the goals were changed from the factory defaults.
+    val targetsMode: String? = null,
+    // The optional personal plan. Only meaningful while targetsMode is "plan".
+    val plan: PersonalPlan? = null
+)
+
+/** An optional, user-started plan: goal from [UserProfile.goalType], at a chosen pace. */
+@Serializable
+data class PersonalPlan(
+    val pace: String = "Steady",            // "Gentle" | "Steady" | "Faster"; unused for Maintain
+    val targetWeightKg: Float? = null,      // null for Maintain
+    val startDate: String,                  // YYYY-MM-DD
+    val startWeightKg: Float,
+    val lastCheckInDate: String? = null,    // YYYY-MM-DD; check-ins are optional
+    // The user's own numbers from before the plan, restored if the plan is ended.
+    val customGoalsBeforePlan: MacroGoals? = null
+)
+
+@Serializable
+data class MacroGoals(
+    val calories: Int,
+    val proteinG: Int,
+    val carbsG: Int,
+    val fatG: Int
 )
 
 @Serializable
@@ -25,7 +53,10 @@ data class LoggedMeal(
     val carbs: Float,
     val fat: Float,
     val timestamp: String,
-    val date: String = ""
+    val date: String = "",
+    // Ingredients as logged, so the meal can be reopened and corrected. Empty for meals logged
+    // before ingredients were saved; those are edited as a single portion (see toEditableResponse).
+    val items: List<FoodItem> = emptyList()
 )
 
 @Serializable

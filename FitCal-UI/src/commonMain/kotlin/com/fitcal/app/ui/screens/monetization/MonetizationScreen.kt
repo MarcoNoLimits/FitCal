@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.fitcal.app.ads.AdManager
 import com.fitcal.app.ads.ScanQuotaManager
+import com.fitcal.app.telemetry.Analytics
 import com.fitcal.app.ui.theme.*
 
 // ADS & PERKS — the quarantine home for every monetization surface.
@@ -137,15 +138,18 @@ fun MonetizationScreen(
                     color = MutedTextColor
                 )
                 Text(
-                    text = "Hit your daily limit? Watch a short sponsored video to earn 2 bonus scans instantly. No payment needed — ads keep FitCal free.",
+                    // Rewarded-ad policy: describe only the action and the reward, nothing that nudges.
+                    text = "Hit your daily limit? Watch a short video ad to get 2 bonus scans for today.",
                     style = BrandTypography.BodySmall,
                     color = TextColor
                 )
 
                 OutlinedButton(
                     onClick = {
+                        Analytics.track("rewarded_ad_requested", "source" to "perks_screen")
                         adManager.showRewardedScanUnlockAd(
                             onRewarded = {
+                                Analytics.track("rewarded_ad_earned", "source" to "perks_screen")
                                 ScanQuotaManager.addBonusScans(currentDateKey, 2)
                                 onScansUpdated()
                             },
