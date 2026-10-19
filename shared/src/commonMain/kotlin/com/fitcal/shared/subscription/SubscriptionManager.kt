@@ -199,18 +199,6 @@ object SubscriptionManager {
         }
     }
 
-    /** Overload kept for backward compatibility with callers that don't have gateway access. */
-    suspend fun purchasePlan(productId: String): Result<Boolean> {
-        // Fallback: local optimistic set (will be corrected on next server refresh)
-        _isPremiumFlow.value = true
-        storageProvider()?.let { storage ->
-            storage.putString(KEY_PREMIUM_ACTIVE, "true")
-            storage.putString(KEY_ENTITLEMENT_SOURCE, "local_optimistic")
-            storage.putString(KEY_ACTIVE_PRODUCT, productId)
-        }
-        return Result.success(true)
-    }
-
     suspend fun restorePurchases(gatewayUrl: String? = null, jwtProvider: (() -> String?)? = null): Result<Boolean> {
         return try {
             if (gatewayUrl != null && jwtProvider != null) {

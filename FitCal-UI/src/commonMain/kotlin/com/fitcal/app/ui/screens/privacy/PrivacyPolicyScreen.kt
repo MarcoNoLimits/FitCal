@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,6 +59,9 @@ fun PrivacyPolicyScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                // Keep content clear of the status bar and gesture bar (edge-to-edge).
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(scroll)
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -67,7 +72,7 @@ fun PrivacyPolicyScreen(
 
             Spacer(Modifier.height(24.dp))
             Text(
-                text = "Questions about this document? Contact us at privacy@fitcal.app",
+                text = "Questions about this document? Contact us at fitcal@tecaa.xyz",
                 fontSize = 12.sp,
                 color = MutedTextColor,
             )
@@ -113,15 +118,27 @@ private fun PrivacyPolicyContent() {
     PolicySection("What FitCal is") {
         "FitCal is a mobile application that estimates the nutritional content of a meal " +
             "from a photograph you take. It also tracks water intake, weight, and logged " +
-            "meals. It is an informational tool only and is not a medical device."
+            "meals, and can suggest optional daily calorie and macro targets. It is an " +
+            "informational tool only and is not a medical device."
     }
 
     PolicySection("What we collect") {
         "• Meal photographs you choose to capture\n" +
             "• Nutrition estimates generated from those photographs\n" +
             "• Account email address, if you choose to create an account\n" +
-            "• Water intake, weight, and meal log entries you record\n" +
-            "• Technical data: device identifiers, crash logs, and crash diagnostics\n" +
+            "• Meal log entries you record, including each meal's foods, portion weights and " +
+            "nutrition values\n" +
+            "• Water intake you record\n" +
+            "• Profile details you enter: height, weight, age, sex and activity level, and your " +
+            "daily calorie and macro targets\n" +
+            "• If you start the optional personal plan: your goal, chosen pace, target weight, " +
+            "and the weight you enter at check-ins\n" +
+            "• App usage events: which screens and features you use, scan timing and errors, " +
+            "and how much you changed an estimate before logging it (counts only, never meal " +
+            "names, nutrition values or photos)\n" +
+            "• Feedback you choose to send: your message, an optional reply email, and " +
+            "thumbs up/down ratings of estimates\n" +
+            "• Technical data: app version, device identifiers, crash reports, and diagnostics\n" +
             "• Advertising identifiers and ad interaction events (see Advertising below)"
     }
 
@@ -135,17 +152,19 @@ private fun PrivacyPolicyContent() {
     PolicySection("Legal bases for processing (GDPR)") {
         "• **Consent** (Art. 6(1)(a)) — meal photo analysis and personalized advertising\n" +
             "• **Contract** (Art. 6(1)(b)) — providing the app's core functionality\n" +
-            "• **Legitimate interests** (Art. 6(1)(f)) — crash diagnostics and security, " +
-            "balanced against your rights\n\n" +
+            "• **Legitimate interests** (Art. 6(1)(f)) — usage analytics, crash diagnostics " +
+            "and security, balanced against your rights. You can object at any time with " +
+            "Settings → Privacy → Share usage analytics.\n\n" +
             "For special-category processing we rely on your explicit consent (Art. 9(2)(a))."
     }
 
     PolicySection("Who processes your data") {
         "Our backend runs on Supabase, hosted in the EU (Ireland). Photographs are " +
-            "forwarded to third-party AI providers — OpenRouter, Google, and Groq — solely " +
+            "forwarded to third-party AI providers — Google and OpenRouter — solely " +
             "to generate estimates. " +
-            "Account data is stored in Supabase. Payments are handled by RevenueCat and " +
-            "the relevant app store; we never see your full card details."
+            "Account data and usage events are stored in Supabase. Crash reports are " +
+            "processed by Sentry. Account emails (sign-up and password codes) are sent " +
+            "through Resend."
     }
 
     PolicySection("International transfers") {
@@ -165,12 +184,14 @@ private fun PrivacyPolicyContent() {
 
     PolicySection("How long we keep data") {
         "Meal photographs and nutrition logs are retained until you delete them or " +
-            "close your account. Cached analysis results are retained for up to 30 days. " +
+            "close your account. Our servers do not keep a separate cache of analysis results. " +
+            "App usage events are retained for up to 13 months, feedback for up to 24 months. " +
             "Crash and diagnostic logs are retained for up to 90 days."
     }
 
     PolicySection("Your rights") {
         "• Withdraw consent at any time (Settings → Privacy)\n" +
+            "• Turn off usage analytics and crash reports (Settings → Privacy)\n" +
             "• Delete your account and all associated data\n" +
             "• Request a copy of the data we hold about you\n" +
             "• Correct inaccurate information\n" +
@@ -214,20 +235,12 @@ private fun TermsContent() {
             "or breastfeeding, or are taking medication."
     }
 
-    PolicySection("Subscriptions") {
-        "FitCal Premium is available as a monthly or annual subscription, billed through " +
-            "the app store you purchased from. Prices are shown in your store's currency.\n\n" +
-            "Subscriptions renew automatically unless cancelled at least 24 hours before " +
-            "the end of the current period. You can cancel in your store's subscription " +
-            "settings; refunds are handled by the store under its own policy."
-    }
-
     PolicySection("Acceptable use") {
         "You agree not to:\n" +
             "• Upload photographs of other people without their consent\n" +
             "• Reverse engineer, resell, or redistribute the app\n" +
             "• Use the app to harass, harm, or defraud anyone\n" +
-            "• Attempt to circumvent quota limits or premium access"
+            "• Attempt to circumvent quota limits"
     }
 
     PolicySection("Content and results") {
@@ -237,8 +250,8 @@ private fun TermsContent() {
     }
 
     PolicySection("Third-party services") {
-        "FitCal relies on third-party services including Supabase, OpenRouter, Google, " +
-            "Groq, and RevenueCat. Their terms also apply to you in " +
+        "FitCal relies on third-party services including Supabase, Google, OpenRouter, " +
+            "Sentry and Resend. Their terms also apply to you in " +
             "relation to their services."
     }
 

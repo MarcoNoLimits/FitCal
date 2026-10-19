@@ -1,4 +1,4 @@
-﻿package com.fitcal.app.notifications
+package com.fitcal.app.notifications
 
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -99,5 +99,27 @@ class MealReminderManagerTest {
         assertEquals("12:30 PM", MealReminderManager.formatTime12Hour(12, 30))
         assertEquals("07:00 PM", MealReminderManager.formatTime12Hour(19, 0))
         assertEquals("12:05 AM", MealReminderManager.formatTime12Hour(0, 5))
+    }
+
+    @Test
+    fun remindersArePlayfulAndMatchTheMeal() {
+        // Every pick for every seed must be about the right meal and never shame eating.
+        val banned = listOf("cheat", "guilt", "bad", "naughty", "earn", "too much", "fat")
+        for (label in listOf("Breakfast", "Lunch", "Dinner", "Afternoon Snack", "Second Breakfast", "Pre-workout", "")) {
+            val seen = mutableSetOf<Pair<String, String>>()
+            repeat(200) { seed ->
+                val (title, body) = MealReminderManager.getNotificationContent(label, kotlin.random.Random(seed))
+                seen += title to body
+                assertTrue(title.isNotBlank() && body.isNotBlank())
+                val text = "$title $body".lowercase()
+                assertTrue(text.all { it.code < 128 }, "no emojis: $text")
+                assertTrue(title.length - label.length <= 35, "keep it short: $title")
+                banned.forEach { assertFalse(Regex("\\b$it\\b") in text, "\"$it\" in: $text") }
+            }
+            assertTrue(seen.size > 1, "only one line for $label")
+        }
+        val dinner = (0 until 200).map { MealReminderManager.getNotificationContent("Dinner", kotlin.random.Random(it)) }
+        assertTrue(dinner.none { "breakfast" in it.first.lowercase() || "lunch" in it.first.lowercase() })
+        assertTrue(dinner.any { "dinner" in "${it.first} ${it.second}".lowercase() })
     }
 }

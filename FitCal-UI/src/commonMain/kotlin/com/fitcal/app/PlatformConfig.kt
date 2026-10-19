@@ -1,4 +1,4 @@
-﻿package com.fitcal.app
+package com.fitcal.app
 
 // Gateway URL (Supabase Edge Function — VLM keys stored in Supabase Vault, never in the app)
 expect val gatewayUrl: String
@@ -25,13 +25,28 @@ expect fun getCurrentTimeString(): String
 
 expect fun getCurrentDateString(): String
 expect fun getCurrentEpochMillis(): Long
-expect fun getLastSevenDays(): List<Pair<String, String>>
 
 expect fun compressImage(imageBytes: ByteArray): ByteArray
 
 expect val isDebugBuild: Boolean
 
+// App version name and platform tag, attached to every analytics batch.
+expect val appVersionName: String
+expect val platformName: String
+
 expect fun getPlatformAdManager(): com.fitcal.app.ads.AdManager
+
+/**
+ * Crash reporting (Sentry on Android). Enabled only after privacy consent and while
+ * the user keeps "Share usage analytics" on; disabling closes the SDK immediately.
+ */
+expect fun setCrashReportingEnabled(enabled: Boolean)
+
+/** Pseudonymous Supabase user ID, so a crash can be matched to that user's analytics. */
+expect fun setCrashReportingUser(userId: String?)
+
+/** Reports a caught exception. No-op while crash reporting is disabled. */
+expect fun reportNonFatal(throwable: Throwable, tag: String)
 
 expect fun syncPlatformMealReminders(
     enabled: Boolean,
@@ -49,6 +64,15 @@ expect fun syncPlatformMealReminders(
  * PrivacyConsent choice — either one denying personalization is final.
  */
 expect suspend fun requestPlatformAdConsent(): Boolean
+
+/**
+ * Whether Google's consent tool (UMP) requires a "privacy options" entry point for this user
+ * (EEA/UK and similar). When true, Settings offers a way to reopen the consent form.
+ */
+expect fun isAdPrivacyOptionsRequired(): Boolean
+
+/** Reopens Google's consent form so the user can change their ad consent. */
+expect fun showAdPrivacyOptions(onDone: () -> Unit)
 
 /**
  * Binds the platform preference store into [PrivacyConsent] so consent

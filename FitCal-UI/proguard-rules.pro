@@ -42,3 +42,13 @@
 # Coil
 -dontwarn coil3.**
 
+
+# Ktor discovers its HTTP engine and serialization providers via ServiceLoader
+-keep class io.ktor.client.engine.** { *; }
+-keep class io.ktor.serialization.kotlinx.** { *; }
+-dontwarn org.slf4j.**
+-dontwarn java.lang.management.**
+
+# Keep line numbers in Sentry stack traces (upload mapping.txt to de-obfuscate)
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

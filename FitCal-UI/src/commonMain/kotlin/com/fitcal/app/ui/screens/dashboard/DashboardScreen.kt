@@ -15,8 +15,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -37,12 +38,24 @@ import coil3.compose.AsyncImage
 import com.fitcal.app.ads.AdBanner
 import com.fitcal.app.getCurrentDateString
 import com.fitcal.app.ui.components.PressableBox
-import com.fitcal.app.ui.components.calculateBmr
+import com.fitcal.app.ui.components.maintenanceCalories
 import com.fitcal.app.ui.components.getAiCoachFeedback
 import com.fitcal.app.ui.screens.dashboard.components.CalendarStrip
 import com.fitcal.app.ui.screens.dashboard.components.CircularCalorieProgressRing
 import com.fitcal.app.ui.screens.dashboard.components.DashboardMacroCard
+import com.fitcal.app.ui.screens.dashboard.components.PlanCheckInCard
+import com.fitcal.app.ui.screens.dashboard.components.PlanPromptCard
+import com.fitcal.app.ui.screens.dashboard.components.PlanTargetReachedCard
 import com.fitcal.app.ui.screens.dashboard.components.WaterTrackerCard
+import com.fitcal.app.plan.PlanGoal
+import com.fitcal.app.learn.GuideIds
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.Role
+import com.fitcal.app.plan.TargetsMode
+import com.fitcal.app.plan.hasReachedTarget
+import com.fitcal.app.plan.isCheckInDue
+import com.fitcal.app.plan.projectedTargetDate
+import com.fitcal.app.plan.resolvedTargetsMode
 import com.fitcal.app.ui.theme.*
 import com.fitcal.shared.model.LoggedMeal
 import com.fitcal.shared.model.UserProfile
@@ -63,7 +76,22 @@ fun DashboardScreen(
     onMonetizationClicked: () -> Unit,
     onOpenFoodLibrary: () -> Unit = {},
     onDeleteMeal: (LoggedMeal) -> Unit,
-    onRestoreMeal: (LoggedMeal) -> Unit
+    onMealClicked: (LoggedMeal) -> Unit,
+    onRestoreMeal: (LoggedMeal) -> Unit,
+    // Optional personal plan
+    today: String = getCurrentDateString(),
+    showPlanPrompt: Boolean = false,
+    onSetUpPlan: () -> Unit = {},
+    onDismissPlanPrompt: () -> Unit = {},
+    checkInSnoozedUntil: String? = null,
+    onCheckIn: (Float) -> Unit = {},
+    onSnoozeCheckIn: () -> Unit = {},
+    onSwitchToMaintain: () -> Unit = {},
+    onEndPlan: () -> Unit = {},
+    // Opens a guide from Library → Guides by id (see com.fitcal.app.learn.Guides).
+    onOpenGuide: (String) -> Unit = {},
+    // Without a calorie target, a full ring = this many kcal (the recent daily high).
+    ringScaleKcal: Int = 0,
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -87,6 +115,14 @@ fun DashboardScreen(
     val totalCarbs = filteredMeals.sumOf { it.carbs.toDouble() }.toFloat()
     val totalFat = filteredMeals.sumOf { it.fat.toDouble() }.toFloat()
 
+    // Targets are optional: without a plan or own numbers, show what was eaten, no goals.
+    val targetsMode = remember(profile) { profile.resolvedTargetsMode() }
+    val hasTargets = targetsMode != TargetsMode.NONE
+    val planGoal = PlanGoal.fromKey(profile.goalType)
+    val planTarget = profile.plan?.targetWeightKg
+    val targetReached = targetsMode == TargetsMode.PLAN && hasReachedTarget(planGoal, profile.weight, planTarget)
+    val checkInDue = !targetReached && profile.isCheckInDue(today, checkInSnoozedUntil)
+
     val caloriePercent = if (profile.calGoal > 0) ((totalCalories.toFloat() / profile.calGoal) * 100).toInt() else 0
     val proteinPercent = if (profile.proteinGoal > 0) ((totalProtein / profile.proteinGoal) * 100).toInt() else 0
     val carbsPercent = if (profile.carbsGoal > 0) ((totalCarbs / profile.carbsGoal) * 100).toInt() else 0
@@ -97,10 +133,8 @@ fun DashboardScreen(
         getAiCoachFeedback(totalProtein, totalCarbs, totalFat, totalCalories, profile)
     }
 
-    // Calculate BMR
-    val bmr = remember(profile) { calculateBmr(profile) }
-    val activeBurnMultiplier = 1.2f
-    val maintenanceCal = (bmr * activeBurnMultiplier).toInt()
+    // Maintenance calories for the user's activity level
+    val maintenanceCal = remember(profile) { maintenanceCalories(profile) }
     val deficitBalance = maintenanceCal - totalCalories
 
     Scaffold(
@@ -113,7 +147,10 @@ fun DashboardScreen(
                     .navigationBarsPadding()
             )
         },
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        // The content applies statusBarsPadding() itself; the default insets would add the
+        // status bar a second time and leave a big gap above the header.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -147,63 +184,24 @@ fun DashboardScreen(
                     )
                 }
 
-                Row {
+                // Spaced so the circles never touch; each keeps a 44dp hit area (F0.3).
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     // Food Library — browsable reference content. First-class surface
                     // (not buried in Settings): AdMob rejected earlier builds partly for thin
                     // content, and this is genuine user value independent of scanning.
-                    IconButton(
-                        onClick = onOpenFoodLibrary,
-                        modifier = Modifier
-                            .size(44.dp) // F0.3: min 44dp hit area
-                            .shadow(1.dp, CircleShape)
-                            .background(Color.White, CircleShape)
-                            .border(1.dp, BorderColor, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Food Library",
-                            tint = TextColor,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    // Search icon: the library is searched; a ☰ read as "open the menu".
+                    HeaderIconButton(Icons.Default.Search, "Food Library", onOpenFoodLibrary)
                     // Ads & Perks - monetization is a first-class surface, NOT buried in Settings.
                     // Star icon opens the dedicated Ads & Perks screen (quota, rewarded ads, provider).
-                    IconButton(
-                        onClick = onMonetizationClicked,
-                        modifier = Modifier
-                            .size(44.dp) // F0.3: min 44dp hit area
-                            .shadow(1.dp, CircleShape)
-                            .background(Color.White, CircleShape)
-                            .border(1.dp, BorderColor, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Ads & Perks",
-                            tint = TextColor,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    IconButton(
-                        onClick = onSettingsClicked,
-                        modifier = Modifier
-                            .size(44.dp) // F0.3: min 44dp hit area
-                            .shadow(1.dp, CircleShape)
-                            .background(Color.White, CircleShape)
-                            .border(1.dp, BorderColor, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
-                            tint = TextColor,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    HeaderIconButton(Icons.Default.Star, "Ads & Perks", onMonetizationClicked)
+                    HeaderIconButton(Icons.Default.Settings, "Settings", onSettingsClicked)
                 }
             }
 
             // Calendar Day Selection Strip
             CalendarStrip(
                 selectedDate = selectedDate,
+                today = today,
                 onDateSelected = onDateSelected
             )
 
@@ -225,7 +223,8 @@ fun DashboardScreen(
                 ) {
                     CircularCalorieProgressRing(
                         consumed = totalCalories,
-                        goal = profile.calGoal
+                        goal = if (hasTargets) profile.calGoal else 0,
+                        scaleKcal = ringScaleKcal
                     )
 
                     Column(
@@ -254,7 +253,7 @@ fun DashboardScreen(
                             )
                         }
 
-                        Column {
+                        if (hasTargets) Column {
                             Text(
                                 text = "Daily Budget",
                                 style = BrandTypography.BodySmall,
@@ -265,9 +264,26 @@ fun DashboardScreen(
                                 style = BrandTypography.KpiNumeral,
                                 color = PrimaryAccent
                             )
+                        } else {
+                            Text(
+                                text = "No daily target set",
+                                style = BrandTypography.BodySmall,
+                                color = MutedTextColor
+                            )
                         }
 
-                        Column {
+                        Text(
+                            text = "What's a kcal?",
+                            style = BrandTypography.BodySmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = PrimaryAccent,
+                            modifier = Modifier
+                                .clickable(role = Role.Button) { onOpenGuide(GuideIds.CALORIES) }
+                                .padding(vertical = 6.dp)
+                        )
+
+                        // Maintenance needs real body stats, which only a plan guarantees.
+                        if (targetsMode == TargetsMode.PLAN) Column {
                             Text(
                                 text = "BMR Deficit",
                                 style = BrandTypography.BodySmall,
@@ -291,14 +307,35 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Box(modifier = Modifier.weight(1f)) {
-                    DashboardMacroCard("Protein", "${totalProtein.toInt()}g", "$proteinPercent%", ProteinColor)
+                    DashboardMacroCard("Protein", "${totalProtein.toInt()}g", if (hasTargets) "$proteinPercent%" else "", ProteinColor) { onOpenGuide(GuideIds.PROTEIN) }
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    DashboardMacroCard("Carbs", "${totalCarbs.toInt()}g", "$carbsPercent%", CarbsColor)
+                    DashboardMacroCard("Carbs", "${totalCarbs.toInt()}g", if (hasTargets) "$carbsPercent%" else "", CarbsColor) { onOpenGuide(GuideIds.CARBS) }
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    DashboardMacroCard("Fats", "${totalFat.toInt()}g", "$fatPercent%", FatColor)
+                    DashboardMacroCard("Fats", "${totalFat.toInt()}g", if (hasTargets) "$fatPercent%" else "", FatColor) { onOpenGuide(GuideIds.FAT) }
                 }
+            }
+
+            // Optional personal plan: invitation, check-in, or target reached
+            when {
+                targetReached && planTarget != null -> PlanTargetReachedCard(
+                    targetWeightKg = planTarget,
+                    onMaintain = onSwitchToMaintain,
+                    onNewTarget = onSetUpPlan,
+                    onEndPlan = onEndPlan,
+                )
+                checkInDue -> PlanCheckInCard(
+                    currentWeightKg = profile.weight,
+                    projectedDate = profile.projectedTargetDate(today),
+                    onUpdate = onCheckIn,
+                    onNotNow = onSnoozeCheckIn,
+                    onWhyFluctuates = { onOpenGuide(GuideIds.TRACKING_WEIGHT) },
+                )
+                targetsMode == TargetsMode.NONE && showPlanPrompt -> PlanPromptCard(
+                    onSetUp = onSetUpPlan,
+                    onDismiss = onDismissPlanPrompt,
+                )
             }
 
             // Water Intake Logger
@@ -308,7 +345,8 @@ fun DashboardScreen(
             )
 
             // F1.1 + F2.1: AI Coach card — was Color(0xFFF8FAFC)/9.sp → InfoPanel/Eyebrow
-            Card(
+            // Its advice compares intake with targets, so it needs targets.
+            if (hasTargets) Card(
                 colors = CardDefaults.cardColors(containerColor = InfoPanel),
                 shape = RoundedCornerShape(RadiusL), // F1.2: was 20.dp → RadiusL=24
                 modifier = Modifier
@@ -491,98 +529,101 @@ fun DashboardScreen(
                     }
                 } else {
                     filteredMeals.forEachIndexed { filteredIndex, meal ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .shadow(1.dp, RoundedCornerShape(RadiusM))
-                                .background(Color.White, RoundedCornerShape(RadiusM))
-                                .border(1.dp, BorderColor, RoundedCornerShape(RadiusM))
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            val emoji = remember(meal.name) {
-                                val lower = meal.name.lowercase()
-                                when {
-                                    lower.contains("salad") || lower.contains("bowl") || lower.contains("quinoa") || lower.contains("avocado") -> "🥗"
-                                    lower.contains("salmon") || lower.contains("fish") || lower.contains("seafood") -> "🐟"
-                                    lower.contains("egg") -> "🍳"
-                                    lower.contains("steak") || lower.contains("beef") || lower.contains("pork") || lower.contains("meat") -> "🥩"
-                                    lower.contains("chicken") || lower.contains("turkey") || lower.contains("poultry") -> "🍗"
-                                    lower.contains("fruit") || lower.contains("apple") || lower.contains("banana") -> "🍎"
-                                    else -> "🍱"
-                                }
-                            }
-
-                            Box(
-                                contentAlignment = Alignment.Center,
+                        // Tap a logged meal to reopen its ingredients and correct them.
+                        PressableBox(onTap = { onMealClicked(meal) }) {
+                            Row(
                                 modifier = Modifier
-                                    .size(48.dp)
-                                    // F1.1: was Color(0xFFF1F5F9) → SurfaceTint
-                                    .background(SurfaceTint, CircleShape)
+                                    .fillMaxWidth()
+                                    .shadow(1.dp, RoundedCornerShape(RadiusM))
+                                    .background(Color.White, RoundedCornerShape(RadiusM))
+                                    .border(1.dp, BorderColor, RoundedCornerShape(RadiusM))
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                Text(text = emoji, fontSize = 24.sp) // non-interactive decoration
-                            }
+                                val emoji = remember(meal.name) {
+                                    val lower = meal.name.lowercase()
+                                    when {
+                                        lower.contains("salad") || lower.contains("bowl") || lower.contains("quinoa") || lower.contains("avocado") -> "🥗"
+                                        lower.contains("salmon") || lower.contains("fish") || lower.contains("seafood") -> "🐟"
+                                        lower.contains("egg") -> "🍳"
+                                        lower.contains("steak") || lower.contains("beef") || lower.contains("pork") || lower.contains("meat") -> "🥩"
+                                        lower.contains("chicken") || lower.contains("turkey") || lower.contains("poultry") -> "🍗"
+                                        lower.contains("fruit") || lower.contains("apple") || lower.contains("banana") -> "🍎"
+                                        else -> "🍱"
+                                    }
+                                }
 
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = meal.name,
-                                    style = BrandTypography.SectionTitle,
-                                    color = TextColor
-                                )
-                                Text(
-                                    text = "${meal.timestamp} | P: ${meal.protein.toInt()}g C: ${meal.carbs.toInt()}g F: ${meal.fat.toInt()}g",
-                                    // F2.2: Micro (11sp) at MutedTextColor — 11sp >= 12sp threshold? No — spec says nothing below 12sp
-                                    // in MutedTextColor. Substitution: use BodySmall (12sp) for this secondary line.
-                                    style = BrandTypography.BodySmall,
-                                    color = MutedTextColor
-                                )
-                            }
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        // F1.1: was Color(0xFFF1F5F9) → SurfaceTint
+                                        .background(SurfaceTint, CircleShape)
+                                ) {
+                                    Text(text = emoji, fontSize = 24.sp) // non-interactive decoration
+                                }
 
-                            Column(
-                                horizontalAlignment = Alignment.End,
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text(
-                                    text = "${meal.calories} kcal",
-                                    style = BrandTypography.SectionTitle,
-                                    color = TextColor
-                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = meal.name,
+                                        style = BrandTypography.SectionTitle,
+                                        color = TextColor
+                                    )
+                                    Text(
+                                        text = "${meal.timestamp} | P: ${meal.protein.toInt()}g C: ${meal.carbs.toInt()}g F: ${meal.fat.toInt()}g",
+                                        // F2.2: Micro (11sp) at MutedTextColor — 11sp >= 12sp threshold? No — spec says nothing below 12sp
+                                        // in MutedTextColor. Substitution: use BodySmall (12sp) for this secondary line.
+                                        style = BrandTypography.BodySmall,
+                                        color = MutedTextColor
+                                    )
+                                }
 
-                                // F0.3: wrap delete icon in IconButton (≥44dp hit area)
-                                // F0.2: onDeleteMeal now receives the meal object; undo slot updated
-                                IconButton(
-                                    onClick = {
-                                        val position = filteredIndex
-                                        pendingUndoMeal = Pair(meal, position)
-                                        onDeleteMeal(meal)
-                                        // Auto-dismiss snackbar after 5s; the LaunchedEffect below handles it
-                                        coroutineScope.launch {
-                                            val result = snackbarHostState.showSnackbar(
-                                                message = "Meal deleted",
-                                                actionLabel = "Undo",
-                                                duration = SnackbarDuration.Short // ~4s — closest to 5s in M3
-                                            )
-                                            if (result == SnackbarResult.ActionPerformed) {
-                                                val toRestore = pendingUndoMeal
-                                                if (toRestore != null) {
-                                                    onRestoreMeal(toRestore.first)
+                                Column(
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "${meal.calories} kcal",
+                                        style = BrandTypography.SectionTitle,
+                                        color = TextColor
+                                    )
+
+                                    // F0.3: wrap delete icon in IconButton (≥44dp hit area)
+                                    // F0.2: onDeleteMeal now receives the meal object; undo slot updated
+                                    IconButton(
+                                        onClick = {
+                                            val position = filteredIndex
+                                            pendingUndoMeal = Pair(meal, position)
+                                            onDeleteMeal(meal)
+                                            // Auto-dismiss snackbar after 5s; the LaunchedEffect below handles it
+                                            coroutineScope.launch {
+                                                val result = snackbarHostState.showSnackbar(
+                                                    message = "Meal deleted",
+                                                    actionLabel = "Undo",
+                                                    duration = SnackbarDuration.Short // ~4s — closest to 5s in M3
+                                                )
+                                                if (result == SnackbarResult.ActionPerformed) {
+                                                    val toRestore = pendingUndoMeal
+                                                    if (toRestore != null) {
+                                                        onRestoreMeal(toRestore.first)
+                                                        pendingUndoMeal = null
+                                                    }
+                                                } else {
                                                     pendingUndoMeal = null
                                                 }
-                                            } else {
-                                                pendingUndoMeal = null
                                             }
-                                        }
-                                    },
-                                    modifier = Modifier.size(44.dp) // F0.3: ≥44dp
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Delete meal ${meal.name}",
-                                        // F1.1: was Color(0xFFEF4444) → DangerColor
-                                        tint = DangerColor.copy(alpha = 0.8f),
-                                        modifier = Modifier.size(20.dp)
-                                    )
+                                        },
+                                        modifier = Modifier.size(44.dp) // F0.3: ≥44dp
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "Delete meal ${meal.name}",
+                                            // F1.1: was Color(0xFFEF4444) → DangerColor
+                                            tint = DangerColor.copy(alpha = 0.8f),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -590,5 +631,25 @@ fun DashboardScreen(
                 }
             }
         }
+    }
+}
+
+/** Round header action: 44dp hit area, white surface with a hairline border. */
+@Composable
+private fun HeaderIconButton(icon: ImageVector, description: String, onClick: () -> Unit) {
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier
+            .size(44.dp)
+            .shadow(1.dp, CircleShape)
+            .background(Color.White, CircleShape)
+            .border(1.dp, BorderColor, CircleShape)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            tint = TextColor,
+            modifier = Modifier.size(20.dp)
+        )
     }
 }

@@ -10,7 +10,7 @@ This file is the authoritative instruction set for any agent (AI or human) worki
 
 - **Modules**: `:shared` (HTTP clients, models, VLM logic), `:FitCal-UI` (Compose Multiplatform UI + ads + quotas), `iosApp/` (native iOS wrapper).
 - **Release scope**: **Android only for v1.** iOS code stays in the repo but is not a release target.
-- **Backend**: Supabase (Postgres + RLS, Auth). The only AI gateway is the Edge Function `supabase/functions/analyze-meal`; it holds the paid provider keys. (The old Cloudflare Worker was removed.)
+- **Backend**: Supabase (Postgres + RLS, Auth). The only AI gateway is the Edge Function `supabase/functions/analyze-meal`; it holds the paid provider keys. (The old Cloudflare Worker was removed.) FitCal has its **own Supabase project** `uedtovphilwstzdpzjrk` (EU, since 2026-10-11; the old shared project `mpsqdaptkkasjoepamwl` also hosts other apps, and its history is in `supabase/legacy-shared-project/`). All tables and RPCs live in schema `fitcal` (baseline: `supabase/migrations/0001_fitcal_baseline.sql`); analytics and feedback are documented in `ANALYTICS.md`.
 - **VLM Pipeline** (inside the gateway): Gemini → OpenRouter (Qwen VL) → Groq (`qwen/qwen3.8-27b`) failover.
 - **Monetization state**: Google AdMob only (banners, forced interstitial at quota, rewarded); test IDs in debug builds. Daily scan quota system live (`ScanQuotaManager`).
 
@@ -39,12 +39,12 @@ This file is the authoritative instruction set for any agent (AI or human) worki
 | 2 | Forced interstitial on scan #4+ | **DONE** | Scan never blocked; routes to `showScanProcessingAd` |
 | 3 | AppLovin MAX mediation | **REMOVED** | Owner decision 2026-10-07: AdMob only for launch; MAX was never configured |
 | 4 | App Open Ads | **REMOVED** | Owner decision 2026-10-07: dropped for launch (retention over low-value impressions) |
-| 5 | Adaptive banners on secondary tabs only | **DONE** | Isolated to Dashboard & Settings; zero ads on Camera/Review |
-| 6 | Brand-safety ad filtering | **DONE** | Codified blocked/allowed categories in `AdConfig` |
+| 5 | Adaptive banners on secondary tabs only | **DONE** | Dashboard, Settings, Library and Guides (owner decision 2026-10-13; not on sensitive guides such as "When to talk to a professional"); zero ads on Camera/Review |
+| 6 | Brand-safety ad filtering | **DONE** | Listed in `AdConfig`; all 11 AdMob sensitive categories blocked in the dashboard on 2026-10-13 |
 | 7 | Keep `ScanQuotaManagerTest` green (expanded to 9 tests) | **DONE** | 9/9 passing |
 | 8 | Production Architecture: Secure Serverless Gateway | **DONE** | Supabase Edge Function `analyze-meal`: verified JWT on every call, server-side quota and allowance, kill switch, API key isolation |
 | 9 | Commercial VLM Provider Migration (Pay-As-You-Go) | **DONE** | Gemini 2.0 Flash primary with x-goog-api-key header isolation, Qwen/Groq automated edge failover |
-| 10 | FitCal Premium Subscription Paywall (RevenueCat) | **DONE** | $4.99/mo & $39.99/yr plans, entitlement gates ad flow + grants unlimited scans |
+| 10 | FitCal Premium Subscription Paywall (RevenueCat) | **DEFERRED to v1.1** | Owner decision 2026-10-12: launch without Premium. Server side exists (webhook, `fitcal.entitlements`, `/v1/entitlements`, `SubscriptionManager`); missing: RevenueCat SDK, paywall UI, app user ID = Supabase user ID, `REVENUECAT_WEBHOOK_SECRET`. Do not advertise Premium in store text or policies until it ships. |
 
 ## 5. THE MONETIZATION TASK (Canonical Specification)
 
@@ -88,13 +88,13 @@ When the user has exhausted their free daily quota and attempts another scan:
 
 ### 5.5 Banner Ads (Task 5)
 
-- **Adaptive banners ONLY** on passive screens: Macro History, Profile/Settings, Recipe Detail.
+- **Adaptive banners ONLY** on passive screens: Macro History, Profile/Settings, Recipe Detail, Library and Guides. Guides marked `adFree` (health conditions, eating disorders) never show one.
 - **NEVER** on the Camera/Scan view or the scan results flow.
 - Banners are a low-eCPM baseline floor ($0.50–$2.50); they must never block the primary action.
 
 ### 5.6 Brand Safety (Task 6)
 
-- In MAX/AdMob dashboards enable **strict category blocking**: Block Gambling, Dating, Politics, Religion, Cosmetic Surgery, Sexual Health, Unverified Apps, Low-quality Clickbait.
+- In MAX/AdMob dashboards enable **strict category blocking**: Block Gambling, Dating, Politics, Religion, Cosmetic Surgery, Sexual Health, Unverified Apps, Low-quality Clickbait, Weight Loss (diet pills and rapid-loss offers contradict the guides and plan safety limits).
 - Allow only: Fitness, Food & Beverage, Sports, Technology, Productivity, Mobile Games.
 - Users must never see disturbing/repulsive ads — this is the explicit failure condition.
 
@@ -130,7 +130,7 @@ When the user has exhausted their free daily quota and attempts another scan:
 - [x] ~~App Open ad respects `sessionCount > 3` + 4h cooldown.~~ (App Open ads removed 2026-10-07)
 - [x] Deploy secure serverless gateway proxy (Task 8).
 - [x] Upgrade VLM pipeline to Vertex AI / Gemini 2.0 Flash Pay-As-You-Go with zero data retention (Task 9).
-- [x] Integrate RevenueCat subscription paywall for FitCal Premium (Task 10).
+- [ ] Integrate RevenueCat subscription paywall for FitCal Premium (Task 10) — deferred to v1.1.
 - [ ] Merge via PR with the monetization spec referenced in the description.
 
 ---

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar version of the Macro F mark (ic_launcher_foreground.xml). Android draws
+     notification icons from the alpha channel only, so every part is plain white; the
+     brand colour comes from NotificationCompat.Builder.setColor. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="56"
+    android:viewportHeight="56">
+    <group
+        android:translateX="-28"
+        android:translateY="-26">
+        <!-- Stem -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M40.5,28 A6.5,6.5 0 0,1 47,34.5 V73.5 A6.5,6.5 0 0,1 34,73.5 V34.5 A6.5,6.5 0 0,1 40.5,28 Z" />
+        <!-- Top arm -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M40.5,28 H69.5 A6.5,6.5 0 0,1 69.5,41 H40.5 A6.5,6.5 0 0,1 40.5,28 Z" />
+        <!-- Middle arm -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M40.5,48 H57.5 A6.5,6.5 0 0,1 57.5,61 H40.5 A6.5,6.5 0 0,1 40.5,48 Z" />
+        <!-- Protein dot -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M72,68 A6,6 0 1,1 71.99,68 Z" />
+    </group>
+</vector>

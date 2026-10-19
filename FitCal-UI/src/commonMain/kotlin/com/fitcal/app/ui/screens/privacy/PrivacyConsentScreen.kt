@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -46,7 +47,6 @@ import com.fitcal.app.ui.theme.MutedTextColor
 import com.fitcal.app.ui.theme.PrimaryAccent
 import com.fitcal.app.ui.theme.SurfaceTint
 import com.fitcal.app.ui.theme.TextColor
-import com.fitcal.app.getCurrentTimeString
 
 /**
  * First-launch privacy & consent gate.
@@ -75,6 +75,9 @@ fun PrivacyConsentScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BgColor)
+            // Keep content clear of the status bar and gesture bar (edge-to-edge).
+            .statusBarsPadding()
+            .navigationBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -100,7 +103,7 @@ fun PrivacyConsentScreen(
                 "• Your account email, if you create one\n" +
                 "• Meal, water and weight entries you log\n\n" +
                 "Images are processed by our server and forwarded to third-party AI " +
-                "providers (OpenRouter, Google, Groq) to generate estimates.",
+                "providers (Google, OpenRouter) to generate estimates.",
         )
 
         InfoCard(
@@ -237,12 +240,14 @@ fun PrivacyConsentScreen(
         }
 
         // ── Medical disclaimer: shown up-front, not buried in settings ──────────
-        Box(
+        // Column, not Box: a Box stacks its children, which drew the title over the text.
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(DangerSoft, RoundedCornerShape(12.dp))
                 .border(1.dp, DangerBorder, RoundedCornerShape(12.dp))
                 .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 text = "Not medical advice",
@@ -250,7 +255,6 @@ fun PrivacyConsentScreen(
                 fontWeight = FontWeight.Bold,
                 color = DangerTextStrong,
             )
-            Spacer(Modifier.height(4.dp))
             Text(
                 text = "FitCal provides automated estimates only. Values are approximate and " +
                     "not a substitute for a registered dietitian or doctor. Do not use FitCal to " +
@@ -263,7 +267,7 @@ fun PrivacyConsentScreen(
         }
 
         Text(
-            text = "Consent recorded ${getCurrentTimeString()}. " +
+            text = "Your choice is saved with the time you make it. " +
                 "You can withdraw or delete everything from Settings → Privacy.",
             fontSize = 11.sp,
             color = MutedTextColor,

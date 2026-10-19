@@ -1,4 +1,4 @@
-﻿package com.fitcal.app.notifications
+package com.fitcal.app.notifications
 
 import com.fitcal.app.getCurrentEpochMillis
 import com.fitcal.app.loadPreference
@@ -7,6 +7,7 @@ import com.fitcal.app.syncPlatformMealReminders
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.random.Random
 
 @Serializable
 data class MealReminder(
@@ -156,10 +157,20 @@ object MealReminderManager {
         return "$hourPad:$minPad $period"
     }
 
-    fun getNotificationContent(label: String): Pair<String, String> {
-        val cleanLabel = label.trim().ifEmpty { "Meal" }
-        val title = "Time for $cleanLabel! 📸"
-        val body = "Snap a quick photo of your ${cleanLabel.lowercase()} to track your calories & macros in seconds."
-        return Pair(title, body)
+    /**
+     * A short, light reminder, picked at random so it isn't the same line every day.
+     * Keep them simple: one short line, no emojis, no guilt, nothing about how much someone eats.
+     */
+    fun getNotificationContent(label: String, random: Random = Random.Default): Pair<String, String> {
+        val meal = label.trim().ifEmpty { "Meal" }.lowercase()
+        val titles = when {
+            "breakfast" in meal -> listOf("Let me see your breakfast", "Breakfast time?", "What's for breakfast?")
+            "lunch" in meal -> listOf("Let me see your lunch", "Lunch time?", "What's for lunch?")
+            "dinner" in meal || "supper" in meal -> listOf("Let me see your dinner", "Dinner time?", "What's for dinner?")
+            "snack" in meal -> listOf("Let me see your snack", "Snack time?")
+            else -> listOf("Let me see your $meal", "$meal time?".replaceFirstChar { it.uppercase() })
+        }
+        val all = titles + "You forgot to send me your $meal?"
+        return all[random.nextInt(all.size)] to "Snap a photo and it's logged."
     }
 }

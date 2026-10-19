@@ -39,10 +39,15 @@
             </intent-filter>
         </receiver>
 
+        <!-- Sentry starts from code only after privacy consent (CrashReporting.android.kt). -->
+        <meta-data
+            android:name="io.sentry.auto-init"
+            android:value="false"/>
+
         <!-- Google Mobile Ads (AdMob) Production Application ID for FitCal -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8255091497626517~5945613703"/>
+            android:value="ca-app-pub-6111686385218385~4832925123"/>
         
     </application>
 

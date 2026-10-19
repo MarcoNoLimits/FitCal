@@ -12,6 +12,14 @@ object CameraDestination
 @Serializable
 data class ResultDestination(val responseJson: String)
 
+/** The optional personal plan: set up, or edit an existing one. */
+@Serializable
+object PlanDestination
+
+/** A logged meal reopened from the dashboard for correction. */
+@Serializable
+data class EditMealDestination(val mealId: String)
+
 @Serializable
 object MonetizationDestination
 
@@ -29,3 +37,7 @@ object TermsDestination
 
 @Serializable
 object FoodLibraryDestination
+
+/** A nutrition guide; [source] says where it was opened from (for analytics). */
+@Serializable
+data class GuideDestination(val guideId: String, val source: String)

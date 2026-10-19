@@ -7,6 +7,7 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import com.fitcal.app.ads.AndroidAdManager
 import com.fitcal.app.privacy.PrivacyConsent
+import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -22,6 +23,8 @@ actual val gatewayUrl: String get() = BuildConfig.GATEWAY_URL
 actual val supabaseUrl: String get() = BuildConfig.SUPABASE_URL
 actual val supabaseAnonKey: String get() = BuildConfig.SUPABASE_ANON_KEY
 actual val isDebugBuild: Boolean get() = BuildConfig.DEBUG
+actual val appVersionName: String get() = BuildConfig.VERSION_NAME
+actual val platformName: String get() = "android"
 actual val googleWebClientId: String get() = BuildConfig.GOOGLE_WEB_CLIENT_ID
 actual val isGoogleSignInAvailable: Boolean get() = googleWebClientId.isNotBlank()
 actual val isAppleSignInAvailable: Boolean get() = false
@@ -30,6 +33,9 @@ actual fun createSecureStringStore(): com.fitcal.shared.auth.SecureStringStore? 
     com.fitcal.app.auth.KeystoreStringStore(appContext)
 
 lateinit var appContext: Context
+
+/** False in JVM unit tests, where no Activity ever sets [appContext]. */
+val isAppContextReady: Boolean get() = ::appContext.isInitialized
 
 actual fun savePreference(key: String, value: String) {
     val sharedPref = appContext.getSharedPreferences("fitcal_prefs", Context.MODE_PRIVATE)
@@ -161,6 +167,26 @@ actual suspend fun requestPlatformAdConsent(): Boolean = suspendCancellableCorou
     }
 }
 
+actual fun isAdPrivacyOptionsRequired(): Boolean {
+    val activity = AndroidAdManager.currentActivityRef?.get() ?: return false
+    return UserMessagingPlatform.getConsentInformation(activity).privacyOptionsRequirementStatus ==
+        ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+}
+
+actual fun showAdPrivacyOptions(onDone: () -> Unit) {
+    val activity = AndroidAdManager.currentActivityRef?.get()
+    if (activity == null) {
+        onDone()
+        return
+    }
+    UserMessagingPlatform.showPrivacyOptionsForm(activity) { formError ->
+        if (formError != null) {
+            android.util.Log.w("FitCal_Privacy", "UMP privacy options error: ${formError.message}")
+        }
+        onDone()
+    }
+}
+
 actual fun getCurrentTimeString(): String {
     val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
     return sdf.format(Date())
@@ -172,35 +198,6 @@ actual fun getCurrentDateString(): String {
 }
 
 actual fun getCurrentEpochMillis(): Long = System.currentTimeMillis()
-
-actual fun getLastSevenDays(): List<Pair<String, String>> {
-    val list = mutableListOf<Pair<String, String>>()
-    val cal = Calendar.getInstance()
-    val sdfKey = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val sdfDay = SimpleDateFormat("EEE", Locale.getDefault())
-    
-    val todayKey = sdfKey.format(Date())
-    
-    // Start 6 days ago
-    cal.add(Calendar.DAY_OF_YEAR, -6)
-    
-    for (i in 0..6) {
-        val date = cal.time
-        val key = sdfKey.format(date)
-        val dayLabel = when (key) {
-            todayKey -> "Today"
-            else -> {
-                val tempCal = Calendar.getInstance()
-                tempCal.add(Calendar.DAY_OF_YEAR, -1)
-                val yesterdayKey = sdfKey.format(tempCal.time)
-                if (key == yesterdayKey) "Yest" else sdfDay.format(date)
-            }
-        }
-        list.add(Pair(key, dayLabel))
-        cal.add(Calendar.DAY_OF_YEAR, 1)
-    }
-    return list
-}
 
 actual fun compressImage(imageBytes: ByteArray): ByteArray {
     try {

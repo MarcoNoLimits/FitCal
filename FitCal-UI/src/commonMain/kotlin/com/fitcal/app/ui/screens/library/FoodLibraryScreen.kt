@@ -4,6 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.consumeWindowInsets
+import com.fitcal.app.ads.BannerScaffold
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.semantics.Role
+import com.fitcal.app.learn.Guides
+import com.fitcal.app.ui.theme.SurfaceTint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,10 +65,16 @@ import com.fitcal.shared.api.FoodDatabase
  * Values are per 100 g and come from the bundled [FoodDatabase]. They are reference
  * figures — the same "estimates, not medical advice" caveat applies.
  */
+/** The two halves of the Library: food reference values and nutrition guides. */
+enum class LibraryTab(val label: String) { FOODS("Foods"), GUIDES("Guides") }
+
 @Composable
 fun FoodLibraryScreen(
     onBack: () -> Unit,
+    initialTab: LibraryTab = LibraryTab.FOODS,
+    onOpenGuide: (String) -> Unit = {},
 ) {
+    var tab by rememberSaveable { mutableStateOf(initialTab) }
     var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf<FoodDbEntry?>(null) }
 
@@ -67,10 +84,17 @@ fun FoodLibraryScreen(
         if (query.isBlank()) FoodDatabase.foods else FoodDatabase.searchFoods(query, 60)
     }
 
+    // Passive reading screen: bottom banner allowed (AGENTS.md 5.5).
+    BannerScaffold { inner ->
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BgColor),
+            .background(BgColor)
+            .padding(inner)
+            .consumeWindowInsets(inner)
+            // Keep content clear of the status bar and gesture bar (edge-to-edge).
+            .statusBarsPadding()
+            .navigationBarsPadding(),
     ) {
         // ── Header ───────────────────────────────────────────────────────────
         Row(
@@ -91,17 +115,74 @@ fun FoodLibraryScreen(
             Spacer(Modifier.size(8.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    text = "Food Library",
+                    text = "Library",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextColor,
                 )
                 Text(
-                    text = "${FoodDatabase.foods.size} foods · per 100 g",
+                    text = when (tab) {
+                        LibraryTab.FOODS -> "${FoodDatabase.foods.size} foods · per 100 g"
+                        LibraryTab.GUIDES -> "${Guides.all.size} short guides · read offline"
+                    },
                     fontSize = 12.sp,
                     color = MutedTextColor,
                 )
             }
+        }
+
+        // ── Tabs ─────────────────────────────────────────────────────────────
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .background(SurfaceTint, RoundedCornerShape(12.dp))
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            LibraryTab.entries.forEach { t ->
+                val selectedTab = t == tab
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 44.dp)
+                        .background(if (selectedTab) CardBackground else SurfaceTint, RoundedCornerShape(9.dp))
+                        .then(if (selectedTab) Modifier.border(1.dp, BorderColor, RoundedCornerShape(9.dp)) else Modifier)
+                        .selectable(selected = selectedTab, role = Role.Tab, onClick = { tab = t }),
+                ) {
+                    Text(
+                        text = t.label,
+                        fontSize = 14.sp,
+                        fontWeight = if (selectedTab) FontWeight.SemiBold else FontWeight.Normal,
+                        color = if (selectedTab) TextColor else MutedTextColor,
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        if (tab == LibraryTab.GUIDES) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                item {
+                    Text(
+                        text = "Short, sourced explainers on calories, macros and tracking. General information, not medical advice.",
+                        fontSize = 13.sp,
+                        lineHeight = 18.sp,
+                        color = MutedTextColor,
+                        modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
+                    )
+                }
+                items(Guides.all, key = { it.id }) { guide ->
+                    GuideCard(guide = guide, onClick = { onOpenGuide(guide.id) })
+                }
+            }
+            return@Column
         }
 
         // ── Search ───────────────────────────────────────────────────────────
@@ -180,6 +261,7 @@ fun FoodLibraryScreen(
                 )
             }
         }
+    }
     }
 }
 
