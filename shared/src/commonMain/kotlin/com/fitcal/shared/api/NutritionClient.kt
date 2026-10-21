@@ -16,6 +16,21 @@ interface NutritionClient {
     suspend fun recalculateMealNutrition(items: List<Pair<String, Int>>): NutritionResponse
 
     /**
+     * Recalculates with a free-text correction from the review screen ("it was fried in
+     * butter"). Clients without hint support ignore it.
+     */
+    suspend fun recalculateMealNutrition(items: List<Pair<String, Int>>, hint: String?): NutritionResponse =
+        recalculateMealNutrition(items)
+
+    /**
+     * Estimates a meal from a typed description. Counts as one scan, like a photo, so it
+     * returns the same typed results as [analyzeMealImageWithResult]. Only the gateway
+     * client supports it.
+     */
+    suspend fun analyzeMealTextWithResult(description: String): AnalyzeResult =
+        AnalyzeResult.Failed("Describing a meal isn't available here.")
+
+    /**
      * Typed variant that surfaces quota/auth errors without throwing.
      * Default implementation wraps [analyzeMealImage] — override in [GatewayNutritionClient]
      * to return [AnalyzeResult.QuotaExhausted] / [AnalyzeResult.AuthRequired] directly.

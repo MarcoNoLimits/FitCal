@@ -12,6 +12,10 @@ object CameraDestination
 @Serializable
 data class ResultDestination(val responseJson: String)
 
+/** "Describe your meal": type what you ate instead of taking a photo (one AI scan). */
+@Serializable
+object DescribeMealDestination
+
 /** The optional personal plan: set up, or edit an existing one. */
 @Serializable
 object PlanDestination

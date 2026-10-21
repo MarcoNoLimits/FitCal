@@ -53,6 +53,8 @@ import com.fitcal.app.ui.screens.auth.SignInSuggestionCard
 import com.fitcal.app.ui.screens.feedback.ScanAccuracyPrompt
 import com.fitcal.shared.api.FoodDatabase
 import com.fitcal.shared.api.FoodDbEntry
+import com.fitcal.shared.api.MealTextLimits
+import com.fitcal.shared.api.normalizeFixHint
 import com.fitcal.shared.api.NutritionClient
 import com.fitcal.shared.model.FoodItem
 import com.fitcal.shared.model.NutritionResponse
@@ -96,6 +98,7 @@ fun ResultScreen(
     var libraryAddCount by remember(data) { mutableStateOf(0) }
     var customAddCount by remember(data) { mutableStateOf(0) }
     var recalcCount by remember(data) { mutableStateOf(0) }
+    var fixHintCount by remember(data) { mutableStateOf(0) }
     var mealLogged by remember(data) { mutableStateOf(false) }
     val currentItemCount by rememberUpdatedState(editableItems.size)
     DisposableEffect(data) {
@@ -518,6 +521,64 @@ fun ResultScreen(
                         Spacer(modifier = Modifier.height(4.dp))
                     }
 
+                    // "Tell FitCal what's off": the items plus a short note go to /v1/recalculate
+                    // (capped per day on the server), and the answer replaces the items.
+                    if (editableItems.isNotEmpty()) {
+                        var fixHint by remember(data) { mutableStateOf("") }
+                        var isFixing by remember { mutableStateOf(false) }
+                        var fixError by remember { mutableStateOf<String?>(null) }
+                        val fixScope = rememberCoroutineScope()
+
+                        FixHintField(
+                            hint = fixHint,
+                            onHintChange = {
+                                fixHint = it.take(MealTextLimits.MAX_HINT_CHARS)
+                                fixError = null
+                            },
+                            isWorking = isFixing,
+                            error = fixError,
+                            onSend = send@{
+                                val hint = normalizeFixHint(fixHint) ?: return@send
+                                isFixing = true
+                                fixError = null
+                                recalcCount++
+                                fixHintCount++
+                                val startedAt = getCurrentEpochMillis()
+                                fixScope.launch {
+                                    try {
+                                        val itemsList = editableItems.map {
+                                            Pair(it.name, it.currentWeightStr.toIntOrNull() ?: 100)
+                                        }
+                                        val response = apiClient.recalculateMealNutrition(itemsList, hint)
+                                        if (response.items.isEmpty()) {
+                                            fixError = "FitCal couldn't apply that. Try saying it another way."
+                                        } else {
+                                            editableItems.clear()
+                                            editableItems.addAll(response.items.mapIndexed { index, item -> item.toEditable(index) })
+                                            fixHint = ""
+                                        }
+                                        Analytics.track(
+                                            "recalculate_succeeded",
+                                            "items" to itemsList.size,
+                                            "hint" to true,
+                                            "latency_ms" to getCurrentEpochMillis() - startedAt,
+                                        )
+                                    } catch (e: Exception) {
+                                        Analytics.track(
+                                            "recalculate_failed",
+                                            "hint" to true,
+                                            "latency_ms" to getCurrentEpochMillis() - startedAt,
+                                            "error" to (e::class.simpleName ?: "Exception"),
+                                        )
+                                        fixError = e.message ?: "Recalculation failed"
+                                    } finally {
+                                        isFixing = false
+                                    }
+                                }
+                            },
+                        )
+                    }
+
                     Button(
                         onClick = {
                             if (isEditingLoggedMeal) {
@@ -544,6 +605,7 @@ fun ResultScreen(
                                 "weight_change_pct" to corrections.weightChangePct,
                                 "low_confidence_items" to corrections.lowConfidenceItems,
                                 "recalculations" to recalcCount,
+                                "fix_hints" to fixHintCount,
                                 "review_seconds" to (getCurrentEpochMillis() - reviewOpenedAt) / 1000,
                             )
                             mealLogged = true
@@ -1066,6 +1128,65 @@ fun ResultScreen(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+/** Free-text correction for the whole meal, sent with the items to /v1/recalculate. */
+@Composable
+private fun FixHintField(
+    hint: String,
+    onHintChange: (String) -> Unit,
+    isWorking: Boolean,
+    error: String?,
+    onSend: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(SurfaceTint, RoundedCornerShape(RadiusM))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = "Tell FitCal what's off",
+            style = BrandTypography.SectionTitle,
+            color = TextColor
+        )
+        Text(
+            text = "For example \"it was fried in butter\" or \"the rice was brown rice\".",
+            style = BrandTypography.BodySmall,
+            color = MutedTextColor
+        )
+        FitCalTextField(
+            value = hint,
+            onValueChange = onHintChange,
+            label = "What's different?",
+            keyboardType = KeyboardType.Text,
+            enabled = !isWorking,
+            isError = error != null,
+            supportingText = error,
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedButton(
+            onClick = onSend,
+            enabled = !isWorking && normalizeFixHint(hint) != null,
+            shape = RoundedCornerShape(RadiusM),
+            border = BorderStroke(1.dp, PrimaryAccent),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp)
+        ) {
+            if (isWorking) {
+                CircularProgressIndicator(color = PrimaryAccent, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
+            } else {
+                Text(
+                    text = "Fix with AI",
+                    style = BrandTypography.Body,
+                    fontWeight = FontWeight.SemiBold,
+                    color = PrimaryAccent
+                )
             }
         }
     }
