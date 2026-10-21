@@ -37,6 +37,7 @@ import io.ktor.util.encodeBase64
 import com.fitcal.app.ScanReadiness
 import com.fitcal.app.getScanBlockedReason
 import com.fitcal.app.getCurrentEpochMillis
+import com.fitcal.app.isDebugBuild
 import com.fitcal.app.telemetry.Analytics
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -621,8 +622,16 @@ private fun ErrorCard(
                         textAlign = TextAlign.Center
                     )
 
-                    // Monospace Diagnostics Log Box — F1.1 all raw hex → semantic tokens
-                    Box(
+                    // Plain message for everyone; raw API text never reaches a release build.
+                    Text(
+                        text = friendlyScanErrorMessage(errorText),
+                        style = BrandTypography.BodySmall,
+                        color = MutedTextColor,
+                        textAlign = TextAlign.Center
+                    )
+
+                    // Monospace Diagnostics Log Box (debug builds only) — F1.1 semantic tokens
+                    if (isDebugBuild) Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(DangerSoft, RoundedCornerShape(RadiusS)) // F1.1+F1.2
@@ -692,6 +701,32 @@ private fun ErrorCard(
             }
         }
     }
+}
+
+internal const val SCAN_ERROR_MESSAGE_GENERIC =
+    "We couldn't read this photo. Check your connection and try again."
+internal const val SCAN_ERROR_MESSAGE_OFFLINE =
+    "You're offline. Connect to the internet, then try again."
+
+/** Fragments of exception messages that mean the phone has no usable connection. */
+private val noConnectionHints = listOf(
+    "unable to resolve host",
+    "no address associated with hostname",
+    "failed to connect",
+    "network is unreachable",
+    "no route to host",
+    "unknownhostexception",
+    "connectexception",
+    "network error",
+)
+
+/**
+ * Short plain text shown on the scan error card. The raw error (server text, stack
+ * details) is never shown to users; debug builds see it in the diagnostics box.
+ */
+internal fun friendlyScanErrorMessage(rawError: String?): String {
+    val msg = rawError.orEmpty().lowercase()
+    return if (noConnectionHints.any { it in msg }) SCAN_ERROR_MESSAGE_OFFLINE else SCAN_ERROR_MESSAGE_GENERIC
 }
 
 /** Short error class for analytics; never the raw message (it can contain server text). */
