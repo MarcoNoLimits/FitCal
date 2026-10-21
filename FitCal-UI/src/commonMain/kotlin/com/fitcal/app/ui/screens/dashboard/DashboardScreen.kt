@@ -88,6 +88,8 @@ fun DashboardScreen(
     onWaterChanged: (Int) -> Unit,
     onScanClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
+    // "Describe your meal": type it instead of taking a photo (still one AI scan).
+    onDescribeMealClicked: (() -> Unit)? = null,
     onMonetizationClicked: () -> Unit,
     onOpenFoodLibrary: () -> Unit = {},
     onDeleteMeal: (LoggedMeal) -> Unit,
@@ -469,6 +471,21 @@ fun DashboardScreen(
                         onScan = onScanClicked,
                         onShutterSlotPositioned = { shutterSlotCenterY = it }
                     )
+                    if (onDescribeMealClicked != null) {
+                        TextButton(
+                            onClick = onDescribeMealClicked,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 48.dp)
+                        ) {
+                            Text(
+                                text = "No photo? Describe your meal instead",
+                                style = BrandTypography.BodySmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = PrimaryAccent
+                            )
+                        }
+                    }
                 }
 
                 // Logged Meals History List

@@ -6,6 +6,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -51,12 +52,19 @@ private data class AnalyzeMealRequest(
 )
 
 @Serializable
-private data class RecalculateRequest(
-    val items: List<RecalcItem>
+internal data class AnalyzeTextRequest(
+    val description: String
 )
 
 @Serializable
-private data class RecalcItem(
+internal data class RecalculateRequest(
+    val items: List<RecalcItem>,
+    // Omitted from the JSON when null (encodeDefaults is off).
+    val hint: String? = null
+)
+
+@Serializable
+internal data class RecalcItem(
     val name: String,
     val grams: Int
 )
@@ -147,6 +155,11 @@ class GatewayNutritionClient(
 
     override suspend fun recalculateMealNutrition(
         items: List<Pair<String, Int>>
+    ): NutritionResponse = recalculateMealNutrition(items, hint = null)
+
+    override suspend fun recalculateMealNutrition(
+        items: List<Pair<String, Int>>,
+        hint: String?
     ): NutritionResponse {
         // Try to get a JWT, but do NOT block the request if one isn't available.
         var jwt = jwtProvider()
@@ -159,9 +172,7 @@ class GatewayNutritionClient(
             }
         }
 
-        val requestBody = RecalculateRequest(
-            items = items.map { (name, grams) -> RecalcItem(name = name, grams = grams) }
-        )
+        val requestBody = buildRecalculateRequest(items, hint)
         val url = "${gatewayUrl.trimEnd('/')}/v1/recalculate"
 
         suspend fun postRecalc(token: String?): HttpResponse {
@@ -385,7 +396,44 @@ class GatewayNutritionClient(
             plate_size_inches = plateSizeInches,
             daily_allowance = dailyAllowance
         )
-        val url = "${gatewayUrl.trimEnd('/')}/v1/analyze-meal"
+        return executeScanPost(jwt, "/v1/analyze-meal") { setBody(requestBody) }
+    }
+
+    /**
+     * "Describe your meal": POST /v1/analyze-text. Same auth, retry and result mapping as
+     * a photo scan, so 402 still means [AnalyzeResult.QuotaExhausted]. Text that can't be
+     * sent (blank or too long) fails here without a request.
+     */
+    override suspend fun analyzeMealTextWithResult(description: String): AnalyzeResult {
+        val requestBody = buildAnalyzeTextRequest(description)
+            ?: return AnalyzeResult.Failed(
+                message = "Describe your meal in 1 to ${MealTextLimits.MAX_DESCRIPTION_CHARS} characters."
+            )
+        var jwt = jwtProvider()
+        if (jwt == null && reAuthenticator != null) {
+            try {
+                reAuthenticator.invoke()
+                jwt = jwtProvider()
+            } catch (_: Throwable) {
+                return AnalyzeResult.AuthRequired
+            }
+        }
+        if (jwt == null) {
+            return AnalyzeResult.AuthRequired
+        }
+        return executeScanPost(jwt, "/v1/analyze-text") { setBody(requestBody) }
+    }
+
+    /**
+     * Posts a scan request (photo or text) with one network retry, re-authenticates once
+     * on 401, and maps the response to an [AnalyzeResult].
+     */
+    private suspend fun executeScanPost(
+        jwt: String,
+        path: String,
+        writeBody: HttpRequestBuilder.() -> Unit
+    ): AnalyzeResult {
+        val url = "${gatewayUrl.trimEnd('/')}$path"
 
         suspend fun postWithNetRetry(token: String?): Pair<HttpResponse?, Exception?> {
             var lastNetErr: Exception? = null
@@ -395,7 +443,7 @@ class GatewayNutritionClient(
                         contentType(ContentType.Application.Json)
                         if (token != null) header("Authorization", "Bearer $token")
                         header("x-device-id", deviceIdProvider())
-                        setBody(requestBody)
+                        writeBody()
                     }
                     return Pair(resp, null)
                 } catch (e: Exception) {
@@ -481,3 +529,14 @@ data class EntitlementState(
     val premium: Boolean,
     val user_id: String? = null
 )
+
+/** Body of POST /v1/analyze-text, or null when the description can't be sent. */
+internal fun buildAnalyzeTextRequest(description: String): AnalyzeTextRequest? =
+    normalizeMealDescription(description)?.let { AnalyzeTextRequest(description = it) }
+
+/** Body of POST /v1/recalculate; a blank hint is left out. */
+internal fun buildRecalculateRequest(items: List<Pair<String, Int>>, hint: String?): RecalculateRequest =
+    RecalculateRequest(
+        items = items.map { (name, grams) -> RecalcItem(name = name, grams = grams) },
+        hint = normalizeFixHint(hint)
+    )
