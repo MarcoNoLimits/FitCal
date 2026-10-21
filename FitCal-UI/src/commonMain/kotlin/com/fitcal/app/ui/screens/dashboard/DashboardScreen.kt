@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -43,6 +44,11 @@ import com.fitcal.app.ui.screens.dashboard.components.DashboardMacroCard
 import com.fitcal.app.ui.screens.dashboard.components.PlanCheckInCard
 import com.fitcal.app.ui.screens.dashboard.components.PlanPromptCard
 import com.fitcal.app.ui.screens.dashboard.components.PlanTargetReachedCard
+import com.fitcal.app.ui.screens.dashboard.components.QuickLogRow
+import com.fitcal.app.ui.screens.dashboard.components.StreakChip
+import com.fitcal.app.ui.screens.dashboard.components.mealStreak
+import com.fitcal.app.ui.screens.dashboard.components.quickLogMeals
+import com.fitcal.app.ui.screens.dashboard.components.streakChipLabel
 import com.fitcal.app.ui.screens.dashboard.components.WaterTrackerCard
 import com.fitcal.app.plan.PlanGoal
 import com.fitcal.app.learn.GuideIds
@@ -107,6 +113,12 @@ fun DashboardScreen(
     onOpenGuide: (String) -> Unit = {},
     // Without a calorie target, a full ring = this many kcal (the recent daily high).
     ringScaleKcal: Int = 0,
+    // Every logged meal, for the streak and the favourites/recent row.
+    allMeals: List<LoggedMeal> = meals,
+    // Copies a meal, items included, to today at the current time. Uses no scan.
+    onLogAgain: (LoggedMeal) -> Unit = {},
+    // Stars or unstars a meal.
+    onToggleFavorite: (LoggedMeal) -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -121,6 +133,18 @@ fun DashboardScreen(
     val filteredMeals = remember(meals, selectedDate) {
         meals.filter {
             it.date == selectedDate || (it.date.isBlank() && selectedDate == getCurrentDateString())
+        }
+    }
+
+    val streakLabel = remember(allMeals, today) { streakChipLabel(mealStreak(allMeals.map { it.date }, today)) }
+    val quickLog = remember(allMeals) { quickLogMeals(allMeals) }
+    val logAgain: (LoggedMeal) -> Unit = { meal ->
+        onLogAgain(meal)
+        coroutineScope.launch {
+            snackbarHostState.showSnackbar(
+                message = if (selectedDate == today) "${meal.name} logged again" else "${meal.name} logged to today",
+                duration = SnackbarDuration.Short
+            )
         }
     }
 
@@ -276,6 +300,9 @@ fun DashboardScreen(
                         HeaderIconButton(Icons.Default.Settings, "Settings", onSettingsClicked)
                     }
                 }
+
+                // Logging streak; only shown from 2 days in a row.
+                streakLabel?.let { StreakChip(it) }
 
                 // Calendar Day Selection Strip
                 CalendarStrip(
@@ -471,6 +498,9 @@ fun DashboardScreen(
                     )
                 }
 
+                // One-tap logging above the history: favourites, or recent meals while nothing is starred.
+                QuickLogRow(quickLog = quickLog, onLog = logAgain)
+
                 // Logged Meals History List
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
@@ -562,7 +592,7 @@ fun DashboardScreen(
 
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = meal.name,
+                                            text = if (meal.favorite) "★ ${meal.name}" else meal.name,
                                             style = BrandTypography.SectionTitle,
                                             color = TextColor
                                         )
@@ -585,40 +615,84 @@ fun DashboardScreen(
                                             color = TextColor
                                         )
 
-                                        // F0.3: wrap delete icon in IconButton (≥44dp hit area)
-                                        // F0.2: onDeleteMeal now receives the meal object; undo slot updated
-                                        IconButton(
-                                            onClick = {
-                                                val position = filteredIndex
-                                                pendingUndoMeal = Pair(meal, position)
-                                                onDeleteMeal(meal)
-                                                // Auto-dismiss snackbar after 5s; the LaunchedEffect below handles it
-                                                coroutineScope.launch {
-                                                    val result = snackbarHostState.showSnackbar(
-                                                        message = "Meal deleted",
-                                                        actionLabel = "Undo",
-                                                        duration = SnackbarDuration.Short // ~4s — closest to 5s in M3
+                                        Row {
+                                            // Log again / favourite, behind an overflow menu.
+                                            var menuOpen by remember(meal.id) { mutableStateOf(false) }
+                                            Box {
+                                                IconButton(
+                                                    onClick = { menuOpen = true },
+                                                    modifier = Modifier.size(44.dp)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.MoreVert,
+                                                        contentDescription = "More actions for ${meal.name}",
+                                                        tint = MutedTextColor,
+                                                        modifier = Modifier.size(20.dp)
                                                     )
-                                                    if (result == SnackbarResult.ActionPerformed) {
-                                                        val toRestore = pendingUndoMeal
-                                                        if (toRestore != null) {
-                                                            onRestoreMeal(toRestore.first)
+                                                }
+                                                DropdownMenu(
+                                                    expanded = menuOpen,
+                                                    onDismissRequest = { menuOpen = false }
+                                                ) {
+                                                    DropdownMenuItem(
+                                                        text = { Text("Log again today") },
+                                                        onClick = {
+                                                            menuOpen = false
+                                                            logAgain(meal)
+                                                        }
+                                                    )
+                                                    DropdownMenuItem(
+                                                        text = { Text(if (meal.favorite) "Remove from favourites" else "Add to favourites") },
+                                                        leadingIcon = {
+                                                            Icon(
+                                                                imageVector = Icons.Default.Star,
+                                                                contentDescription = null,
+                                                                tint = if (meal.favorite) MutedTextColor else FatColor
+                                                            )
+                                                        },
+                                                        onClick = {
+                                                            menuOpen = false
+                                                            onToggleFavorite(meal)
+                                                        }
+                                                    )
+                                                }
+                                            }
+    
+                                            // F0.3: wrap delete icon in IconButton (≥44dp hit area)
+                                            // F0.2: onDeleteMeal now receives the meal object; undo slot updated
+                                            IconButton(
+                                                onClick = {
+                                                    val position = filteredIndex
+                                                    pendingUndoMeal = Pair(meal, position)
+                                                    onDeleteMeal(meal)
+                                                    // Auto-dismiss snackbar after 5s; the LaunchedEffect below handles it
+                                                    coroutineScope.launch {
+                                                        val result = snackbarHostState.showSnackbar(
+                                                            message = "Meal deleted",
+                                                            actionLabel = "Undo",
+                                                            duration = SnackbarDuration.Short // ~4s — closest to 5s in M3
+                                                        )
+                                                        if (result == SnackbarResult.ActionPerformed) {
+                                                            val toRestore = pendingUndoMeal
+                                                            if (toRestore != null) {
+                                                                onRestoreMeal(toRestore.first)
+                                                                pendingUndoMeal = null
+                                                            }
+                                                        } else {
                                                             pendingUndoMeal = null
                                                         }
-                                                    } else {
-                                                        pendingUndoMeal = null
                                                     }
-                                                }
-                                            },
-                                            modifier = Modifier.size(44.dp) // F0.3: ≥44dp
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Close,
-                                                contentDescription = "Delete meal ${meal.name}",
-                                                // F1.1: was Color(0xFFEF4444) → DangerColor
-                                                tint = DangerColor.copy(alpha = 0.8f),
-                                                modifier = Modifier.size(20.dp)
-                                            )
+                                                },
+                                                modifier = Modifier.size(44.dp) // F0.3: ≥44dp
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = "Delete meal ${meal.name}",
+                                                    // F1.1: was Color(0xFFEF4444) → DangerColor
+                                                    tint = DangerColor.copy(alpha = 0.8f),
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
                                         }
                                     }
                                 }
