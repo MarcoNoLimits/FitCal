@@ -9,12 +9,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.fitcal.app.ui.screens.camera.barcode.CaptureMode
 
 @Composable
 actual fun CameraPreview(
     modifier: Modifier,
     onPhotoCaptured: (ByteArray) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    mode: CaptureMode,
+    onBarcodeDetected: (String) -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -43,7 +46,16 @@ actual fun CameraPreview(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
+            if (mode == CaptureMode.Barcode) {
+                // iOS isn't a v1 release target: simulate a known product barcode.
+                Button(
+                    onClick = { onBarcodeDetected("3017620422003") },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
+                ) {
+                    Text("Simulate Barcode Scan", style = MaterialTheme.typography.titleMedium)
+                }
+            } else Button(
                 onClick = {
                     // Send an empty ByteArray.
                     // The app will detect this empty array and load simulated nutritional data.

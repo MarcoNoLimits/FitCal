@@ -64,6 +64,9 @@ kotlin {
             implementation(libs.camerax.camera2)
             implementation(libs.camerax.lifecycle)
             implementation(libs.camerax.view)
+
+            // ML Kit barcode scanning (bundled model, on-device, free)
+            implementation(libs.mlkit.barcode.scanning)
             
             // Google Mobile Ads (AdMob) + User Messaging Platform (UMP Consent)
             implementation(libs.play.services.ads)
