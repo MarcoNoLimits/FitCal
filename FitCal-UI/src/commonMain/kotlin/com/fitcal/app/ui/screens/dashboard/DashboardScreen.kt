@@ -119,6 +119,8 @@ fun DashboardScreen(
     onLogAgain: (LoggedMeal) -> Unit = {},
     // Stars or unstars a meal.
     onToggleFavorite: (LoggedMeal) -> Unit = {},
+    // Opens the Progress screen (weight history, last 7 days). Linked from the calorie card.
+    onOpenProgress: () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -385,6 +387,17 @@ fun DashboardScreen(
                                 color = PrimaryAccent,
                                 modifier = Modifier
                                     .clickable(role = Role.Button) { onOpenGuide(GuideIds.CALORIES) }
+                                    .padding(vertical = 6.dp)
+                            )
+
+                            Text(
+                                text = "Progress →",
+                                style = BrandTypography.BodySmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = PrimaryAccent,
+                                modifier = Modifier
+                                    .semantics { contentDescription = "Progress: weight and last 7 days" }
+                                    .clickable(role = Role.Button, onClick = onOpenProgress)
                                     .padding(vertical = 6.dp)
                             )
 

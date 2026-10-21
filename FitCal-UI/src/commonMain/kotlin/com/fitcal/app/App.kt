@@ -26,7 +26,10 @@ import com.fitcal.app.plan.BodyStats
 import com.fitcal.app.plan.PlanGoal
 import com.fitcal.app.plan.PlanPace
 import com.fitcal.app.plan.addDays
-import com.fitcal.app.plan.checkIn
+import com.fitcal.app.plan.checkInWithEntry
+import com.fitcal.app.plan.weightEntryForChange
+import com.fitcal.app.ui.navigation.ProgressDestination
+import com.fitcal.app.ui.screens.progress.ProgressScreen
 import com.fitcal.app.plan.endPlan
 import com.fitcal.app.plan.hasReachedTarget
 import com.fitcal.app.plan.resolvedTargetsMode
@@ -211,6 +214,8 @@ fun App() {
         userRepository.observeWaterIntake(selectedDateKey)
     }
     val waterLoggedToday by waterFlow.collectAsState(initial = 0)
+    val weightEntries by remember(userRepository) { userRepository.observeWeightEntries() }
+        .collectAsState(initial = emptyList())
 
     LaunchedEffect(Unit) {
         userProfile = userRepository.getUserProfile()
@@ -317,6 +322,15 @@ fun App() {
                 val from = com.fitcal.app.plan.addDays(getCurrentDateString(), -HISTORY_DAYS) ?: selectedDateKey
                 (mealRepository as? com.fitcal.shared.data.SupabaseMealRepository)?.pullHistory(from)
                 (userRepository as? com.fitcal.shared.data.SupabaseUserRepository)?.pullWaterHistory(from)
+                (userRepository as? com.fitcal.shared.data.SupabaseUserRepository)?.pullWeightHistory(from)
+            }
+
+            // Saves a profile and, when its weight changed, records the day's weigh-in.
+            suspend fun saveProfileRecordingWeight(updated: UserProfile) {
+                val entry = weightEntryForChange(userProfile, updated, getCurrentDateString())
+                userRepository.saveUserProfile(updated)
+                userProfile = updated
+                if (entry != null) userRepository.recordWeight(entry)
             }
 
             // Runs after any sign-in. When the user ID changed (a guest signed into an existing
@@ -559,7 +573,7 @@ fun App() {
                         checkInSnoozedUntil = checkInSnoozedUntil,
                         onCheckIn = { newWeight ->
                             val today = getCurrentDateString()
-                            val updated = userProfile.checkIn(newWeight, today)
+                            val (updated, weightEntry) = userProfile.checkInWithEntry(newWeight, today)
                             Analytics.track(
                                 "plan_checked_in",
                                 "weight_change_kg" to (newWeight - userProfile.weight),
@@ -571,6 +585,7 @@ fun App() {
                             coroutineScope.launch {
                                 userRepository.saveUserProfile(updated)
                                 userProfile = updated
+                                if (weightEntry != null) userRepository.recordWeight(weightEntry)
                             }
                         },
                         onSnoozeCheckIn = {
@@ -602,6 +617,20 @@ fun App() {
                         },
                         onOpenGuide = { id -> navController.navigate(GuideDestination(id, "dashboard")) },
                         ringScaleKcal = ringScaleKcal,
+                        onOpenProgress = {
+                            Analytics.track("progress_opened", "weight_entries" to weightEntries.size)
+                            navController.navigate(ProgressDestination)
+                        },
+                    )
+                }
+
+                composable<ProgressDestination> {
+                    ProgressScreen(
+                        profile = userProfile,
+                        weightEntries = weightEntries,
+                        meals = allMeals,
+                        today = getCurrentDateString(),
+                        onBack = { navController.popBackStack() },
                     )
                 }
 
@@ -742,10 +771,7 @@ fun App() {
                                 "activity_level" to updated.activityLevel,
                                 "has_target_weight" to (updated.plan?.targetWeightKg != null),
                             )
-                            coroutineScope.launch {
-                                userRepository.saveUserProfile(updated)
-                                userProfile = updated
-                            }
+                            coroutineScope.launch { saveProfileRecordingWeight(updated) }
                             navController.popBackStack()
                         },
                         onBack = { navController.popBackStack() },
@@ -864,10 +890,7 @@ fun App() {
                                 "targets_mode" to updated.resolvedTargetsMode().key,
                                 "plate_size_changed" to (updated.defaultPlateSize != userProfile.defaultPlateSize),
                             )
-                            coroutineScope.launch {
-                                userRepository.saveUserProfile(updated)
-                                userProfile = updated
-                            }
+                            coroutineScope.launch { saveProfileRecordingWeight(updated) }
                             navController.popBackStack()
                         },
                         onBack = {
