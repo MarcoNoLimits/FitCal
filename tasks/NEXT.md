@@ -1,5 +1,21 @@
 # FitCal — where to pick up
 
+## Spend protection (launch sprint WP6, 2026-10-22): owner tasks
+Code is written; nothing is deployed or applied. In order:
+
+1. [ ] **Apply migration `0008_cleanup_and_ssv.sql`** (SSV claims table and RPCs, `pg_cron` job `fitcal-cleanup-anonymous-users`). Check afterwards: `select jobname, schedule from cron.job;` shows the job, daily at 03:17 UTC.
+2. [ ] **Deploy `analyze-meal`** (it now includes `ssv.ts`). Leave `REWARD_REQUIRE_SSV` unset (= false): `/v1/reward/ad-earned` keeps granting as today, and SSV callbacks are only verified and recorded.
+3. [ ] **AdMob SSV callback URL** (AdMob → Apps → FitCal → Ad units → the rewarded unit → *Server-side verification*):
+   - Callback URL: `https://uedtovphilwstzdpzjrk.supabase.co/functions/v1/analyze-meal/v1/reward/ssv`
+   - Press *Verify URL*. A valid signed test callback answers 200 with `{"status":"ignored","reason":"no_user"}` (the test has no FitCal user). 403 means a signature problem; 503 means Google's keys could not be fetched.
+   - Save. It can take up to 24 h to apply.
+4. [ ] **Check real callbacks** after a rewarded view on a build that has this release: function logs show `[reward-ssv] http=200 outcome=recorded`, and `select * from fitcal.reward_ssv_claims order by created_at desc limit 5;` has the row with your user ID.
+5. [ ] **Turn SSV on:** `supabase secrets set REWARD_REQUIRE_SSV=true`. From then on only AdMob's callback grants the +2 (same daily cap of 10), once per `transaction_id`; `/v1/reward/ad-earned` just confirms it to the app (425 if the callback is late; the app keeps its optimistic count until the next quota sync). Roll back by setting it to `false`.
+6. [ ] **Budget alerts** (provider consoles):
+   - OpenRouter: Settings → Credits/Keys → set a credit limit on the key `analyze-meal` uses.
+   - Google Cloud (Gemini): Billing → Budgets & alerts → a monthly budget on the Gemini project with email alerts at 50/90/100 %. Also cap the Gemini API quota (requests per day) under APIs & Services → Quotas.
+   - Groq: Settings → Limits → set a monthly spend/usage limit (only if `GROQ_API_KEY` is ever added; see the note below on Groq and the privacy policy).
+
 ## Launch review (2026-10-12)
 Code-side fixes done this session:
 - **Premium deferred to v1.1** (owner decision). Removed Premium/subscription/RevenueCat claims from the in-app policy, `site/privacy.html`, the delete-account dialog and the store description. Deleted the `SubscriptionManager.purchasePlan(productId)` overload that granted Premium locally without payment.
