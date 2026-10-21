@@ -47,8 +47,10 @@ import com.fitcal.app.ui.screens.library.FoodLibraryScreen
 import com.fitcal.app.privacy.AgeGate
 import com.fitcal.app.ui.components.newMealId
 import com.fitcal.app.auth.SignInPromptPolicy
+import com.fitcal.app.auth.SignInCardPolicy
 import com.fitcal.app.ui.screens.auth.AuthActions
 import com.fitcal.app.ui.screens.auth.AuthScreen
+import com.fitcal.app.ui.screens.auth.SignInCard
 import com.fitcal.app.ui.screens.auth.SocialSignIn
 import com.fitcal.shared.auth.AuthMessages
 import com.fitcal.shared.auth.EmailSignUpStart
@@ -305,6 +307,7 @@ fun App() {
             var deleteAccountMessage by remember { mutableStateOf<String?>(null) }
             var totalMealsLogged by remember { mutableStateOf(0) }
             LaunchedEffect(Unit) { totalMealsLogged = localMealRepository.getAllMeals().size }
+            var showSignInCard by remember { mutableStateOf(false) }
 
             var scansRemainingToday by remember(selectedDateKey) {
                 mutableStateOf(ScanQuotaManager.getRemainingScans(selectedDateKey))
@@ -488,6 +491,31 @@ fun App() {
                 modifier = Modifier.fillMaxSize()
             ) {
                 composable<DashboardDestination> {
+                    // One-time "Create a free account" card for guests (AGENTS.md 5.2a). Only on the
+                    // dashboard, never over the camera, and only once the boot sign-in has told us
+                    // whether this is a guest.
+                    LaunchedEffect(authReady, userEmail) {
+                        if (!showSignInCard &&
+                            SignInCardPolicy.shouldShow(isPermanentUser = userEmail != null, signInSettled = authReady == true)
+                        ) {
+                            SignInCardPolicy.recordShown()
+                            showSignInCard = true
+                            Analytics.track("signin_card_shown")
+                        }
+                    }
+                    if (showSignInCard) {
+                        SignInCard(
+                            onCreateAccount = {
+                                showSignInCard = false
+                                Analytics.track("signin_card_accept")
+                                navController.navigate(AuthDestination)
+                            },
+                            onNotNow = {
+                                showSignInCard = false
+                                Analytics.track("signin_card_dismiss")
+                            },
+                        )
+                    }
                     DashboardScreen(
                         meals = loggedMeals,
                         profile = userProfile,
@@ -593,12 +621,17 @@ fun App() {
                 }
 
                 composable<CameraDestination> {
+                    // Re-read the ad decision whenever an interstitial shows (guest 90 s cooldown, AGENTS.md 5.2a).
+                    val lastInterstitialShownAt by ScanQuotaManager.interstitialShownAt.collectAsState()
+                    val playScanAd = remember(lastInterstitialShownAt, selectedDateKey, scansRemainingToday, showAdsForUser, userEmail) {
+                        ScanQuotaManager.shouldPlayScanAd(selectedDateKey, adsAllowed = showAdsForUser)
+                    }
                     CameraScreen(
                         apiClient = apiClient,
                         isMockMode = isMockMode,
                         plateSizeInches = userProfile.defaultPlateSize,
                         adManager = adManager,
-                        playAdDuringScan = ScanQuotaManager.shouldPlayScanAd(selectedDateKey, adsAllowed = showAdsForUser),
+                        playAdDuringScan = playScanAd,
                         onScanConsumed = {
                             // Record local consumption immediately for responsive UI; the Gateway already
                             // consumed 1 server-side quota after VLM inference succeeded, so sync from

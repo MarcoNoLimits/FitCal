@@ -67,6 +67,7 @@ Every client event also carries `session_id`, `client_ts`, `app_version` and `pl
 | Event | Properties |
 |---|---|
 | `sign_in_prompt_shown` / `_dismissed` / `_accepted` | `meals_logged` (shown) |
+| `signin_card_shown` / `signin_card_accept` / `signin_card_dismiss` | (none; the one-time first-open "Create a free account" card for guests, AGENTS.md 5.2a) |
 | `auth_started` | `method` (`google`, `apple`) |
 | `sign_up_started` | `outcome` (`CodeSent`, `Completed`, `EmailAlreadyRegistered`) |
 | `auth_failed` | `method`, `flow`, `error` (exception class) |

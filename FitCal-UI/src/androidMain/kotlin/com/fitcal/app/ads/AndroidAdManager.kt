@@ -113,6 +113,8 @@ class AndroidAdManager(
             activity.runOnUiThread {
                 ad.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdShowedFullScreenContent() {
+                        // Starts the guest 90 s cooldown only when an ad really appeared (AGENTS.md 5.2a).
+                        ScanQuotaManager.recordInterstitialShown()
                         AdTelemetryManager.trackInterstitialImpression()
                     }
 
