@@ -32,9 +32,10 @@ class AccountBonusQuotaTest {
     }
 
     @Test
-    fun guestInWeekOneGetsFive() {
+    fun guestInWeekOneGetsThree() {
+        // Guests get no week-one bonus (owner decision 2026-10-21).
         installedDaysAgo(2)
-        assertEquals(5, ScanQuotaManager.getDailyFreeLimit())
+        assertEquals(3, ScanQuotaManager.getDailyFreeLimit())
     }
 
     @Test

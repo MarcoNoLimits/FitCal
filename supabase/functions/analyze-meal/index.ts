@@ -25,6 +25,7 @@
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { ACCOUNT_BONUS, BASE_DAILY_ALLOWANCE, dailyAllowance, isWeekOne } from "./allowance.ts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,10 +48,7 @@ interface NutritionResponse {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-// Free scans per day. Computed here from server facts only; the client's value is ignored.
-const BASE_DAILY_ALLOWANCE = 3;
-const WEEK_ONE_DAILY_ALLOWANCE = 5;
-const ACCOUNT_BONUS = 1;
+// Free scans per day: see allowance.ts. Computed here from server facts only; the client's value is ignored.
 const REWARD_BONUS_PER_AD = 2;
 const REWARD_BONUS_DAILY_CAP = 10;
 
@@ -322,7 +320,7 @@ function isPermanentAccount(user: any): boolean {
 
 async function checkQuotaServerSide(
   userId: string,
-  accountBonus: number
+  permanent: boolean
 ): Promise<{ allowed: boolean; effectiveAllowance: number }> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -341,12 +339,9 @@ async function checkQuotaServerSide(
   if (!resp.ok) throw new Error(`get_scan_quota RPC failed (${resp.status}): ${await resp.text()}`);
   const data: any = await resp.json();
 
-  let weekOne = false;
-  if (data && typeof data.first_install_date === "string") {
-    const installMs = Date.parse(data.first_install_date);
-    weekOne = !Number.isNaN(installMs) && Date.now() - installMs < 7 * 86400 * 1000;
-  }
-  const effectiveAllowance = (weekOne ? WEEK_ONE_DAILY_ALLOWANCE : BASE_DAILY_ALLOWANCE) + accountBonus;
+  // Guests get no week-one bonus (owner decision 2026-10-21); only permanent accounts do.
+  const weekOne = isWeekOne(data?.first_install_date, Date.now());
+  const effectiveAllowance = dailyAllowance(weekOne, permanent);
 
   const used = typeof data?.used === "number" ? data.used : 0;
   const bonus = typeof data?.bonus === "number" ? data.bonus : 0;
@@ -572,7 +567,8 @@ Deno.serve(async (req: Request) => {
   const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
   if (authError || !authData?.user) return err401("Invalid or expired session");
   const userId = authData.user.id;
-  const accountBonus = isPermanentAccount(authData.user) ? ACCOUNT_BONUS : 0;
+  const permanentAccount = isPermanentAccount(authData.user);
+  const accountBonus = permanentAccount ? ACCOUNT_BONUS : 0;
 
   try {
     // ── GET /v1/entitlements ────────────────────────────────────────────────
@@ -599,7 +595,7 @@ Deno.serve(async (req: Request) => {
       let effectiveAllowance = BASE_DAILY_ALLOWANCE + accountBonus;
       if (!isPremium) {
         try {
-          const quotaCheck = await checkQuotaServerSide(userId, accountBonus);
+          const quotaCheck = await checkQuotaServerSide(userId, permanentAccount);
           effectiveAllowance = quotaCheck.effectiveAllowance;
           if (!quotaCheck.allowed) {
             trackServerEvent(userId, "quota_denied", { allowance: effectiveAllowance });

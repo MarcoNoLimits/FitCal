@@ -131,6 +131,10 @@ Domain: **`tecaa.xyz`** (Name.com). FitCal lives at **`fitcal.tecaa.xyz`**. Cont
 7. [ ] Google OAuth clients: Web, plus Android with debug and release SHA-1. Put `GOOGLE_WEB_CLIENT_ID` in `local.properties`.
 8. [ ] Do one real scan on a device to confirm the edge function works end to end.
 9. [ ] Decide on the Gemini model. `gemini-2.5-flash` is restricted to existing users; Google recommends `gemini-3.8-flash`. Changing it affects cost and output.
+10. [ ] **WP7 guest ads (2026-10-21):**
+  - AdMob console → Apps → FitCal → Ad units → the interstitial unit (`ca-app-pub-6111686385218385/4814322830`) → allow **video** and **interactive (playable)** ads. No code change is needed.
+  - Deploy `supabase/functions/analyze-meal` (with the new `allowance.ts`) so guests get 3 scans/day from day one and accounts 5 + 1 in week one, 3 + 1 after. Until it is deployed, the server still gives guests 5 in week one, which is more than the app shows, not less.
+  - Optional check: `deno test supabase/functions/analyze-meal/allowance_test.ts`.
 
 ## Add (backlog, in priority order)
 1. **Premium purchase:**

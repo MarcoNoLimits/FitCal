@@ -5,6 +5,9 @@ import com.fitcal.app.loadPreference
 import com.fitcal.app.savePreference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -69,6 +72,31 @@ object AdConfig {
     const val REWARDED_SCAN_BONUS = 2
     const val ACCOUNT_DAILY_BONUS_SCANS = 1
     const val SEVEN_DAYS_MILLIS = 7L * 24 * 60 * 60 * 1000L
+
+    // Guest ad cadence (AGENTS.md 5.2a): minimum gap between two interstitials for guests.
+    const val GUEST_INTERSTITIAL_COOLDOWN_MILLIS = 90_000L
+}
+
+/**
+ * Guest interstitial cadence (AGENTS.md 5.2a, owner decision 2026-10-21). Pure, so it is unit-tested.
+ *
+ * - Only guests (anonymous users without a permanent account).
+ * - Never on the first scan of the day ([scansToday] = scans already made today, before this one).
+ * - From the second scan on, only when at least [AdConfig.GUEST_INTERSTITIAL_COOLDOWN_MILLIS]
+ *   have passed since the last interstitial actually shown ([lastInterstitialMs], 0 = never).
+ *   A clock that went backwards counts as inside the cooldown, so two ads never run back to back.
+ */
+fun shouldShowGuestInterstitial(
+    isGuest: Boolean,
+    scansToday: Int,
+    lastInterstitialMs: Long,
+    nowMs: Long,
+): Boolean {
+    if (!isGuest) return false
+    if (scansToday < 1) return false
+    if (lastInterstitialMs <= 0L) return true
+    val elapsed = nowMs - lastInterstitialMs
+    return elapsed >= AdConfig.GUEST_INTERSTITIAL_COOLDOWN_MILLIS
 }
 
 /**
@@ -100,8 +128,9 @@ interface AdManager {
 
 /**
  * Manages daily scan quotas to protect against unbounded AI VLM token costs.
- * Grants [AdConfig.WEEK_ONE_DAILY_FREE_SCANS] (5) scans/day during Week 1 (first 7 days),
- * and [AdConfig.DEFAULT_DAILY_FREE_SCANS] (3) scans/day from Day 8 onward.
+ * Permanent accounts get [AdConfig.WEEK_ONE_DAILY_FREE_SCANS] (5) scans/day during Week 1 (first 7 days)
+ * and [AdConfig.DEFAULT_DAILY_FREE_SCANS] (3) from Day 8 onward, each plus [AdConfig.ACCOUNT_DAILY_BONUS_SCANS].
+ * Guests get [AdConfig.DEFAULT_DAILY_FREE_SCANS] (3) from day one (owner decision 2026-10-21).
  * Scans beyond the daily quota trigger a forced interstitial ad before processing without blocking dialogs.
  */
 object ScanQuotaManager {
@@ -145,15 +174,43 @@ object ScanQuotaManager {
         return (now - installed) < AdConfig.SEVEN_DAYS_MILLIS
     }
 
+    /**
+     * Free scans per day (display only; the gateway computes the same figure and is authoritative).
+     * Guests: 3. Permanent accounts: 5 + 1 in week one, 3 + 1 after.
+     */
     fun getDailyFreeLimit(): Int {
+        if (!isPermanentAccountProvider()) return AdConfig.DEFAULT_DAILY_FREE_SCANS
         val base = if (isWeekOneUser()) {
             AdConfig.WEEK_ONE_DAILY_FREE_SCANS
         } else {
             AdConfig.DEFAULT_DAILY_FREE_SCANS
         }
-        val accountBonus = if (isPermanentAccountProvider()) AdConfig.ACCOUNT_DAILY_BONUS_SCANS else 0
-        return base + accountBonus
+        return base + AdConfig.ACCOUNT_DAILY_BONUS_SCANS
     }
+
+    private const val KEY_LAST_INTERSTITIAL_SHOWN = "last_interstitial_shown_ms"
+
+    /** Time the last interstitial actually appeared on screen, or 0 if none has. */
+    fun getLastInterstitialShownMillis(): Long =
+        preferenceReader(KEY_LAST_INTERSTITIAL_SHOWN, "0").toLongOrNull() ?: 0L
+
+    /**
+     * Call from the ad SDK's "shown" callback (AdMob `onAdShowedFullScreenContent`), never when an
+     * ad is merely requested, so a scan with no ad loaded does not start the guest cooldown.
+     */
+    fun recordInterstitialShown() {
+        val now = currentTimeMillisProvider()
+        preferenceWriter(KEY_LAST_INTERSTITIAL_SHOWN, now.toString())
+        _interstitialShownAt.value = now
+    }
+
+    private val _interstitialShownAt = MutableStateFlow(0L)
+
+    /**
+     * Emits each time an interstitial is shown, so the camera screen re-evaluates [shouldPlayScanAd]
+     * and a retake right after an ad does not play a second one back to back.
+     */
+    val interstitialShownAt: StateFlow<Long> = _interstitialShownAt.asStateFlow()
 
     fun getUsedScans(dateKey: String): Int {
         return preferenceReader("quota_used_$dateKey", "0").toIntOrNull() ?: 0
@@ -194,12 +251,23 @@ object ScanQuotaManager {
     }
 
     /**
-     * Whether a scan plays the processing interstitial (AGENTS.md 5.1/5.2): only once the free
-     * quota is used up, and only for users who can be shown ads at all. Free scans, including
-     * the whole first week's allowance, never play one.
+     * Whether a scan plays the processing interstitial, only for users who can be shown ads at all:
+     * - past the free quota, always (AGENTS.md 5.2);
+     * - guests within their free scans, from the second scan of the day and at most one
+     *   interstitial per 90 s ([shouldShowGuestInterstitial], AGENTS.md 5.2a).
+     * Permanent accounts never see one within their free scans, including the whole first week.
      */
-    fun shouldPlayScanAd(dateKey: String, adsAllowed: Boolean): Boolean =
-        adsAllowed && shouldForceInterstitialAd(dateKey)
+    fun shouldPlayScanAd(dateKey: String, adsAllowed: Boolean): Boolean {
+        if (!adsAllowed) return false
+        if (com.fitcal.shared.subscription.SubscriptionManager.isPremiumUser()) return false
+        if (shouldForceInterstitialAd(dateKey)) return true
+        return shouldShowGuestInterstitial(
+            isGuest = !isPermanentAccountProvider(),
+            scansToday = getUsedScans(dateKey),
+            lastInterstitialMs = getLastInterstitialShownMillis(),
+            nowMs = currentTimeMillisProvider(),
+        )
+    }
 
     fun consumeScan(dateKey: String) {
         val currentUsed = getUsedScans(dateKey)
