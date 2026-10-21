@@ -36,6 +36,7 @@ import com.fitcal.app.ui.navigation.ResultDestination
 import com.fitcal.app.ui.navigation.SettingsDestination
 import com.fitcal.app.ui.navigation.FoodLibraryDestination
 import com.fitcal.app.ui.navigation.GuideDestination
+import com.fitcal.app.ui.screens.dashboard.components.copyAsNewLog
 import com.fitcal.app.ui.screens.dashboard.components.ringScaleWithoutTarget
 import com.fitcal.app.ui.screens.library.GuideScreen
 import com.fitcal.app.learn.Guides
@@ -531,6 +532,18 @@ fun App() {
                             coroutineScope.launch {
                                 mealRepository.saveMeal(mealToRestore)
                             }
+                        },
+                        allMeals = allMeals,
+                        // Log again: a copy on today's date, no scan used.
+                        onLogAgain = { meal ->
+                            Analytics.track("meal_logged_again", "favorite" to meal.favorite, "has_items" to meal.items.isNotEmpty())
+                            val copy = meal.copyAsNewLog(newMealId(), getCurrentDateString(), getCurrentTimeString())
+                            totalMealsLogged += 1
+                            coroutineScope.launch { mealRepository.saveMeal(copy) }
+                        },
+                        onToggleFavorite = { meal ->
+                            Analytics.track("meal_favorite_toggled", "favorite" to !meal.favorite)
+                            coroutineScope.launch { mealRepository.updateMeal(meal.copy(favorite = !meal.favorite)) }
                         },
                         today = getCurrentDateString(),
                         showPlanPrompt = !planPromptDismissed,

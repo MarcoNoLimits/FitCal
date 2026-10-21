@@ -14,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -39,6 +41,7 @@ sealed class OutboxItem {
  * Supabase row for the meals table.
  * [eaten_at] is the canonical timestamptz; [timestamp] and [date] are derived client-side.
  */
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class SupabaseMealRow(
     val id: String,
@@ -50,7 +53,10 @@ data class SupabaseMealRow(
     val eaten_at: String? = null,     // timestamptz ISO string from server
     val photo_url: String? = null,
     val deleted_at: String? = null,
-    val items: List<FoodItem> = emptyList()   // jsonb, migration 0004
+    val items: List<FoodItem> = emptyList(),   // jsonb, migration 0004
+    // migration 0006. Always encoded, so un-starring a meal reaches the server too.
+    @EncodeDefault
+    val favorite: Boolean = false
 )
 
 /**
@@ -157,7 +163,8 @@ class SyncEngine(
                         carbs_g = item.meal.carbs,
                         fat_g = item.meal.fat,
                         eaten_at = eatenAt,
-                        items = item.meal.items
+                        items = item.meal.items,
+                        favorite = item.meal.favorite
                     )
                     client.from("meals").upsert(row)
                     true
