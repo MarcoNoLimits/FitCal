@@ -1,13 +1,17 @@
 package com.fitcal.app
 
+import com.fitcal.app.telemetry.CrashEventFilter
 import io.sentry.Sentry
+import io.sentry.SentryEvent
+import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
 import io.sentry.protocol.User
 
 // Sentry crash/ANR reporting. Off until SENTRY_DSN is set in local.properties, and
 // only running while PrivacyConsent is accepted and the user shares usage analytics.
 // No screenshots, view hierarchy, session replay or default PII: meal photos and
-// nutrition data never go to Sentry.
+// nutrition data never go to Sentry. Network-unavailable errors (the phone is offline)
+// are dropped in beforeSend: they are expected, not bugs.
 
 private var sentryStarted = false
 
@@ -24,12 +28,21 @@ actual fun setCrashReportingEnabled(enabled: Boolean) {
             options.isAttachViewHierarchy = false
             options.tracesSampleRate = 0.0
             options.isAnrEnabled = true
+            options.beforeSend = SentryOptions.BeforeSendCallback { event, _ ->
+                if (CrashEventFilter.shouldDrop(exceptionChain(event))) null else event
+            }
         }
         sentryStarted = true
     } else if (!enabled && sentryStarted) {
         Sentry.close()
         sentryStarted = false
     }
+}
+
+/** The event's exception chain as (class name, message) pairs, from the throwable if present. */
+private fun exceptionChain(event: SentryEvent): List<Pair<String?, String?>> {
+    event.throwable?.let { return CrashEventFilter.chainOf(it) }
+    return event.exceptions.orEmpty().map { it.type to it.value }
 }
 
 actual fun setCrashReportingUser(userId: String?) {
