@@ -176,7 +176,7 @@ class OpenFoodFactsClientTest {
     // ── Client: header, not found, cache ─────────────────────────────────────
 
     @Test
-    fun sendsUserAgentAndCachesSuccessfulLookups() = runBlocking {
+    fun sendsUserAgentAndCachesSuccessfulLookups(): Unit = runBlocking {
         var calls = 0
         var userAgent: String? = null
         var requestedUrl = ""
@@ -201,7 +201,7 @@ class OpenFoodFactsClientTest {
     }
 
     @Test
-    fun http404IsNotFoundAndNotCached() = runBlocking {
+    fun http404IsNotFoundAndNotCached(): Unit = runBlocking {
         var calls = 0
         val engine = MockEngine {
             calls++
@@ -217,13 +217,13 @@ class OpenFoodFactsClientTest {
     }
 
     @Test
-    fun serverErrorIsFailed() = runBlocking {
+    fun serverErrorIsFailed(): Unit = runBlocking {
         val client = OpenFoodFactsClient(client = HttpClient(MockEngine { respondError(HttpStatusCode.ServiceUnavailable) }))
         assertIs<BarcodeLookupResult.Failed>(client.lookup("3017620422003"))
     }
 
     @Test
-    fun invalidCodeNeverHitsTheNetwork() = runBlocking {
+    fun invalidCodeNeverHitsTheNetwork(): Unit = runBlocking {
         var calls = 0
         val client = OpenFoodFactsClient(client = HttpClient(MockEngine { calls++; respondError(HttpStatusCode.OK) }))
         assertIs<BarcodeLookupResult.NotFound>(client.lookup("not-a-barcode"))
