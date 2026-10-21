@@ -4,11 +4,13 @@
  * Routes: POST /v1/analyze-meal · POST /v1/recalculate · GET /v1/entitlements
  *         POST /v1/account/delete · POST /v1/reward/ad-earned · POST /v1/events
  *         POST /v1/feedback
- *         POST /v1/webhook/revenuecat · GET /health
+ *         POST /v1/webhook/revenuecat · GET /v1/reward/ssv · GET /health
  *
- * Auth: deployed with verify_jwt = false so the RevenueCat webhook (which carries no
- *       Supabase JWT) can reach it. Every other /v1 route verifies the bearer token
- *       with Supabase Auth itself; anonymous sign-ins are real users and pass.
+ * Auth: deployed with verify_jwt = false so the RevenueCat webhook and AdMob's SSV
+ *       callback (neither carries a Supabase JWT) can reach it. The SSV callback is
+ *       authenticated by Google's ECDSA signature instead (ssv.ts). Every other /v1 route
+ *       verifies the bearer token with Supabase Auth itself; anonymous sign-ins are real
+ *       users and pass.
  *
  * Secrets (set via `supabase secrets set KEY=value`):
  *   GEMINI_API_KEY, OPENROUTER_API_KEY, GROQ_API_KEY
@@ -19,12 +21,16 @@
  *   VLM_PRIMARY_PROVIDER       ("gemini" | "openrouter" | "groq" | "mock")
  *   VLM_ALLOW_FALLBACK         ("true" | "false", default "true")
  *   KILL_SWITCH                ("true" to disable all non-health endpoints)
+ *   REWARD_REQUIRE_SSV         ("true" = rewarded bonus is granted only by AdMob's SSV
+ *                               callback; default "false" = POST /v1/reward/ad-earned grants
+ *                               and SSV callbacks are only verified and recorded)
  *
  * Database: every table and RPC lives in schema `fitcal` (renamed from `fitter` in
  * migration 0011). Service-role requests must send the fitcal profile headers.
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { CachedVerifierKeys, handleSsvCallback, type SsvClaimResult } from "./ssv.ts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -478,6 +484,21 @@ async function verifyRevenueCatSignature(request: Request, body: string, secret:
   } catch { return false; }
 }
 
+// ─── AdMob SSV ────────────────────────────────────────────────────────────────
+
+// Google's verifier keys, cached across requests on this isolate (ssv.ts).
+const admobVerifierKeys = new CachedVerifierKeys();
+
+function rewardRequiresSsv(): boolean {
+  return (Deno.env.get("REWARD_REQUIRE_SSV") ?? "false").toLowerCase().trim() === "true";
+}
+
+// How long POST /v1/reward/ad-earned waits for AdMob's SSV callback when SSV is required.
+// AdMob usually calls within a few seconds of the reward.
+const SSV_CONFIRM_ATTEMPTS = 5;
+const SSV_CONFIRM_INTERVAL_MS = 1200;
+const SSV_CONFIRM_WINDOW_S = 120;
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 const supabaseAdmin = createClient(
@@ -559,6 +580,42 @@ Deno.serve(async (req: Request) => {
     } catch (e: any) {
       console.error("RevenueCat webhook error:", e.message);
       return jsonResponse({ error: "Bad Request" }, 400);
+    }
+  }
+
+  // ── GET /v1/reward/ssv ─────────────────────────────────────────────────────
+  // AdMob rewarded-ad server-side verification callback. No JWT: Google's signature over
+  // the query string is the authentication. Grants the same +2 under the same daily cap
+  // as /v1/reward/ad-earned, once per transaction_id, and only when REWARD_REQUIRE_SSV is
+  // on (before that, verified callbacks are recorded so the setup can be checked first).
+  if (req.method === "GET" && url.pathname.endsWith("/v1/reward/ssv")) {
+    try {
+      const grant = rewardRequiresSsv();
+      const result = await handleSsvCallback(url.search, {
+        keys: admobVerifierKeys,
+        grant,
+        claim: (c) =>
+          callFitcalRpc<SsvClaimResult>("claim_ssv_reward", {
+            p_transaction_id: c.transactionId,
+            p_user_id: c.userId,
+            p_amount: REWARD_BONUS_PER_AD,
+            p_daily_cap: REWARD_BONUS_DAILY_CAP,
+            p_grant: c.grant,
+            p_ad_unit: c.adUnit || null,
+            p_reward_item: c.rewardItem || null,
+            p_reward_amount: c.rewardAmount,
+          }),
+      });
+      const outcome = String(result.body.status ?? result.body.error ?? "unknown");
+      console.log(`[reward-ssv] http=${result.status} outcome=${outcome} grant=${grant}`);
+      if (result.status === 200 && (outcome === "granted" || outcome === "capped" || outcome === "recorded")) {
+        trackServerEvent(null, "reward_ssv", { outcome, grant });
+      }
+      return jsonResponse(result.body, result.status);
+    } catch (e: any) {
+      // Database or network failure: a 5xx makes AdMob retry, and the retry is deduplicated.
+      console.error("[reward-ssv] error:", e.message);
+      return jsonResponse({ error: "Internal Server Error" }, 500);
     }
   }
 
@@ -680,6 +737,33 @@ Deno.serve(async (req: Request) => {
 
     // ── POST /v1/reward/ad-earned ───────────────────────────────────────────
     // Grants rewarded-ad bonus scans, capped per day in the database.
+    // With REWARD_REQUIRE_SSV on, this route grants nothing: it waits briefly for AdMob's
+    // SSV callback (GET /v1/reward/ssv) and reports that grant. If the callback has not
+    // arrived yet it answers 425, the app keeps its optimistic count, and the next quota
+    // sync shows the server value.
+    if (req.method === "POST" && url.pathname.endsWith("/v1/reward/ad-earned") && rewardRequiresSsv()) {
+      await req.body?.cancel().catch(() => {});
+      for (let attempt = 0; attempt < SSV_CONFIRM_ATTEMPTS; attempt++) {
+        const recent = await callFitcalRpc<{ found: boolean; granted: number; bonus: number }>("recent_ssv_reward", {
+          p_user_id: userId,
+          p_within_seconds: SSV_CONFIRM_WINDOW_S,
+        });
+        if (recent.found) {
+          const capped = recent.granted === 0;
+          trackServerEvent(userId, "reward_claimed", { via: "ssv", granted: recent.granted, capped });
+          if (capped) {
+            return jsonResponse(
+              { error: "Reward limit reached", message: `Maximum of ${REWARD_BONUS_DAILY_CAP} rewarded scans per day reached.` },
+              429
+            );
+          }
+          return jsonResponse({ bonus: recent.bonus, granted: recent.granted }, 200);
+        }
+        if (attempt < SSV_CONFIRM_ATTEMPTS - 1) await new Promise((r) => setTimeout(r, SSV_CONFIRM_INTERVAL_MS));
+      }
+      trackServerEvent(userId, "reward_claimed", { via: "ssv", pending: true });
+      return jsonResponse({ error: "Reward pending", message: "Waiting for the ad network to confirm the reward." }, 425);
+    }
     if (req.method === "POST" && url.pathname.endsWith("/v1/reward/ad-earned")) {
       const body: any = await req.json().catch(() => ({}));
       const requested = Math.min(Math.max(Math.trunc(Number(body?.amount ?? REWARD_BONUS_PER_AD)) || 0, 1), REWARD_BONUS_PER_AD);
