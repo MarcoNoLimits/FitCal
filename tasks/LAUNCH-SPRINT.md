@@ -2,7 +2,7 @@
 
 Owner decisions, 2026-10-21:
 - Launch without Premium or any Google Play subscription. Premium stays deferred to v1.1 (AGENTS.md Task 10). Don't mention Premium in UI or store text.
-- Build these for launch: WP1 to WP6 below.
+- Build these for launch: WP1 to WP7 below.
 - Commits must not carry AI attribution: no `Co-Authored-By` trailer and no session links.
 
 Read `AGENTS.md` first. Its rules win over this file: no ads on the camera or review screens, no monetization changes outside §5, and keep `./gradlew :FitCal-UI:testDebugUnitTest` green.
@@ -18,7 +18,7 @@ Run it on the owner's computer, where the Android SDK and the phone are. The clo
    - write unit tests for its pure logic, next to the existing tests in `FitCal-UI/src/commonTest` and `shared/src/commonTest`;
    - run `./gradlew :FitCal-UI:testDebugUnitTest` and get it green;
    - run `./gradlew :FitCal-UI:assembleDebug` and get it compiling.
-5. Merge into `main` in this order, rebuilding and re-running the tests after each merge: WP1, WP4, WP5, WP3, WP2, WP6. WP3 goes before WP6 because both edit `supabase/functions/analyze-meal/index.ts`.
+5. Merge into `main` in this order, rebuilding and re-running the tests after each merge: WP1, WP4, WP5, WP3, WP2, WP6, WP7. WP3, WP6 and WP7 all edit `supabase/functions/analyze-meal/index.ts`; WP7 also edits the scan gate that WP3 reuses.
 6. After the last merge:
    - run `./gradlew :FitCal-UI:installDebug` with the phone connected;
    - smoke-test the checklist at the end of this file.
@@ -155,6 +155,42 @@ Done when:
 - the grant is idempotent per `transaction_id`;
 - the owner has a short checklist for setting the SSV callback URL in the AdMob console.
 
+## WP7 · Guest ad cadence and sign-in card (S to M)
+
+This is a monetization change. The spec is AGENTS.md §5.1, §5.2 (item 6) and §5.2a, updated by the owner on 2026-10-21. Follow it exactly.
+
+Files:
+- `ads/AdManager.kt`: `ScanQuotaManager`, `AdConfig`;
+- `ScanGate.kt` / `App.kt` (the scan gate);
+- `supabase/functions/analyze-meal/index.ts` (allowance);
+- a new first-open card in `ui/screens/auth/` or `ui/components/`.
+
+The work:
+- **Allowance:** guests get no week-one bonus.
+  - Client `getDailyFreeLimit()`: guests 3; permanent accounts 5+1 in week one, 3+1 after.
+  - Gateway: apply `WEEK_ONE_DAILY_ALLOWANCE` only when the verified user is a permanent account. The server stays authoritative.
+- **Guest interstitial cadence:** for guests only, from the second scan of the day, show the interstitial before processing when at least 90 s have passed since the last interstitial.
+  - Store the last-shown time when an interstitial actually shows (`onAdShowedFullScreenContent`), not when one is requested.
+  - Put it in a pure function, `shouldShowGuestInterstitial(isGuest, scansToday, lastInterstitialMs, nowMs)`.
+  - If no ad is loaded, the scan proceeds. Never block a scan.
+- **First-open card:** show it once, to guests only, after the age gate and consent:
+  - title "Create a free account";
+  - body: "No ads for your first week, plus 1 extra scan every day. Everything you log comes with you.";
+  - buttons: Create account (opens `AuthDestination`) and Not now.
+  - Track `signin_card_shown`, `signin_card_accept` and `signin_card_dismiss` (see `ANALYTICS.md`).
+- **Owner, in the AdMob console:** on the interstitial ad unit, allow video and interactive (playable) ads. No code is needed for this. Add the step to `tasks/NEXT.md`.
+
+Done when:
+- `ScanQuotaManagerTest` is updated and new tests cover:
+  - guest limit 3 in week one;
+  - account limit 6 in week one;
+  - first guest scan of the day has no ad;
+  - second scan within 90 s has no ad;
+  - second scan after 90 s gets the ad;
+  - signed-in users in week one never see an ad within their free scans;
+- the gateway allowance matches the client for guests and accounts;
+- the card shows once and never to signed-in users.
+
 ## Smoke test on the phone, after all merges
 
 - [ ] Photo scan works. Past the quota, an interstitial plays before analysis. No ads on the camera or review screens.
@@ -163,4 +199,6 @@ Done when:
 - [ ] "Describe your meal" logs a meal and uses one scan. "Tell FitCal what's off" updates the items.
 - [ ] Favourite a meal, log it again from the favourites row, and the streak chip shows from day 2.
 - [ ] A plan check-in adds a point to the Progress weight chart.
+- [ ] As a guest: first scan has no ad, the second scan shows an interstitial, a third scan within 90 s has none, and the sign-in card appeared once on first open.
+- [ ] Signed in during week one: no ads for the first 6 scans of the day.
 - [ ] Airplane mode while scanning shows the friendly offline message, and no new Sentry issue appears.
