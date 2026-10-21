@@ -115,7 +115,8 @@ class SupabaseMealRepository(
                 fat = row.fat_g,
                 timestamp = derivedTime,
                 date = derivedDate,
-                items = row.items
+                items = row.items,
+                favorite = row.favorite
             )
             // Download only what this device lacks; saving every row appended duplicates.
             localRepo.saveIfAbsent(meal)
