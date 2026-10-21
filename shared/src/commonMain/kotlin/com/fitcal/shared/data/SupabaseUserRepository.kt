@@ -2,9 +2,11 @@
 
 import com.fitcal.shared.auth.SupabaseClientFactory
 import com.fitcal.shared.model.UserProfile
+import com.fitcal.shared.model.WeightEntry
 import com.fitcal.shared.sync.OutboxItem
 import com.fitcal.shared.sync.SupabaseProfileRow
 import com.fitcal.shared.sync.SupabaseWaterRow
+import com.fitcal.shared.sync.SupabaseWeightRow
 import com.fitcal.shared.sync.SyncEngine
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -36,6 +38,30 @@ class SupabaseUserRepository(
 
     override fun observeWaterIntake(date: String): Flow<Int> {
         return localRepo.observeWaterIntake(date)
+    }
+
+    override suspend fun getWeightEntries(): List<WeightEntry> = localRepo.getWeightEntries()
+
+    override suspend fun recordWeight(entry: WeightEntry) {
+        localRepo.recordWeight(entry)
+        syncEngine.enqueue(OutboxItem.UpsertWeight(entry.date, entry.weightKg))
+    }
+
+    override fun observeWeightEntries(): Flow<List<WeightEntry>> = localRepo.observeWeightEntries()
+
+    /** Weigh-ins from [fromDateKey] on, so a reinstall gets the weight history back. */
+    suspend fun pullWeightHistory(fromDateKey: String) {
+        try {
+            val rows = client.from("weight_entries")
+                .select {
+                    filter { gte("day", fromDateKey) }
+                    limit(1000)
+                }
+                .decodeList<SupabaseWeightRow>()
+            localRepo.mergeWeightEntries(rows.map { WeightEntry(it.day, it.weight_kg) })
+        } catch (e: Exception) {
+            println("SupabaseUserRepository pullWeightHistory failed: ${e.message}")
+        }
     }
 
     suspend fun pullRemote(dateKey: String) {

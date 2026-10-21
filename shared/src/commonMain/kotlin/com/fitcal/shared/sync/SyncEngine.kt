@@ -33,6 +33,9 @@ sealed class OutboxItem {
 
     @Serializable
     data class UpsertWater(val date: String, val amountMl: Int) : OutboxItem()
+
+    @Serializable
+    data class UpsertWeight(val date: String, val weightKg: Float) : OutboxItem()
 }
 
 /**
@@ -84,6 +87,17 @@ data class SupabaseWaterRow(
     val user_id: String? = null,      // included for RLS; set by PostgREST default if null
     val day: String,
     val amount_ml: Int
+)
+
+/**
+ * Supabase row for the weight_entries table (migration 0007): one weigh-in per user and day.
+ * [user_id] is left null so PostgREST applies the auth.uid() default and RLS matches.
+ */
+@Serializable
+data class SupabaseWeightRow(
+    val user_id: String? = null,
+    val day: String,
+    val weight_kg: Float
 )
 
 class SyncEngine(
@@ -202,6 +216,11 @@ class SyncEngine(
                         amount_ml = item.amountMl
                     )
                     client.from("water_intake").upsert(row)
+                    true
+                }
+                is OutboxItem.UpsertWeight -> {
+                    // Primary key (user_id, day): a second weigh-in on the same day replaces the first.
+                    client.from("weight_entries").upsert(SupabaseWeightRow(day = item.date, weight_kg = item.weightKg))
                     true
                 }
             }

@@ -5,6 +5,7 @@ import com.fitcal.app.ui.components.mifflinStJeorBmr
 import com.fitcal.shared.model.MacroGoals
 import com.fitcal.shared.model.PersonalPlan
 import com.fitcal.shared.model.UserProfile
+import com.fitcal.shared.model.WeightEntry
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -269,6 +270,22 @@ fun UserProfile.checkIn(weightKg: Float, today: String): UserProfile {
     val p = plan ?: return this
     return copy(weight = weightKg, plan = p.copy(lastCheckInDate = today)).withPlanTargetsRecomputed()
 }
+
+/** A check-in's two results: the profile (exactly what [checkIn] returns) and the weigh-in to record. */
+data class CheckInResult(val profile: UserProfile, val entry: WeightEntry?)
+
+/**
+ * [checkIn] plus the weight-history entry it records. Without a plan nothing changes and
+ * nothing is recorded, as with [checkIn].
+ */
+fun UserProfile.checkInWithEntry(weightKg: Float, today: String): CheckInResult {
+    if (plan == null) return CheckInResult(this, null)
+    return CheckInResult(checkIn(weightKg, today), WeightEntry(today, weightKg))
+}
+
+/** The weigh-in to record when a profile save changes the weight (e.g. in Settings), else null. */
+fun weightEntryForChange(before: UserProfile, after: UserProfile, today: String): WeightEntry? =
+    if (after.weight != before.weight) WeightEntry(today, after.weight) else null
 
 /** Estimated date the target weight is reached at the plan's pace, from the last check-in. */
 fun UserProfile.projectedTargetDate(today: String): String? {

@@ -38,6 +38,10 @@ object TermsDestination
 @Serializable
 object FoodLibraryDestination
 
+/** Weight history and the last 7 days of calories and protein; opened from the calorie card. */
+@Serializable
+object ProgressDestination
+
 /** A nutrition guide; [source] says where it was opened from (for analytics). */
 @Serializable
 data class GuideDestination(val guideId: String, val source: String)
