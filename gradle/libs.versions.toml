@@ -14,6 +14,7 @@ kotlin = "2.3.21"
 ktor = "3.4.3"
 material3 = "1.11.0-alpha07"
 camerax = "1.4.1"
+mlkitBarcode = "17.3.0"
 playServicesAds = "23.6.0"
 sentry = "8.58.0"
 sentryGradle = "6.23.0"
@@ -33,6 +34,8 @@ camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = 
 camerax-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
 camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
 camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+# Barcode scanner: bundled on-device model (no Play Services download, works offline).
+mlkit-barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "mlkitBarcode" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coil" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }

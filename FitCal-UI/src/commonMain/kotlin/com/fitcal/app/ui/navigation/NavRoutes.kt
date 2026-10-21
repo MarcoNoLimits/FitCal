@@ -12,6 +12,10 @@ object CameraDestination
 @Serializable
 data class ResultDestination(val responseJson: String)
 
+/** Review of a barcode product from Open Food Facts (or an empty meal to fill in by hand). No AI scan used. */
+@Serializable
+data class BarcodeResultDestination(val responseJson: String)
+
 /** The optional personal plan: set up, or edit an existing one. */
 @Serializable
 object PlanDestination

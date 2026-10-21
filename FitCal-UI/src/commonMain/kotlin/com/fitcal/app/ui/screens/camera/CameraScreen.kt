@@ -28,6 +28,17 @@ import androidx.compose.ui.unit.dp
 import com.fitcal.app.CameraPreview
 import com.fitcal.app.ads.AdManager
 import com.fitcal.app.compressImage
+import com.fitcal.app.ui.screens.camera.barcode.BarcodeOutcome
+import com.fitcal.app.ui.screens.camera.barcode.BarcodeProblemCard
+import com.fitcal.app.ui.screens.camera.barcode.BarcodeScanState
+import com.fitcal.app.ui.screens.camera.barcode.BarcodeViewfinder
+import com.fitcal.app.ui.screens.camera.barcode.CameraModeOption
+import com.fitcal.app.ui.screens.camera.barcode.CameraModeStrip
+import com.fitcal.app.ui.screens.camera.barcode.CaptureMode
+import com.fitcal.app.ui.screens.camera.barcode.barcodeOutcome
+import com.fitcal.app.ui.screens.camera.barcode.barcodeResultLabel
+import com.fitcal.app.ui.screens.camera.barcode.manualEntryResponseJson
+import com.fitcal.shared.api.BarcodeLookupResult
 import com.fitcal.app.ui.components.getMockJson
 import com.fitcal.app.ui.theme.*
 import com.fitcal.shared.api.NutritionClient
@@ -57,8 +68,60 @@ fun CameraScreen(
     scansRemaining: Int = 1,
     onBonusScansEarned: (suspend () -> Unit)? = null,
     onCreateAccount: (() -> Unit)? = null,
+    // Barcode mode: an Open Food Facts lookup. Null hides the mode. Lookups never use an AI scan,
+    // never touch the quota and never show an ad.
+    barcodeLookup: (suspend (String) -> BarcodeLookupResult)? = null,
+    // Opens the review screen for a barcode product (or an empty meal for manual entry).
+    onOpenBarcodeReview: (String) -> Unit = {},
 ) {
     val coroutineScope = rememberCoroutineScope()
+
+    var captureMode by remember { mutableStateOf(CaptureMode.Photo) }
+    var barcodeState by remember { mutableStateOf<BarcodeScanState>(BarcodeScanState.Scanning) }
+    // Bumped on every lookup and mode change, so a stale lookup result is ignored.
+    var barcodeLookupToken by remember { mutableStateOf(0) }
+
+    fun selectMode(mode: CaptureMode) {
+        if (mode == captureMode) return
+        Analytics.track("camera_mode_selected", "mode" to mode.name.lowercase())
+        barcodeLookupToken++
+        barcodeState = BarcodeScanState.Scanning
+        captureMode = mode
+    }
+
+    fun startBarcodeLookup(code: String) {
+        val lookup = barcodeLookup ?: return
+        val token = ++barcodeLookupToken
+        barcodeState = BarcodeScanState.LookingUp(code)
+        coroutineScope.launch {
+            val startedAt = getCurrentEpochMillis()
+            val result = lookup(code)
+            Analytics.track(
+                "barcode_lookup",
+                "result" to barcodeResultLabel(result),
+                "cached" to ((result as? BarcodeLookupResult.Found)?.fromCache == true),
+                "latency_ms" to getCurrentEpochMillis() - startedAt,
+            )
+            if (token != barcodeLookupToken || captureMode != CaptureMode.Barcode) return@launch
+            when (val outcome = barcodeOutcome(result)) {
+                is BarcodeOutcome.OpenReview -> {
+                    barcodeState = BarcodeScanState.Scanning
+                    onOpenBarcodeReview(outcome.responseJson)
+                }
+                is BarcodeOutcome.Stay -> barcodeState = outcome.state
+            }
+        }
+    }
+
+    val onBarcodeDetected: (String) -> Unit = { code ->
+        if (captureMode == CaptureMode.Barcode && barcodeState.acceptsDetections) startBarcodeLookup(code)
+    }
+
+    // The strip is a list so another mode is one more entry here.
+    val modeOptions = buildList {
+        add(CameraModeOption("Scan food", captureMode == CaptureMode.Photo) { selectMode(CaptureMode.Photo) })
+        add(CameraModeOption("Barcode", captureMode == CaptureMode.Barcode) { selectMode(CaptureMode.Barcode) })
+    }
 
     LaunchedEffect(scanReadiness, scansRemaining) {
         val reason = getScanBlockedReason(scanReadiness)
@@ -162,7 +225,10 @@ fun CameraScreen(
         )
     }
 
-    if (scanReadiness != ScanReadiness.Ready || (scansRemaining <= 0 && !isAnalyzing && errorMessage == null)) {
+    // The scan gate is for AI photo scans only; barcode mode is free and stays open.
+    if (captureMode == CaptureMode.Photo &&
+        (scanReadiness != ScanReadiness.Ready || (scansRemaining <= 0 && !isAnalyzing && errorMessage == null))
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -260,6 +326,24 @@ fun CameraScreen(
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold
                                 )
+                            }
+
+                            if (barcodeLookup != null) {
+                                OutlinedButton(
+                                    onClick = { selectMode(CaptureMode.Barcode) },
+                                    shape = RoundedCornerShape(RadiusM),
+                                    border = BorderStroke(1.dp, PrimaryAccent),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 48.dp)
+                                ) {
+                                    Text(
+                                        text = "Scan a Barcode (Free, No Scan Used)",
+                                        color = PrimaryAccent,
+                                        fontWeight = FontWeight.SemiBold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
 
                             if (onCreateAccount != null) {
@@ -371,7 +455,43 @@ fun CameraScreen(
                         }
                     }
                 },
-                onCancel = onNavigateBack
+                onCancel = onNavigateBack,
+                mode = captureMode,
+                onBarcodeDetected = onBarcodeDetected,
+            )
+        }
+
+        if (captureMode == CaptureMode.Barcode && !isAnalyzing && errorMessage == null) {
+            BarcodeViewfinder(lookingUpCode = (barcodeState as? BarcodeScanState.LookingUp)?.code)
+        }
+
+        val barcodeProblem = barcodeState is BarcodeScanState.NotFound || barcodeState is BarcodeScanState.Failed
+        if (barcodeLookup != null && !isAnalyzing && errorMessage == null && !barcodeProblem) {
+            CameraModeStrip(
+                options = modeOptions,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(bottom = 140.dp), // above the 76 dp shutter, which sits 48 dp up
+            )
+        }
+
+        if (captureMode == CaptureMode.Barcode && barcodeProblem) {
+            val problem = barcodeState
+            BarcodeProblemCard(
+                state = problem,
+                onTakePhoto = { selectMode(CaptureMode.Photo) },
+                onAddManually = {
+                    Analytics.track("barcode_manual_entry")
+                    val name = (problem as? BarcodeScanState.NotFound)?.productName
+                    barcodeState = BarcodeScanState.Scanning
+                    onOpenBarcodeReview(manualEntryResponseJson(name))
+                },
+                onScanAgain = {
+                    if (problem is BarcodeScanState.Failed) startBarcodeLookup(problem.code)
+                    else barcodeState = BarcodeScanState.Scanning
+                },
+                onClose = onNavigateBack,
             )
         }
 

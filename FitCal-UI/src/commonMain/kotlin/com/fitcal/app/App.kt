@@ -17,6 +17,8 @@ import com.fitcal.app.data.PreferenceKeyValueStorage
 import com.fitcal.app.telemetry.Analytics
 import com.fitcal.app.telemetry.CohortRetentionTracker
 import com.fitcal.app.ui.navigation.AuthDestination
+import com.fitcal.app.ui.navigation.BarcodeResultDestination
+import com.fitcal.shared.api.OpenFoodFactsClient
 import com.fitcal.app.ui.navigation.CameraDestination
 import com.fitcal.app.ui.navigation.DashboardDestination
 import com.fitcal.app.ui.navigation.EditMealDestination
@@ -152,6 +154,8 @@ fun App() {
         com.fitcal.shared.sync.SyncEngine(storage, supabaseClient)
     }
     val localMealRepository = remember { LocalMealRepository(storage) }
+    // Barcode lookups: Open Food Facts, cached on the device by barcode. No AI, no quota.
+    val openFoodFactsClient = remember { OpenFoodFactsClient(storage = storage) }
     val localUserRepository = remember { LocalUserRepository(storage) }
     val mealRepository: MealRepository = remember {
         com.fitcal.shared.data.SupabaseMealRepository(
@@ -631,6 +635,81 @@ fun App() {
                             { navController.navigate(AuthDestination) }
                         } else {
                             null
+                        },
+                        barcodeLookup = { code -> openFoodFactsClient.lookup(code) },
+                        onOpenBarcodeReview = { responseJson ->
+                            // No photo for a barcode product; never consumes a scan.
+                            lastCapturedImageBytes = null
+                            navController.navigate(BarcodeResultDestination(responseJson)) {
+                                popUpTo(DashboardDestination) { saveState = false }
+                            }
+                        },
+                    )
+                }
+
+                composable<BarcodeResultDestination> { backStackEntry ->
+                    val destination = backStackEntry.toRoute<BarcodeResultDestination>()
+                    val nutritionData = remember(destination.responseJson) {
+                        Json.decodeFromString<NutritionResponse>(destination.responseJson)
+                    }
+                    ResultScreen(
+                        apiClient = apiClient,
+                        data = nutritionData,
+                        profile = userProfile,
+                        isMock = isMockMode,
+                        capturedImageBytes = null,
+                        ingredientsNote = if (nutritionData.items.isEmpty()) {
+                            "Add what you ate from the food library."
+                        } else {
+                            "From the package label via Open Food Facts. Change the weight to match what you ate."
+                        },
+                        onMealLogged = { mealName, cal, p, c, f, items ->
+                            val newMeal = LoggedMeal(
+                                id = newMealId(),
+                                name = mealName,
+                                calories = cal,
+                                protein = p,
+                                carbs = c,
+                                fat = f,
+                                timestamp = getCurrentTimeString(),
+                                date = selectedDateKey,
+                                items = items
+                            )
+                            totalMealsLogged += 1
+                            if (totalMealsLogged == 1) Analytics.track("first_meal_logged")
+                            Analytics.track("barcode_meal_logged", "items" to items.size)
+                            coroutineScope.launch {
+                                mealRepository.saveMeal(newMeal)
+                            }
+                        },
+                        onLogAgain = {
+                            navController.navigate(CameraDestination) {
+                                popUpTo(DashboardDestination)
+                            }
+                        },
+                        shouldSuggestSignIn = {
+                            SignInPromptPolicy.shouldPromptAfterMealLogged(
+                                isPermanentUser = userEmail != null,
+                                totalMealsLogged = totalMealsLogged,
+                            )
+                        },
+                        // Label data, not an AI estimate: keep the rating local, don't send scan-accuracy feedback.
+                        onRateEstimate = { positive, _ ->
+                            Analytics.track("barcode_rated", "positive" to positive)
+                        },
+                        onSignInSuggestionShown = {
+                            SignInPromptPolicy.recordShown()
+                            Analytics.track("sign_in_prompt_shown", "meals_logged" to totalMealsLogged)
+                        },
+                        onSignInSuggestionDismissed = {
+                            SignInPromptPolicy.recordDismissed()
+                            Analytics.track("sign_in_prompt_dismissed")
+                        },
+                        onCreateAccount = {
+                            Analytics.track("sign_in_prompt_accepted")
+                            navController.navigate(AuthDestination) {
+                                popUpTo(DashboardDestination)
+                            }
                         },
                     )
                 }
