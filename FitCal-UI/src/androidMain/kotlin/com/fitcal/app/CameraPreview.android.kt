@@ -7,8 +7,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -31,13 +34,22 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.fitcal.app.ui.screens.camera.barcode.CaptureMode
+import com.google.mlkit.vision.barcode.BarcodeScanner
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.common.InputImage
 import java.io.File
+import java.util.concurrent.Executors
 
 @Composable
 actual fun CameraPreview(
     modifier: Modifier,
     onPhotoCaptured: (ByteArray) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    mode: CaptureMode,
+    onBarcodeDetected: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -101,7 +113,42 @@ actual fun CameraPreview(
     val previewView = remember { PreviewView(context) }
     val imageCapture = remember { ImageCapture.Builder().build() }
 
-    LaunchedEffect(Unit) {
+    // Barcode mode: ML Kit's bundled on-device model (no download, no network, free).
+    val currentOnBarcodeDetected by rememberUpdatedState(onBarcodeDetected)
+    val barcodeScanner = remember {
+        BarcodeScanning.getClient(
+            BarcodeScannerOptions.Builder()
+                .setBarcodeFormats(
+                    Barcode.FORMAT_EAN_13,
+                    Barcode.FORMAT_EAN_8,
+                    Barcode.FORMAT_UPC_A,
+                    Barcode.FORMAT_UPC_E,
+                )
+                .build()
+        )
+    }
+    val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
+    val imageAnalysis = remember {
+        ImageAnalysis.Builder()
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .build()
+            .also { analysis ->
+                analysis.setAnalyzer(analysisExecutor) { proxy ->
+                    scanBarcodeFrame(barcodeScanner, proxy) { code -> currentOnBarcodeDetected(code) }
+                }
+            }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            imageAnalysis.clearAnalyzer()
+            barcodeScanner.close()
+            analysisExecutor.shutdown()
+        }
+    }
+
+    // Rebinds when the mode changes: photo mode uses ImageCapture, barcode mode ImageAnalysis.
+    // The preview and the permission stay the same.
+    LaunchedEffect(mode) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
@@ -117,7 +164,7 @@ actual fun CameraPreview(
                     lifecycleOwner,
                     cameraSelector,
                     preview,
-                    imageCapture
+                    if (mode == CaptureMode.Barcode) imageAnalysis else imageCapture
                 )
             } catch (exc: Exception) {
                 Log.e("CameraPreview", "Use case binding failed", exc)
@@ -147,8 +194,8 @@ actual fun CameraPreview(
             )
         }
 
-        // Bottom controls: [Gallery] ── [Shutter] ──
-        Row(
+        // Bottom controls: [Gallery] ── [Shutter] ── (photo mode only; barcodes are read live)
+        if (mode == CaptureMode.Photo) Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
@@ -211,6 +258,27 @@ actual fun CameraPreview(
             }
         }
     }
+}
+
+/**
+ * Reads one camera frame with ML Kit and reports the first retail barcode found.
+ * The frame is always closed, so the analyzer keeps receiving new ones.
+ */
+@androidx.annotation.OptIn(markerClass = [ExperimentalGetImage::class])
+private fun scanBarcodeFrame(scanner: BarcodeScanner, proxy: ImageProxy, onCode: (String) -> Unit) {
+    val mediaImage = proxy.image
+    if (mediaImage == null) {
+        proxy.close()
+        return
+    }
+    val input = InputImage.fromMediaImage(mediaImage, proxy.imageInfo.rotationDegrees)
+    scanner.process(input)
+        .addOnSuccessListener { barcodes ->
+            // Success listeners run on the main thread, where the UI state lives.
+            barcodes.firstNotNullOfOrNull { it.rawValue?.takeIf { value -> value.isNotBlank() } }?.let(onCode)
+        }
+        .addOnFailureListener { e -> Log.w("CameraPreview", "Barcode scan failed on a frame: ${e.message}") }
+        .addOnCompleteListener { proxy.close() }
 }
 
 private val PhotoIcon: ImageVector by lazy {
