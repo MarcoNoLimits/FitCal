@@ -20,13 +20,15 @@ import com.google.android.gms.ads.rewarded.ServerSideVerificationOptions
 import java.lang.ref.WeakReference
 
 class AndroidAdManager(
-    private val contextProvider: () -> Context,
     /**
      * The signed-in Supabase user (guests included). Sent to AdMob with each rewarded view so
      * its server-side verification callback (GET /v1/reward/ssv) can credit the right user.
      * SupabaseAuthService keeps TelemetryUploader.userIdProvider on the current user.
+     * Declared first so `AndroidAdManager { context }` still binds the trailing lambda to
+     * contextProvider.
      */
-    private val userIdProvider: () -> String? = { TelemetryUploader.userIdProvider() }
+    private val userIdProvider: () -> String? = { TelemetryUploader.userIdProvider() },
+    private val contextProvider: () -> Context
 ) : AdManager {
 
     private var interstitialAd: InterstitialAd? = null
