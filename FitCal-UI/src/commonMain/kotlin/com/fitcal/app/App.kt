@@ -19,6 +19,8 @@ import com.fitcal.app.telemetry.CohortRetentionTracker
 import com.fitcal.app.ui.navigation.AuthDestination
 import com.fitcal.app.ui.navigation.CameraDestination
 import com.fitcal.app.ui.navigation.DashboardDestination
+import com.fitcal.app.ui.navigation.DescribeMealDestination
+import com.fitcal.app.ui.screens.describe.DescribeMealScreen
 import com.fitcal.app.ui.navigation.EditMealDestination
 import com.fitcal.app.ui.navigation.PlanDestination
 import com.fitcal.app.ui.screens.plan.PlanSetupScreen
@@ -493,6 +495,24 @@ fun App() {
                 }
             }
 
+            // ── Scan gate shared by every AI scan (photo and typed description) ──────
+            // Both screens take their interstitial decision and quota bookkeeping from here,
+            // so a typed meal gets exactly the photo scan's quota and ad behaviour (AGENTS.md 5.2).
+            fun playScanAdNow(): Boolean =
+                ScanQuotaManager.shouldPlayScanAd(selectedDateKey, adsAllowed = showAdsForUser)
+
+            fun recordScanConsumed() {
+                // Record local consumption immediately for responsive UI; the Gateway already
+                // consumed 1 server-side quota after VLM inference succeeded, so sync from
+                // server instead of calling consumeScanServer (which would double-increment).
+                ScanQuotaManager.consumeScan(selectedDateKey)
+                scansRemainingToday = ScanQuotaManager.getRemainingScans(selectedDateKey)
+                coroutineScope.launch {
+                    ScanQuotaManager.syncQuotaFromServer(selectedDateKey)
+                    scansRemainingToday = ScanQuotaManager.getRemainingScans(selectedDateKey)
+                }
+            }
+
             // Client-side mock mode is retired. The gateway controls mock responses via FITCAL_ENV=dev.
             // Keep isMockMode = false so CameraScreen/ResultScreen compile without changes.
             val isMockMode = false
@@ -521,6 +541,10 @@ fun App() {
                         },
                         onScanClicked = {
                             navController.navigate(CameraDestination)
+                        },
+                        onDescribeMealClicked = {
+                            Analytics.track("describe_opened", "source" to "dashboard")
+                            navController.navigate(DescribeMealDestination)
                         },
                         onSettingsClicked = {
                             navController.navigate(SettingsDestination)
@@ -640,18 +664,8 @@ fun App() {
                         isMockMode = isMockMode,
                         plateSizeInches = userProfile.defaultPlateSize,
                         adManager = adManager,
-                        playAdDuringScan = ScanQuotaManager.shouldPlayScanAd(selectedDateKey, adsAllowed = showAdsForUser),
-                        onScanConsumed = {
-                            // Record local consumption immediately for responsive UI; the Gateway already
-                            // consumed 1 server-side quota after VLM inference succeeded, so sync from
-                            // server instead of calling consumeScanServer (which would double-increment).
-                            ScanQuotaManager.consumeScan(selectedDateKey)
-                            scansRemainingToday = ScanQuotaManager.getRemainingScans(selectedDateKey)
-                            coroutineScope.launch {
-                                ScanQuotaManager.syncQuotaFromServer(selectedDateKey)
-                                scansRemainingToday = ScanQuotaManager.getRemainingScans(selectedDateKey)
-                            }
-                        },
+                        playAdDuringScan = playScanAdNow(),
+                        onScanConsumed = { recordScanConsumed() },
                         onPhotoCaptured = { bytes ->
                             lastCapturedImageBytes = bytes
                         },
@@ -677,6 +691,33 @@ fun App() {
                     )
                 }
 
+                composable<DescribeMealDestination> {
+                    DescribeMealScreen(
+                        apiClient = apiClient,
+                        adManager = adManager,
+                        playAdDuringScan = playScanAdNow(),
+                        onScanConsumed = { recordScanConsumed() },
+                        onResultObtained = { responseJson ->
+                            // No photo for a typed meal; don't show the previous scan's.
+                            lastCapturedImageBytes = null
+                            navController.navigate(ResultDestination(responseJson)) {
+                                popUpTo(DashboardDestination) { saveState = false }
+                            }
+                        },
+                        onNavigateBack = { navController.popBackStack() },
+                        scanReadiness = ensureReadyForScan(authReady, scansRemainingToday),
+                        scansRemaining = scansRemainingToday,
+                        onBonusScansEarned = {
+                            ScanQuotaManager.addBonusScansSuspend(selectedDateKey, 2)
+                            scansRemainingToday = ScanQuotaManager.getRemainingScans(selectedDateKey)
+                        },
+                        onCreateAccount = if (userEmail == null) {
+                            { navController.navigate(AuthDestination) }
+                        } else {
+                            null
+                        },
+                    )
+                }
 
                 composable<ResultDestination> { backStackEntry ->
                     val destination = backStackEntry.toRoute<ResultDestination>()
