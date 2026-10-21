@@ -1,10 +1,15 @@
 ﻿package com.fitcal.shared.data
 
 import com.fitcal.shared.model.UserProfile
+import com.fitcal.shared.model.WeightEntry
+import com.fitcal.shared.model.WeightHistory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -31,6 +36,9 @@ class LocalUserRepository(
 
     private val _profileFlow = MutableStateFlow<UserProfile?>(null)
     private val _waterIntakeMap = MutableStateFlow<Map<String, Int>>(emptyMap())
+    // Null until first read from storage.
+    private val _weightEntries = MutableStateFlow<List<WeightEntry>?>(null)
+    private val weightListSerializer = ListSerializer(WeightEntry.serializer())
 
     override suspend fun getUserProfile(): UserProfile {
         return mutex.withLock {
@@ -98,15 +106,65 @@ class LocalUserRepository(
         return _waterIntakeMap.map { map -> map[date] ?: (storage.getString(waterKey(date), "0").toIntOrNull() ?: 0) }
     }
 
-    /** Removes the profile and every water entry from this device. */
+    override suspend fun getWeightEntries(): List<WeightEntry> =
+        mutex.withLock { _weightEntries.value ?: loadWeightsLocked() }
+
+    override suspend fun recordWeight(entry: WeightEntry) {
+        mutex.withLock {
+            val current = _weightEntries.value ?: loadWeightsLocked()
+            saveWeightsLocked(WeightHistory.upsert(current, entry))
+        }
+    }
+
+    override fun observeWeightEntries(): Flow<List<WeightEntry>> =
+        _weightEntries
+            .onStart { if (_weightEntries.value == null) getWeightEntries() }
+            .filterNotNull()
+
+    /** Adds server entries for days this device doesn't have; local days keep their value. */
+    suspend fun mergeWeightEntries(remote: List<WeightEntry>) {
+        if (remote.isEmpty()) return
+        mutex.withLock {
+            val current = _weightEntries.value ?: loadWeightsLocked()
+            saveWeightsLocked(WeightHistory.fillMissingDays(current, remote))
+        }
+    }
+
+    private suspend fun loadWeightsLocked(): List<WeightEntry> {
+        val loaded = withContext(Dispatchers.Default) {
+            try {
+                val raw = storage.getString(KEY_WEIGHT_ENTRIES, "")
+                if (raw.isBlank()) emptyList()
+                else WeightHistory.dedupePerDay(json.decodeFromString(weightListSerializer, raw))
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
+        _weightEntries.value = loaded
+        return loaded
+    }
+
+    private suspend fun saveWeightsLocked(entries: List<WeightEntry>) {
+        _weightEntries.value = entries
+        withContext(Dispatchers.Default) {
+            try {
+                storage.putString(KEY_WEIGHT_ENTRIES, json.encodeToString(weightListSerializer, entries))
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    /** Removes the profile, every water entry and the weight history from this device. */
     suspend fun clearAll() {
         mutex.withLock {
             val dates = waterDatesLocked() + _waterIntakeMap.value.keys
             dates.forEach { storage.remove(waterKey(it)) }
             storage.remove(KEY_WATER_DATES)
             storage.remove(KEY_USER_PROFILE)
+            storage.remove(KEY_WEIGHT_ENTRIES)
             _waterIntakeMap.value = emptyMap()
             _profileFlow.value = null
+            _weightEntries.value = emptyList()
         }
     }
 
@@ -118,5 +176,6 @@ class LocalUserRepository(
     companion object {
         const val KEY_USER_PROFILE = "user_profile"
         const val KEY_WATER_DATES = "water_intake_dates"
+        const val KEY_WEIGHT_ENTRIES = "weight_entries"
     }
 }
