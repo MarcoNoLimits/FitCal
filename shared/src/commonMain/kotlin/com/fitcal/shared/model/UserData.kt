@@ -56,7 +56,10 @@ data class LoggedMeal(
     val date: String = "",
     // Ingredients as logged, so the meal can be reopened and corrected. Empty for meals logged
     // before ingredients were saved; those are edited as a single portion (see toEditableResponse).
-    val items: List<FoodItem> = emptyList()
+    val items: List<FoodItem> = emptyList(),
+    // Starred by the user for one-tap logging from the dashboard. Absent in meals saved before
+    // favourites existed, which load as not starred.
+    val favorite: Boolean = false
 )
 
 @Serializable
