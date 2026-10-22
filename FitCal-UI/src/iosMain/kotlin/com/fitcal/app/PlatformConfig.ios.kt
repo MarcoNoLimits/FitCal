@@ -264,3 +264,7 @@ actual fun mealPhotoModel(path: String?): Any? = null
 
 // iOS is not a v1 target: no home-screen widget there.
 actual fun updateHomeWidget(summary: WidgetSummary) {}
+
+actual fun syncWeeklySummaryNotification(enabled: Boolean) {}
+
+actual fun shareTextFile(fileName: String, mimeType: String, content: String, chooserTitle: String): Boolean = false

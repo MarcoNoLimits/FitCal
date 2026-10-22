@@ -67,6 +67,13 @@ Every client event also carries `session_id`, `client_ts`, `app_version` and `pl
 | Event | Properties |
 |---|---|
 | `sign_in_prompt_shown` / `_dismissed` / `_accepted` | `meals_logged` (shown) |
+| `plan_adjustment_shown` / `plan_adjustment_dismissed` | `delta_kcal` |
+| `plan_adjustment_accepted` | `delta_kcal`, `actual_kg_week`, `planned_kg_week` |
+| `weekly_summary_shown` | `logged_days` |
+| `weekly_summary_dismissed` | (none) |
+| `weekly_summary_notify_toggled` | `enabled` |
+| `meals_exported` | `range` (`days_30`, `days_90`, `all`), `ok` |
+| `widget_scan_opened` | (none; Scan tapped on the home-screen widget) |
 | `goal_quiz_offered` / `goal_quiz_started` | (none; the one-time first-open goal quiz offer) |
 | `goal_quiz_skipped` | `step` (`offer` or `quiz`) |
 | `goal_quiz_completed` | `goal_type`, `pace`, `activity_level` |

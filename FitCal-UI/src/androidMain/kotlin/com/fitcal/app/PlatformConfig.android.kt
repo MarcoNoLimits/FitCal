@@ -314,3 +314,35 @@ actual fun updateHomeWidget(summary: WidgetSummary) {
         // The widget is a convenience; never let it break the app.
     }
 }
+
+actual fun syncWeeklySummaryNotification(enabled: Boolean) {
+    if (isAppContextReady) com.fitcal.app.notifications.WeeklySummaryReceiver.sync(appContext, enabled)
+}
+
+actual fun shareTextFile(fileName: String, mimeType: String, content: String, chooserTitle: String): Boolean {
+    if (!isAppContextReady) return false
+    return try {
+        val dir = java.io.File(appContext.cacheDir, "exports").apply { mkdirs() }
+        // Only the latest export is kept; older files are removed.
+        dir.listFiles()?.forEach { it.delete() }
+        val safeName = fileName.filter { it.isLetterOrDigit() || it in "-_." }.ifEmpty { "fitcal-export.csv" }
+        val file = java.io.File(dir, safeName).apply { writeText(content, Charsets.UTF_8) }
+        val uri = androidx.core.content.FileProvider.getUriForFile(appContext, "${appContext.packageName}.exports", file)
+        val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+            type = mimeType
+            putExtra(android.content.Intent.EXTRA_STREAM, uri)
+            putExtra(android.content.Intent.EXTRA_SUBJECT, safeName)
+            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = android.content.Intent.createChooser(send, chooserTitle)
+        val activity = com.fitcal.app.ads.AndroidAdManager.currentActivityRef?.get()
+        if (activity != null) {
+            activity.startActivity(chooser)
+        } else {
+            appContext.startActivity(chooser.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+        true
+    } catch (_: Exception) {
+        false
+    }
+}

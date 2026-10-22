@@ -1,5 +1,11 @@
 # FitCal — where to pick up
 
+## v1.1 Premium: PDF report (owner decision 2026-10-23)
+CSV export is free (Settings → Export your meals). The PDF report for a dietitian or coach is a
+Premium perk, to build with the paywall: daily totals table, weekly averages, weight trend,
+date range; Android `PdfDocument`, shared through the same `shareTextFile`-style FileProvider.
+
+
 ## Sugar and fibre: hidden for launch (owner decision 2026-10-23)
 Built but switched off with `SHOW_SUGAR_AND_FIBRE = false` (`nutrition/DailyLimits.kt`). The app
 still stores sugar and fibre per food when a barcode label has them; nothing shows. The gateway
