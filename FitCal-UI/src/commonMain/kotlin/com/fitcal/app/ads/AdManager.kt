@@ -78,22 +78,18 @@ object AdConfig {
 }
 
 /**
- * Guest interstitial cadence (AGENTS.md 5.2a, owner decision 2026-10-21). Pure, so it is unit-tested.
+ * Scan interstitial cadence (AGENTS.md 5.2a, owner decision 2026-10-22). Pure, so it is unit-tested.
  *
- * - Only guests (anonymous users without a permanent account).
- * - Never on the first scan of the day ([scansToday] = scans already made today, before this one).
- * - From the second scan on, only when at least [AdConfig.GUEST_INTERSTITIAL_COOLDOWN_MILLIS]
- *   have passed since the last interstitial actually shown ([lastInterstitialMs], 0 = never).
- *   A clock that went backwards counts as inside the cooldown, so two ads never run back to back.
+ * - Every user who can be shown ads, guest or signed in, from the first scan of the day.
+ * - At most one interstitial per [AdConfig.GUEST_INTERSTITIAL_COOLDOWN_MILLIS] since the last one
+ *   actually shown ([lastInterstitialMs], 0 = never), so two ads never run back to back
+ *   (AdMob disallows back-to-back and every-action interstitials).
+ * - A clock that went backwards counts as inside the cooldown.
  */
-fun shouldShowGuestInterstitial(
-    isGuest: Boolean,
-    scansToday: Int,
+fun shouldShowScanInterstitial(
     lastInterstitialMs: Long,
     nowMs: Long,
 ): Boolean {
-    if (!isGuest) return false
-    if (scansToday < 1) return false
     if (lastInterstitialMs <= 0L) return true
     val elapsed = nowMs - lastInterstitialMs
     return elapsed >= AdConfig.GUEST_INTERSTITIAL_COOLDOWN_MILLIS
@@ -253,17 +249,14 @@ object ScanQuotaManager {
     /**
      * Whether a scan plays the processing interstitial, only for users who can be shown ads at all:
      * - past the free quota, always (AGENTS.md 5.2);
-     * - guests within their free scans, from the second scan of the day and at most one
-     *   interstitial per 90 s ([shouldShowGuestInterstitial], AGENTS.md 5.2a).
-     * Permanent accounts never see one within their free scans, including the whole first week.
+     * - within the free scans, for guests and accounts alike, from the first scan of the day,
+     *   at most one interstitial per 90 s ([shouldShowScanInterstitial], AGENTS.md 5.2a).
      */
     fun shouldPlayScanAd(dateKey: String, adsAllowed: Boolean): Boolean {
         if (!adsAllowed) return false
         if (com.fitcal.shared.subscription.SubscriptionManager.isPremiumUser()) return false
         if (shouldForceInterstitialAd(dateKey)) return true
-        return shouldShowGuestInterstitial(
-            isGuest = !isPermanentAccountProvider(),
-            scansToday = getUsedScans(dateKey),
+        return shouldShowScanInterstitial(
             lastInterstitialMs = getLastInterstitialShownMillis(),
             nowMs = currentTimeMillisProvider(),
         )

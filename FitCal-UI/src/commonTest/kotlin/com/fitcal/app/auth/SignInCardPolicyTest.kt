@@ -53,7 +53,7 @@ class SignInCardPolicyTest {
     fun cardCopyMatchesTheSpec() {
         assertEquals("Create a free account", SIGN_IN_CARD_TITLE)
         assertEquals(
-            "No ads for your first week, plus 1 extra scan every day. Everything you log comes with you.",
+            "More free scans in your first week, plus 1 extra scan every day. Everything you log comes with you.",
             SIGN_IN_CARD_BODY,
         )
     }

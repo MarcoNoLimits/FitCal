@@ -56,7 +56,7 @@ This file is the authoritative instruction set for any agent (AI or human) worki
 
 ### 5.1 Onboarding Scan Policy (Task 1)
 
-- **Week 1 (first 7 days after install)**: **5 free AI scans/day**, zero ad interruption. Goal = habit formation. **Permanent accounts only** (owner decision 2026-10-21): guests get no week-one bonus.
+- **Week 1 (first 7 days after install)**: **5 free AI scans/day**. Goal = habit formation. (Scan interstitials follow 5.2a from the first scan, owner decision 2026-10-22.) **Permanent accounts only** (owner decision 2026-10-21): guests get no week-one bonus.
 - **Week 2+ (day 8 onward)**: **3 free AI scans/day**. Guests are on this limit from day one.
 - Implement in `ScanQuotaManager`: the free limit is higher for users whose `firstInstallDate < 7 days`. Persist `firstInstallDate` in preferences.
 - **Account bonus**: permanent accounts (confirmed email or linked Google/Apple identity) get **+1 free scan/day** on top of the above (so 6 in week 1, 4 after). The server is authoritative: `supabase/functions/analyze-meal` computes the allowance from the verified user and ignores the client's value; `consume_scan` clamps at 6 (migration 0007). The client figure is display-only.
@@ -77,15 +77,14 @@ When the user has exhausted their free daily quota and attempts another scan:
 5. Bonus: the ad plays during the "analysis wait" — UX stays smooth.
 6. **Ad formats** (owner decision 2026-10-21): the interstitial ad unit allows video and playable (mini-game) creatives. This is set in the AdMob console, not in code. Rewarded stays opt-in only, for the +2 bonus scans.
 
-### 5.2a Guest ad cadence (owner decision 2026-10-21)
+### 5.2a Scan ad cadence (owner decisions 2026-10-21, updated 2026-10-22)
 
 Goal: as many interstitials for guests as AdMob allows without being flagged. AdMob disallows interstitials after every user action and unexpected or back-to-back interstitials.
 
-- **Who**: guests, meaning anonymous users without a permanent account. Signed-in users follow 5.1 and 5.2 unchanged.
-- **First scan of each day**: no ad, so a new user sees the app work before any ad.
-- **Scans 2+ of the day**: an interstitial plays before the scan, the same `showScanProcessingAd { process }` path as 5.2, but only if **at least 90 s** have passed since the last interstitial shown. Inside the cooldown, the scan proceeds without an ad. Past the free limit, 5.2 applies as before.
+- **Who** (2026-10-22): everyone who can be shown ads, guests and signed-in users alike. Premium users never.
+- **Every scan, from the first of the day**: an interstitial plays before the scan, the same `showScanProcessingAd { process }` path as 5.2, but only if **at least 90 s** have passed since the last interstitial shown. Inside the cooldown, the scan proceeds without an ad. Past the free limit, 5.2 applies as before.
 - **Never**: on app open, on app exit, on the camera screen itself, or two interstitials back to back.
-- **Sign-in prompt**: on first open, guests see a one-time card: "Create a free account: no ads for your first week, plus 1 extra scan every day", with Create account and Not now.
+- **Sign-in prompt**: on first open, guests see a one-time card: "Create a free account: more free scans in your first week, plus 1 extra scan every day", with Create account and Not now.
 
 ### 5.3 Ad Network (Task 3)
 

@@ -20,7 +20,7 @@ import com.fitcal.app.ui.theme.TextColor
 
 const val SIGN_IN_CARD_TITLE = "Create a free account"
 const val SIGN_IN_CARD_BODY =
-    "No ads for your first week, plus 1 extra scan every day. Everything you log comes with you."
+    "More free scans in your first week, plus 1 extra scan every day. Everything you log comes with you."
 
 /**
  * One-time first-open card for guests (AGENTS.md 5.2a). Never blocks the app: tapping outside
