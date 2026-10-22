@@ -54,6 +54,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fitcal.app.ads.BannerScaffold
+import com.fitcal.app.nutrition.SUGAR_GUIDELINE_G
+import com.fitcal.app.ui.screens.dashboard.components.mealStreak
 import com.fitcal.app.plan.TargetsMode
 import com.fitcal.app.plan.formatKg
 import com.fitcal.app.plan.formatPlanDate
@@ -69,6 +71,9 @@ import com.fitcal.app.ui.theme.REDUCED_MOTION_ENABLED
 import com.fitcal.app.ui.theme.RadiusL
 import com.fitcal.app.ui.theme.SurfaceTint
 import com.fitcal.app.ui.theme.TextColor
+import com.fitcal.app.ui.theme.CarbsColor
+import com.fitcal.app.ui.theme.FatColor
+import com.fitcal.app.ui.theme.SugarColor
 import com.fitcal.shared.model.LoggedMeal
 import com.fitcal.shared.model.UserProfile
 import com.fitcal.shared.model.WeightEntry
@@ -99,6 +104,8 @@ fun ProgressScreen(
     val planTargetKg = if (profile.resolvedTargetsMode() == TargetsMode.PLAN) profile.plan?.targetWeightKg else null
     val hasTargets = profile.hasDailyTargets()
     val week = remember(meals, today) { dailyTotals(meals, today, 7) }
+    val summary = remember(meals, today, profile) { weekSummary(meals, today, if (hasTargets) profile.calGoal else null) }
+    val streak = remember(meals, today) { mealStreak(meals.map { it.date }, today) }
 
     BannerScaffold { inner ->
         Column(
@@ -130,7 +137,7 @@ fun ProgressScreen(
                 Column(Modifier.weight(1f)) {
                     Text(text = "Progress", style = BrandTypography.ScreenTitle, color = TextColor)
                     Text(
-                        text = "Your weight and the last 7 days",
+                        text = "Your week, your weight and your trends",
                         style = BrandTypography.BodySmall,
                         color = MutedTextColor,
                     )
@@ -144,6 +151,8 @@ fun ProgressScreen(
                     .padding(start = 16.dp, end = 16.dp, bottom = 32.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
+                WeekSummaryCard(summary, streak)
+
                 RangeToggle(range = range, onSelect = { range = it })
 
                 WeightCard(
@@ -171,6 +180,37 @@ fun ProgressScreen(
                     target = if (hasTargets) profile.proteinGoal else null,
                     color = ProteinColor,
                 )
+
+                WeekBarsCard(
+                    title = "CARBS",
+                    unit = "g",
+                    days = week,
+                    values = week.map { it.carbsG },
+                    target = if (hasTargets) profile.carbsGoal else null,
+                    color = CarbsColor,
+                )
+
+                WeekBarsCard(
+                    title = "FAT",
+                    unit = "g",
+                    days = week,
+                    values = week.map { it.fatG },
+                    target = if (hasTargets) profile.fatGoal else null,
+                    color = FatColor,
+                )
+
+                // Everyone gets the WHO guideline line for sugar, targets or not.
+                WeekBarsCard(
+                    title = "SUGAR",
+                    unit = "g",
+                    days = week,
+                    values = week.map { it.sugarG },
+                    target = SUGAR_GUIDELINE_G,
+                    targetLabel = "Guide $SUGAR_GUIDELINE_G g",
+                    color = SugarColor,
+                )
+
+                summary.split?.let { MacroSplitCard(it) }
 
                 Text(
                     text = "Weight changes day to day with water and food. Look at the trend over weeks, not single days. General estimates, not medical advice.",
@@ -413,12 +453,13 @@ private fun WeekBarsCard(
     values: List<Int>,
     target: Int?,
     color: Color,
+    targetLabel: String? = null,
 ) {
     ProgressCard {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(text = title, style = BrandTypography.Eyebrow, color = MutedTextColor, modifier = Modifier.weight(1f))
             Text(
-                text = if (target != null) "Target $target $unit" else "No daily target",
+                text = targetLabel ?: if (target != null) "Target $target $unit" else "No daily target",
                 style = BrandTypography.BodySmall,
                 color = MutedTextColor,
             )
@@ -491,3 +532,83 @@ private fun WeekBarsCard(
         }
     }
 }
+
+/** The week at a glance: days logged, meals, streak, days within target and the trend. */
+@Composable
+private fun WeekSummaryCard(summary: WeekSummary, streak: Int) {
+    ProgressCard {
+        Text("THIS WEEK", style = BrandTypography.Eyebrow, color = MutedTextColor)
+        if (summary.loggedDays == 0) {
+            Text(
+                "Nothing logged in the last 7 days yet. Your week fills in as you log.",
+                style = BrandTypography.Body,
+                color = TextColor,
+            )
+        } else {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SummaryStat("${summary.loggedDays}/7", "days logged", Modifier.weight(1f))
+                SummaryStat("${summary.meals}", if (summary.meals == 1) "meal" else "meals", Modifier.weight(1f))
+                SummaryStat(if (streak >= 1) "$streak" else "-", "day streak", Modifier.weight(1f))
+            }
+            summary.daysWithinCalorieTarget?.let { within ->
+                val days = summary.loggedDays
+                Text(
+                    "Within your calorie target on $within of $days logged day${if (days == 1) "" else "s"}.",
+                    style = BrandTypography.BodySmall,
+                    color = MutedTextColor,
+                )
+            }
+            val avg = summary.averageCalories
+            val previous = summary.previousAverageCalories
+            val trend = when {
+                previous == null -> "Average $avg kcal a day."
+                avg == previous -> "Average $avg kcal a day, the same as the week before."
+                avg > previous -> "Average $avg kcal a day, ${avg - previous} more than the week before."
+                else -> "Average $avg kcal a day, ${previous - avg} less than the week before."
+            }
+            Text(trend, style = BrandTypography.BodySmall, color = MutedTextColor)
+        }
+    }
+}
+
+@Composable
+private fun SummaryStat(value: String, label: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .background(SurfaceTint, RoundedCornerShape(12.dp))
+            .padding(vertical = 10.dp, horizontal = 8.dp)
+            .semantics(mergeDescendants = true) {},
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(value, style = BrandTypography.KpiNumeral, color = TextColor)
+        Text(label, style = BrandTypography.Micro, color = MutedTextColor)
+    }
+}
+
+/** Where the week's calories came from, as one stacked bar. */
+@Composable
+private fun MacroSplitCard(split: MacroSplit) {
+    ProgressCard {
+        Text("WHERE YOUR CALORIES CAME FROM", style = BrandTypography.Eyebrow, color = MutedTextColor)
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(12.dp)
+                .semantics {
+                    contentDescription = "Protein ${split.proteinPct}%, carbs ${split.carbsPct}%, fat ${split.fatPct}% of calories this week"
+                },
+        ) {
+            listOf(split.proteinPct to ProteinColor, split.carbsPct to CarbsColor, split.fatPct to FatColor)
+                .filter { it.first > 0 }
+                .forEach { (pct, color) ->
+                    Box(Modifier.weight(pct.toFloat()).fillMaxHeight().background(color))
+                }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Protein ${split.proteinPct}%", style = BrandTypography.BodySmall, color = TextColor)
+            Text("Carbs ${split.carbsPct}%", style = BrandTypography.BodySmall, color = TextColor)
+            Text("Fat ${split.fatPct}%", style = BrandTypography.BodySmall, color = TextColor)
+        }
+    }
+}
+

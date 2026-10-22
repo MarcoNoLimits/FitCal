@@ -84,8 +84,16 @@ fun xFraction(date: String, today: String, days: Int): Float {
     return (index.toFloat() / (days - 1)).coerceIn(0f, 1f)
 }
 
-/** Calories and protein eaten on one day. */
-data class DayTotals(val date: String, val calories: Int, val proteinG: Int)
+/** What was eaten on one day. */
+data class DayTotals(
+    val date: String,
+    val calories: Int,
+    val proteinG: Int,
+    val carbsG: Int = 0,
+    val fatG: Int = 0,
+    val sugarG: Int = 0,
+    val meals: Int = 0,
+)
 
 /**
  * Totals for each of the [days] days ending [today], oldest first; days without meals are 0.
@@ -100,6 +108,10 @@ fun dailyTotals(meals: List<LoggedMeal>, today: String, days: Int = 7): List<Day
             date = date,
             calories = dayMeals.sumOf { it.calories },
             proteinG = dayMeals.sumOf { it.protein.toDouble() }.roundToInt(),
+            carbsG = dayMeals.sumOf { it.carbs.toDouble() }.roundToInt(),
+            fatG = dayMeals.sumOf { it.fat.toDouble() }.roundToInt(),
+            sugarG = dayMeals.sumOf { it.sugar.toDouble() }.roundToInt(),
+            meals = dayMeals.size,
         )
     }
 }
@@ -126,3 +138,47 @@ fun weekdayShort(date: String): String {
     val day = com.fitcal.app.plan.epochDay(date) ?: return ""
     return WEEKDAY_LETTERS[(((day % 7) + 7) % 7).toInt()]
 }
+
+/** Share of calories from protein, carbs and fat (4/4/9 kcal per gram), in whole percent. */
+data class MacroSplit(val proteinPct: Int, val carbsPct: Int, val fatPct: Int)
+
+/** The week's headline numbers for the summary card. Averages only count days with meals. */
+data class WeekSummary(
+    val loggedDays: Int,
+    val meals: Int,
+    /** Logged days at or under the calorie target; null without a target. */
+    val daysWithinCalorieTarget: Int?,
+    val averageCalories: Int,
+    /** Average calories on the 7 days before, for the change line; null if none were logged. */
+    val previousAverageCalories: Int?,
+    /** Null when nothing with protein, carbs or fat was logged. */
+    val split: MacroSplit?,
+)
+
+fun macroSplit(proteinG: Int, carbsG: Int, fatG: Int): MacroSplit? {
+    val p = proteinG * 4f
+    val c = carbsG * 4f
+    val f = fatG * 9f
+    val total = p + c + f
+    if (total <= 0f) return null
+    val pp = (p / total * 100).roundToInt()
+    val cp = (c / total * 100).roundToInt()
+    return MacroSplit(pp, cp, (100 - pp - cp).coerceAtLeast(0))
+}
+
+/** Summary of the 7 days ending [today], compared with the 7 days before. */
+fun weekSummary(meals: List<LoggedMeal>, today: String, calorieTarget: Int?): WeekSummary {
+    val week = dailyTotals(meals, today, 7)
+    val logged = week.filter { it.meals > 0 }
+    val previousEnd = addDays(today, -7) ?: today
+    val previous = dailyTotals(meals, previousEnd, 7).filter { it.meals > 0 }
+    return WeekSummary(
+        loggedDays = logged.size,
+        meals = week.sumOf { it.meals },
+        daysWithinCalorieTarget = calorieTarget?.takeIf { it > 0 }?.let { t -> logged.count { it.calories <= t } },
+        averageCalories = if (logged.isEmpty()) 0 else logged.sumOf { it.calories } / logged.size,
+        previousAverageCalories = if (previous.isEmpty()) null else previous.sumOf { it.calories } / previous.size,
+        split = macroSplit(logged.sumOf { it.proteinG }, logged.sumOf { it.carbsG }, logged.sumOf { it.fatG }),
+    )
+}
+
