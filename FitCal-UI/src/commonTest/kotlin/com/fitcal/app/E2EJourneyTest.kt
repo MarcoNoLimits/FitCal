@@ -111,9 +111,9 @@ class E2EJourneyTest {
 
     /**
      * Journey 1: Fresh install Onboarding
-     * -> Week 1 allowance check (5 scans/day)
+     * -> Week 1 allowance check for a permanent account (5 + 1 scans/day; guests get 3, see ScanQuotaManagerTest)
      * -> Consuming scans
-     * -> Scan 6+ forced interstitial ad trigger (shouldForceInterstitialAd == true) without modal dialog
+     * -> Scan 7+ forced interstitial ad trigger (shouldForceInterstitialAd == true) without modal dialog
      * -> Simulated ad dismissal
      * -> Process meal
      * -> Persist in LocalMealRepository
@@ -123,40 +123,42 @@ class E2EJourneyTest {
     fun testJourney1_FreshInstallOnboarding_WeekOneAllowance_ScanSixForcedInterstitial_PersistMeal() = runBlocking {
         // 1. Fresh install Onboarding
         assertTrue(memoryStore.isEmpty(), "Preferences must be initially empty on fresh install")
+        // Week-one bonus is for permanent accounts only (owner decision 2026-10-21).
+        ScanQuotaManager.isPermanentAccountProvider = { true }
 
         val installTimestamp = ScanQuotaManager.getFirstInstallTimestamp()
         assertEquals(simulatedTimeMillis, installTimestamp)
 
-        // 2. Week 1 allowance check (5 scans/day)
+        // 2. Week 1 allowance check (5 + 1 scans/day for an account)
         assertTrue(ScanQuotaManager.isWeekOneUser(), "New install must be identified as Week 1 user")
-        assertEquals(AdConfig.WEEK_ONE_DAILY_FREE_SCANS, ScanQuotaManager.getDailyFreeLimit())
-        assertEquals(5, ScanQuotaManager.getRemainingScans(testDateToday))
+        assertEquals(AdConfig.WEEK_ONE_DAILY_FREE_SCANS + AdConfig.ACCOUNT_DAILY_BONUS_SCANS, ScanQuotaManager.getDailyFreeLimit())
+        assertEquals(6, ScanQuotaManager.getRemainingScans(testDateToday))
         assertTrue(ScanQuotaManager.hasQuota(testDateToday))
         assertFalse(ScanQuotaManager.shouldForceInterstitialAd(testDateToday))
 
-        // 3. Consuming scans (1 through 5)
-        repeat(5) { index ->
+        // 3. Consuming scans (1 through 6)
+        repeat(6) { index ->
             assertTrue(ScanQuotaManager.hasQuota(testDateToday), "Scan #${index + 1} should be within free quota")
             assertFalse(ScanQuotaManager.shouldForceInterstitialAd(testDateToday))
             ScanQuotaManager.consumeScan(testDateToday)
         }
-        assertEquals(5, ScanQuotaManager.getUsedScans(testDateToday))
+        assertEquals(6, ScanQuotaManager.getUsedScans(testDateToday))
         assertEquals(0, ScanQuotaManager.getRemainingScans(testDateToday))
         assertFalse(ScanQuotaManager.hasQuota(testDateToday))
 
-        // 4. Scan 6+ forced interstitial ad trigger without modal dialog
+        // 4. Scan 7+ forced interstitial ad trigger without modal dialog
         assertTrue(
             ScanQuotaManager.shouldForceInterstitialAd(testDateToday),
-            "Scan 6+ must trigger forced interstitial ad"
+            "Scan 7+ must trigger forced interstitial ad"
         )
 
         // CameraScreen gate logic: playAdDuringScan || shouldForceInterstitialAd(testDateToday)
         val shouldPlayAd = ScanQuotaManager.shouldForceInterstitialAd(testDateToday)
         assertTrue(shouldPlayAd)
 
-        // Scan #6 is consumed without throwing or hard-blocking
+        // Scan #7 is consumed without throwing or hard-blocking
         ScanQuotaManager.consumeScan(testDateToday)
-        assertEquals(6, ScanQuotaManager.getUsedScans(testDateToday))
+        assertEquals(7, ScanQuotaManager.getUsedScans(testDateToday))
         assertEquals(0, ScanQuotaManager.getRemainingScans(testDateToday))
 
         // 5. Simulated ad display & dismissal (no modal prompt dialog shown)
@@ -492,15 +494,16 @@ class E2EJourneyTest {
         val installTimestamp = simulatedTimeMillis
         assertEquals(installTimestamp, ScanQuotaManager.getFirstInstallTimestamp())
         assertTrue(ScanQuotaManager.isWeekOneUser())
-        assertEquals(AdConfig.WEEK_ONE_DAILY_FREE_SCANS, ScanQuotaManager.getDailyFreeLimit())
+        // Guests get no week-one bonus (owner decision 2026-10-21): 3 scans/day from day one.
+        assertEquals(AdConfig.DEFAULT_DAILY_FREE_SCANS, ScanQuotaManager.getDailyFreeLimit())
 
         // --- DAY 1 ---
-        // Consume all 5 daily free scans
-        repeat(5) {
+        // Consume all 3 daily free scans
+        repeat(3) {
             assertTrue(ScanQuotaManager.hasQuota(day1))
             ScanQuotaManager.consumeScan(day1)
         }
-        assertEquals(5, ScanQuotaManager.getUsedScans(day1))
+        assertEquals(3, ScanQuotaManager.getUsedScans(day1))
         assertEquals(0, ScanQuotaManager.getRemainingScans(day1))
         assertFalse(ScanQuotaManager.hasQuota(day1))
         assertTrue(ScanQuotaManager.shouldForceInterstitialAd(day1))
@@ -518,7 +521,7 @@ class E2EJourneyTest {
         // Consume both bonus scans
         ScanQuotaManager.consumeScan(day1)
         ScanQuotaManager.consumeScan(day1)
-        assertEquals(7, ScanQuotaManager.getUsedScans(day1))
+        assertEquals(5, ScanQuotaManager.getUsedScans(day1))
         assertEquals(0, ScanQuotaManager.getRemainingScans(day1))
         assertFalse(ScanQuotaManager.hasQuota(day1))
         assertTrue(ScanQuotaManager.shouldForceInterstitialAd(day1))
@@ -531,16 +534,16 @@ class E2EJourneyTest {
         simulatedTimeMillis += 24L * 60 * 60 * 1000L
 
         // Day 1 state must remain completely isolated & intact
-        assertEquals(7, ScanQuotaManager.getUsedScans(day1))
+        assertEquals(5, ScanQuotaManager.getUsedScans(day1))
         assertEquals(2, ScanQuotaManager.getBonusScans(day1))
         assertEquals(0, ScanQuotaManager.getRemainingScans(day1))
         assertFalse(ScanQuotaManager.hasQuota(day1))
         assertEquals(2, mealRepository.getMealsForDate(day1).size)
 
-        // Day 2 must start fresh with 0 used, 0 bonus, 5 remaining (Week 1)
+        // Day 2 must start fresh with 0 used, 0 bonus, 3 remaining (guest)
         assertEquals(0, ScanQuotaManager.getUsedScans(day2))
         assertEquals(0, ScanQuotaManager.getBonusScans(day2))
-        assertEquals(5, ScanQuotaManager.getRemainingScans(day2))
+        assertEquals(3, ScanQuotaManager.getRemainingScans(day2))
         assertTrue(ScanQuotaManager.hasQuota(day2))
         assertFalse(ScanQuotaManager.shouldForceInterstitialAd(day2))
         assertTrue(mealRepository.getMealsForDate(day2).isEmpty())
@@ -549,9 +552,9 @@ class E2EJourneyTest {
         ScanQuotaManager.consumeScan(day2)
         ScanQuotaManager.consumeScan(day2)
         assertEquals(2, ScanQuotaManager.getUsedScans(day2))
-        assertEquals(3, ScanQuotaManager.getRemainingScans(day2))
+        assertEquals(1, ScanQuotaManager.getRemainingScans(day2))
         // Verify Day 1 is still isolated and untouched
-        assertEquals(7, ScanQuotaManager.getUsedScans(day1))
+        assertEquals(5, ScanQuotaManager.getUsedScans(day1))
 
         // Save 1 meal on Day 2
         mealRepository.saveMeal(LoggedMeal("m1_d2", "Salmon Dinner", 500, 38f, 5f, 22f, "07:00 PM", day2))
@@ -561,8 +564,8 @@ class E2EJourneyTest {
         // --- DAY 7 (Still within 7 days: Day 6) ---
         simulatedTimeMillis = installTimestamp + (6L * 24 * 60 * 60 * 1000L)
         assertTrue(ScanQuotaManager.isWeekOneUser())
-        assertEquals(5, ScanQuotaManager.getDailyFreeLimit())
-        assertEquals(5, ScanQuotaManager.getRemainingScans(day7))
+        assertEquals(3, ScanQuotaManager.getDailyFreeLimit())
+        assertEquals(3, ScanQuotaManager.getRemainingScans(day7))
 
         // --- DAY 8 (Cross 7-day boundary into Week 2: Day 8) ---
         simulatedTimeMillis = installTimestamp + (8L * 24 * 60 * 60 * 1000L)

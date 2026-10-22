@@ -135,24 +135,42 @@ class ScanQuotaManagerTest {
     }
 
     @Test
-    fun testWeekOneUserGetsFiveScans() {
-        // Simulate new user installed 2 days ago (Week 1)
+    fun testWeekOneGuestGetsThreeScans() {
+        // Guests get no week-one bonus (owner decision 2026-10-21)
         val twoDaysAgo = simulatedTimeMillis - (2L * 24 * 60 * 60 * 1000L)
         memoryStore["first_install_timestamp"] = twoDaysAgo.toString()
 
         assertTrue(ScanQuotaManager.isWeekOneUser())
-        assertEquals(5, ScanQuotaManager.getDailyFreeLimit())
-        assertEquals(5, ScanQuotaManager.getRemainingScans(testDateToday))
-        assertTrue(ScanQuotaManager.hasQuota(testDateToday))
+        assertEquals(3, ScanQuotaManager.getDailyFreeLimit())
+        assertEquals(3, ScanQuotaManager.getRemainingScans(testDateToday))
 
-        // Consume 5 scans
-        repeat(5) {
-            ScanQuotaManager.consumeScan(testDateToday)
-        }
-        assertEquals(5, ScanQuotaManager.getUsedScans(testDateToday))
+        repeat(3) { ScanQuotaManager.consumeScan(testDateToday) }
         assertEquals(0, ScanQuotaManager.getRemainingScans(testDateToday))
         assertFalse(ScanQuotaManager.hasQuota(testDateToday))
         assertTrue(ScanQuotaManager.shouldForceInterstitialAd(testDateToday))
+    }
+
+    @Test
+    fun testWeekOneAccountGetsSixScans() {
+        val twoDaysAgo = simulatedTimeMillis - (2L * 24 * 60 * 60 * 1000L)
+        memoryStore["first_install_timestamp"] = twoDaysAgo.toString()
+        ScanQuotaManager.isPermanentAccountProvider = { true }
+
+        assertTrue(ScanQuotaManager.isWeekOneUser())
+        assertEquals(6, ScanQuotaManager.getDailyFreeLimit())
+        assertEquals(6, ScanQuotaManager.getRemainingScans(testDateToday))
+
+        repeat(6) { ScanQuotaManager.consumeScan(testDateToday) }
+        assertEquals(0, ScanQuotaManager.getRemainingScans(testDateToday))
+        assertFalse(ScanQuotaManager.hasQuota(testDateToday))
+        assertTrue(ScanQuotaManager.shouldForceInterstitialAd(testDateToday))
+    }
+
+    @Test
+    fun testAccountAfterWeekOneGetsFourScans() {
+        ScanQuotaManager.isPermanentAccountProvider = { true }
+        assertFalse(ScanQuotaManager.isWeekOneUser())
+        assertEquals(4, ScanQuotaManager.getDailyFreeLimit())
     }
 
     @Test
@@ -223,24 +241,110 @@ class ScanQuotaManagerTest {
     }
 
     @Test
-    fun freeScansNeverPlayTheScanAd() {
-        // Week 2+: 3 free scans. Even for a user who can be shown ads, scans 1-3 play nothing.
-        repeat(3) {
+    fun accountFreeScansNeverPlayTheScanAd() {
+        // Week 2+ account: 3 + 1 free scans. Even when ads are allowed, scans 1-4 play nothing.
+        ScanQuotaManager.isPermanentAccountProvider = { true }
+        repeat(4) {
             assertFalse(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true), "free scan ${it + 1}")
             ScanQuotaManager.consumeScan(testDateToday)
         }
-        // Scan 4+: quota used up, so the processing interstitial plays.
+        // Scan 5+: quota used up, so the processing interstitial plays.
         assertTrue(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
     }
 
     @Test
-    fun firstWeekScansWithinTheAllowanceAreAdFree() {
+    fun signedInWeekOneScansWithinTheAllowanceNeverSeeAnAd() {
         memoryStore["first_install_timestamp"] = simulatedTimeMillis.toString()   // installed today
-        repeat(5) {
+        ScanQuotaManager.isPermanentAccountProvider = { true }
+        repeat(6) {
             assertFalse(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true), "week-1 scan ${it + 1}")
             ScanQuotaManager.consumeScan(testDateToday)
+            simulatedTimeMillis += 5 * 60 * 1000L   // well past any cooldown
         }
         assertTrue(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+    }
+
+    @Test
+    fun firstGuestScanOfTheDayHasNoAd() {
+        assertFalse(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+        assertFalse(shouldShowGuestInterstitial(isGuest = true, scansToday = 0, lastInterstitialMs = 0L, nowMs = simulatedTimeMillis))
+    }
+
+    @Test
+    fun secondGuestScanWithin90sOfLastAdHasNoAd() {
+        ScanQuotaManager.consumeScan(testDateToday)
+        ScanQuotaManager.recordInterstitialShown()
+        simulatedTimeMillis += AdConfig.GUEST_INTERSTITIAL_COOLDOWN_MILLIS - 1
+        assertFalse(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+        assertFalse(
+            shouldShowGuestInterstitial(
+                isGuest = true,
+                scansToday = 1,
+                lastInterstitialMs = simulatedTimeMillis - 30_000L,
+                nowMs = simulatedTimeMillis,
+            )
+        )
+    }
+
+    @Test
+    fun secondGuestScanAfter90sGetsTheAd() {
+        ScanQuotaManager.consumeScan(testDateToday)
+        ScanQuotaManager.recordInterstitialShown()
+        simulatedTimeMillis += AdConfig.GUEST_INTERSTITIAL_COOLDOWN_MILLIS
+        assertTrue(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+        assertTrue(
+            shouldShowGuestInterstitial(
+                isGuest = true,
+                scansToday = 1,
+                lastInterstitialMs = simulatedTimeMillis - 91_000L,
+                nowMs = simulatedTimeMillis,
+            )
+        )
+    }
+
+    @Test
+    fun secondGuestScanWithNoEarlierAdGetsTheAd() {
+        ScanQuotaManager.consumeScan(testDateToday)
+        assertEquals(0L, ScanQuotaManager.getLastInterstitialShownMillis())
+        assertTrue(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+    }
+
+    @Test
+    fun guestCadenceNeverAppliesToAccounts() {
+        assertFalse(shouldShowGuestInterstitial(isGuest = false, scansToday = 2, lastInterstitialMs = 0L, nowMs = simulatedTimeMillis))
+    }
+
+    @Test
+    fun guestCadenceTreatsABackwardsClockAsInsideTheCooldown() {
+        assertFalse(
+            shouldShowGuestInterstitial(
+                isGuest = true,
+                scansToday = 2,
+                lastInterstitialMs = simulatedTimeMillis + 60_000L,
+                nowMs = simulatedTimeMillis,
+            )
+        )
+    }
+
+    @Test
+    fun guestPastTheFreeLimitAlwaysGetsTheForcedAd() {
+        // AGENTS.md 5.2 applies unchanged past the free limit, even inside the guest cooldown.
+        repeat(3) { ScanQuotaManager.consumeScan(testDateToday) }
+        ScanQuotaManager.recordInterstitialShown()
+        simulatedTimeMillis += 10_000L
+        assertTrue(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+    }
+
+    @Test
+    fun cooldownStartsOnlyWhenAnAdIsShown() {
+        // A scan whose ad never loaded must not start the cooldown: nothing recorded, so the next scan still gets one.
+        ScanQuotaManager.consumeScan(testDateToday)
+        assertTrue(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+        ScanQuotaManager.consumeScan(testDateToday)   // ad was not available; scan went ahead
+        assertTrue(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
+        ScanQuotaManager.recordInterstitialShown()
+        assertEquals(simulatedTimeMillis, ScanQuotaManager.getLastInterstitialShownMillis())
+        assertFalse(ScanQuotaManager.shouldPlayScanAd(testDateToday, adsAllowed = true))
     }
 
     @Test
