@@ -12,6 +12,8 @@ import com.fitcal.app.ui.screens.progress.barFraction
 import com.fitcal.app.ui.screens.progress.barScale
 import com.fitcal.app.ui.screens.progress.dailyTotals
 import com.fitcal.app.ui.screens.progress.entriesInWindow
+import com.fitcal.app.ui.screens.progress.macroSplit
+import com.fitcal.app.ui.screens.progress.weekSummary
 import com.fitcal.app.ui.screens.progress.niceStepKg
 import com.fitcal.app.ui.screens.progress.weekdayShort
 import com.fitcal.app.ui.screens.progress.weightChangeKg
@@ -225,5 +227,47 @@ class ProgressMathTest {
             weightEntryForChange(defaultProfile, defaultProfile.copy(weight = 71.5f), today),
         )
         assertNull(weightEntryForChange(defaultProfile, defaultProfile.copy(calGoal = 1800), today))
+    }
+
+    // ── Week summary ────────────────────────────────────────────────────────
+
+    private fun fullMeal(date: String, kcal: Int, p: Float, c: Float, f: Float) =
+        LoggedMeal(id = "$date-$kcal", name = "m", calories = kcal, protein = p, carbs = c, fat = f, timestamp = "", date = date)
+
+    @Test
+    fun weekSummaryCountsLoggedDaysTargetDaysAndTheWeekBefore() {
+        val meals = listOf(
+            fullMeal("2026-10-22", 1800, 100f, 200f, 60f),
+            fullMeal("2026-10-22", 400, 20f, 40f, 10f),   // same day: 2200 total, over a 2000 target
+            fullMeal("2026-10-20", 1500, 80f, 150f, 50f),
+            fullMeal("2026-10-12", 2600, 0f, 0f, 0f),       // the week before
+            fullMeal("2026-10-10", 2400, 0f, 0f, 0f),
+        )
+        val s = weekSummary(meals, today = "2026-10-22", calorieTarget = 2000)
+        assertEquals(2, s.loggedDays)
+        assertEquals(3, s.meals)
+        assertEquals(1, s.daysWithinCalorieTarget)
+        assertEquals((2200 + 1500) / 2, s.averageCalories)
+        assertEquals(2500, s.previousAverageCalories)
+        assertNotNull(s.split)
+    }
+
+    @Test
+    fun weekSummaryWithoutTargetOrMeals() {
+        val s = weekSummary(emptyList(), today = "2026-10-22", calorieTarget = null)
+        assertEquals(0, s.loggedDays)
+        assertNull(s.daysWithinCalorieTarget)
+        assertNull(s.previousAverageCalories)
+        assertNull(s.split)
+    }
+
+    @Test
+    fun macroSplitUsesCaloriesPerGramAndAddsUpTo100() {
+        // 100 g protein = 400 kcal, 100 g carbs = 400 kcal, 100/9 g fat ≈ 200 kcal (1000 kcal total)
+        val split = macroSplit(proteinG = 100, carbsG = 100, fatG = 22)
+        assertNotNull(split)
+        assertEquals(100, split.proteinPct + split.carbsPct + split.fatPct)
+        assertEquals(40, split.proteinPct)
+        assertNull(macroSplit(0, 0, 0))
     }
 }
