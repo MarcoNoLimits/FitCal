@@ -120,3 +120,9 @@ data class WidgetSummary(
 
 /** Stores [summary] for the home-screen widget and redraws any placed widgets. No-op elsewhere. */
 expect fun updateHomeWidget(summary: WidgetSummary)
+
+/** Schedules or cancels the Monday weekly-summary notification. No-op where unsupported. */
+expect fun syncWeeklySummaryNotification(enabled: Boolean)
+
+/** Opens the system share sheet for a text file (e.g. the meals CSV). False if it couldn't. */
+expect fun shareTextFile(fileName: String, mimeType: String, content: String, chooserTitle: String): Boolean

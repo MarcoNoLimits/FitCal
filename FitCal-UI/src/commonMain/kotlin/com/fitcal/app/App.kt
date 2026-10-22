@@ -479,6 +479,7 @@ fun App() {
                 // Ad preload + Meal Scan Reminder Notifications
                 adManager.preloadAds()
                 com.fitcal.app.notifications.MealReminderManager.syncNotifications()
+                syncWeeklySummaryNotification(WeeklySummaryPrefs.notificationsEnabled())
             }
 
             // ── Recovery observer: when auth goes offline, periodically retry sign-in ─────────
@@ -1174,6 +1175,21 @@ fun App() {
 
                 composable<SettingsDestination> {
                     SettingsScreen(
+                        onExportCsv = { range ->
+                            val today = getCurrentDateString()
+                            val meals = com.fitcal.app.export.mealsInRange(allMeals, today, range)
+                            val weights = com.fitcal.app.export.weightsInRange(weightEntries, today, range)
+                            if (meals.isEmpty() && weights.isEmpty()) {
+                                false
+                            } else {
+                                shareTextFile(
+                                    fileName = com.fitcal.app.export.exportFileName(today, range),
+                                    mimeType = "text/csv",
+                                    content = com.fitcal.app.export.buildMealsCsv(meals, weights),
+                                    chooserTitle = "Share your FitCal meals",
+                                )
+                            }
+                        },
                         profile = userProfile,
                         userEmail = userEmail,
                         onNavigateToAuth = {

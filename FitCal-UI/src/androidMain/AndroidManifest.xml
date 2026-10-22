@@ -30,6 +30,27 @@
             </intent-filter>
         </activity>
 
+        <!-- Shares export files (meals CSV) with other apps, read-only, from cache/exports. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.exports"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/export_paths" />
+        </provider>
+
+        <!-- Monday weekly-summary notification (and re-scheduling after a reboot). -->
+        <receiver
+            android:name="com.fitcal.app.notifications.WeeklySummaryReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.fitcal.app.ACTION_WEEKLY_SUMMARY" />
+            </intent-filter>
+        </receiver>
+
         <!-- Home-screen widget: today's calories and macros, with a Scan button. -->
         <receiver
             android:name="com.fitcal.app.widget.TodayWidgetProvider"

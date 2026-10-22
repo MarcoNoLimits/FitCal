@@ -71,6 +71,8 @@ fun SettingsScreen(
     onOpenPrivacyPolicy: () -> Unit = {},
     onOpenTerms: () -> Unit = {},
     onSendFeedback: (suspend (kind: String, message: String, email: String?) -> FeedbackSendResult)? = null,
+    // Shares a CSV of meals and weigh-ins for [range]; false when nothing could be shared.
+    onExportCsv: (com.fitcal.app.export.ExportRange) -> Boolean = { false },
 ) {
     val scrollState = rememberScrollState()
     var showFeedback by remember { mutableStateOf(false) }
@@ -597,6 +599,77 @@ fun SettingsScreen(
                         }
                     }
                 }
+            }
+        }
+
+        // Weekly summary + export
+        Card(
+            colors = CardDefaults.cardColors(containerColor = CardBackground),
+            shape = RoundedCornerShape(RadiusL),
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(2.dp, RoundedCornerShape(RadiusL))
+                .border(1.dp, BorderColor, RoundedCornerShape(RadiusL))
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                var weeklyNotify by remember { mutableStateOf(com.fitcal.app.ui.screens.progress.WeeklySummaryPrefs.notificationsEnabled()) }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = "WEEKLY SUMMARY", style = BrandTypography.CardTitle, color = MutedTextColor)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "A Monday-morning notification when last week's summary is ready. It never shows your numbers on the lock screen.",
+                            style = BrandTypography.BodySmall,
+                            color = TextColor
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Switch(
+                        checked = weeklyNotify,
+                        onCheckedChange = { enabled ->
+                            weeklyNotify = enabled
+                            com.fitcal.app.ui.screens.progress.WeeklySummaryPrefs.setNotificationsEnabled(enabled)
+                            com.fitcal.app.syncWeeklySummaryNotification(enabled)
+                            Analytics.track("weekly_summary_notify_toggled", "enabled" to enabled)
+                        },
+                        colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = PrimaryAccent)
+                    )
+                }
+
+                HorizontalDivider(color = BorderColor)
+
+                Text(text = "EXPORT YOUR MEALS", style = BrandTypography.CardTitle, color = MutedTextColor)
+                Text(
+                    text = "A CSV file of your meals (with their foods and grams) and weigh-ins, to share with a dietitian or coach. Opens in Excel or Google Sheets. Photos are not included.",
+                    style = BrandTypography.BodySmall,
+                    color = TextColor
+                )
+                var exportMessage by remember { mutableStateOf<String?>(null) }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                    com.fitcal.app.export.ExportRange.entries.forEach { range ->
+                        OutlinedButton(
+                            onClick = {
+                                val ok = onExportCsv(range)
+                                exportMessage = if (ok) null else "Nothing to export for ${range.label.lowercase()} yet."
+                                Analytics.track("meals_exported", "range" to range.name.lowercase(), "ok" to ok)
+                            },
+                            shape = RoundedCornerShape(RadiusM),
+                            border = BorderStroke(1.dp, BorderColor),
+                            contentPadding = PaddingValues(horizontal = 8.dp),
+                            modifier = Modifier.weight(1f).heightIn(min = 44.dp)
+                        ) {
+                            Text(range.label, style = BrandTypography.BodySmall, fontWeight = FontWeight.SemiBold, color = TextColor, maxLines = 1)
+                        }
+                    }
+                }
+                exportMessage?.let { Text(it, style = BrandTypography.BodySmall, color = MutedTextColor) }
             }
         }
 
