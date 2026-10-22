@@ -33,7 +33,12 @@ data class PersonalPlan(
     val startWeightKg: Float,
     val lastCheckInDate: String? = null,    // YYYY-MM-DD; check-ins are optional
     // The user's own numbers from before the plan, restored if the plan is ended.
-    val customGoalsBeforePlan: MacroGoals? = null
+    val customGoalsBeforePlan: MacroGoals? = null,
+    // Adjusting target (owner decision 2026-10-23): kcal/day the user accepted on top of the
+    // plan's computed calories, and when. Only ever changed by the user tapping Accept.
+    val calorieAdjustment: Int = 0,
+    val lastAdjustmentDate: String? = null,      // YYYY-MM-DD
+    val adjustmentDismissedDate: String? = null  // YYYY-MM-DD, "Not now" on a suggestion
 )
 
 @Serializable

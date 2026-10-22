@@ -156,3 +156,105 @@ fun PlanTargetReachedCard(
         }
     }
 }
+
+/**
+ * Adjusting target: a suggested change to the daily calories, with the reason. Nothing changes
+ * unless the user taps Accept (owner decision 2026-10-23).
+ */
+@Composable
+fun CalorieSuggestionCard(
+    currentCalories: Int,
+    suggestion: com.fitcal.app.plan.CalorieSuggestion,
+    onAccept: () -> Unit,
+    onNotNow: () -> Unit,
+    onLearnMore: () -> Unit = {},
+) {
+    PlanCardFrame {
+        Text(text = "PLAN SUGGESTION", style = BrandTypography.Eyebrow, color = PrimaryAccent)
+        Text(
+            text = "$currentCalories → ${suggestion.newCalories} kcal a day",
+            style = BrandTypography.SectionTitle,
+            fontWeight = FontWeight.Bold,
+            color = TextColor
+        )
+        Text(text = suggestion.reason, style = BrandTypography.BodySmall, color = TextColor)
+        Text(
+            text = "Your protein and fat stay the same; carbs change with it. Nothing changes unless you accept.",
+            style = BrandTypography.BodySmall,
+            color = MutedTextColor
+        )
+        TextButton(onClick = onLearnMore, contentPadding = PaddingValues(0.dp)) {
+            Text("Why does my weight jump around?", color = PrimaryAccent, style = BrandTypography.BodySmall, fontWeight = FontWeight.SemiBold)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(
+                onClick = onAccept,
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryAccent),
+                shape = RoundedCornerShape(RadiusM),
+                modifier = Modifier.weight(1f).heightIn(min = 44.dp)
+            ) {
+                Text("Accept", style = BrandTypography.CardTitle, color = Color.White)
+            }
+            OutlinedButton(
+                onClick = onNotNow,
+                shape = RoundedCornerShape(RadiusM),
+                border = BorderStroke(1.dp, BorderColor),
+                modifier = Modifier.weight(1f).heightIn(min = 44.dp)
+            ) {
+                Text("Not Now", style = BrandTypography.CardTitle, color = TextColor)
+            }
+        }
+    }
+}
+
+/** First open of a new week: how the last Monday–Sunday went. Dismissed for good with ✕. */
+@Composable
+fun WeeklySummaryCard(
+    week: com.fitcal.app.ui.screens.progress.SummaryWeek,
+    summary: com.fitcal.app.ui.screens.progress.WeekSummary,
+    onSeeProgress: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    PlanCardFrame {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "YOUR WEEK · ${formatPlanDate(week.monday)} – ${formatPlanDate(week.sunday)}",
+                style = BrandTypography.Eyebrow,
+                color = PrimaryAccent,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
+                Icon(Icons.Default.Close, contentDescription = "Dismiss weekly summary", tint = MutedTextColor, modifier = Modifier.size(18.dp))
+            }
+        }
+        Text(
+            text = "${summary.loggedDays} of 7 days logged · ${summary.meals} meal${if (summary.meals == 1) "" else "s"}",
+            style = BrandTypography.SectionTitle,
+            fontWeight = FontWeight.Bold,
+            color = TextColor
+        )
+        val avg = summary.averageCalories
+        val previous = summary.previousAverageCalories
+        Text(
+            text = when {
+                previous == null -> "Average $avg kcal a day."
+                avg == previous -> "Average $avg kcal a day, the same as the week before."
+                avg > previous -> "Average $avg kcal a day, ${avg - previous} more than the week before."
+                else -> "Average $avg kcal a day, ${previous - avg} less than the week before."
+            },
+            style = BrandTypography.BodySmall,
+            color = TextColor
+        )
+        summary.daysWithinCalorieTarget?.let { within ->
+            Text(
+                text = "Within your calorie target on $within of ${summary.loggedDays} logged day${if (summary.loggedDays == 1) "" else "s"}.",
+                style = BrandTypography.BodySmall,
+                color = MutedTextColor
+            )
+        }
+        TextButton(onClick = onSeeProgress, contentPadding = PaddingValues(0.dp)) {
+            Text("See your progress", color = PrimaryAccent, style = BrandTypography.BodySmall, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+

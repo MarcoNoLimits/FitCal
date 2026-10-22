@@ -216,7 +216,8 @@ fun UserProfile.currentPlanTargets(): TargetSuggestion? {
     val p = plan ?: return null
     if (resolvedTargetsMode() != TargetsMode.PLAN) return null
     val body = BodyStats.from(this) ?: return null
-    return planTargets(body, PlanGoal.fromKey(goalType), PlanPace.fromKey(p.pace))
+    val goal = PlanGoal.fromKey(goalType)
+    return planTargets(body, goal, PlanPace.fromKey(p.pace)).withCalorieAdjustment(p.calorieAdjustment, body, goal)
 }
 
 /**

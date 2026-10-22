@@ -48,6 +48,8 @@ import com.fitcal.app.ui.screens.dashboard.components.CalendarStrip
 import com.fitcal.app.ui.screens.dashboard.components.CircularCalorieProgressRing
 import com.fitcal.app.ui.screens.dashboard.components.DashboardMacroCard
 import com.fitcal.app.ui.screens.dashboard.components.PlanCheckInCard
+import com.fitcal.app.ui.screens.dashboard.components.CalorieSuggestionCard
+import com.fitcal.app.ui.screens.dashboard.components.WeeklySummaryCard
 import com.fitcal.app.ui.screens.dashboard.components.PlanPromptCard
 import com.fitcal.app.ui.screens.dashboard.components.PlanTargetReachedCard
 import com.fitcal.app.ui.screens.dashboard.components.QuickLogRow
@@ -129,6 +131,13 @@ fun DashboardScreen(
     onToggleFavorite: (LoggedMeal) -> Unit = {},
     // Opens the Progress screen (weight history, last 7 days). Linked from the calorie card.
     onOpenProgress: () -> Unit = {},
+    // Adjusting target: a suggestion for plan users, shown until accepted or "Not now".
+    calorieSuggestion: com.fitcal.app.plan.CalorieSuggestion? = null,
+    onAcceptSuggestion: () -> Unit = {},
+    onDismissSuggestion: () -> Unit = {},
+    // Last week's summary, on the first open of a new week.
+    weeklySummary: Pair<com.fitcal.app.ui.screens.progress.SummaryWeek, com.fitcal.app.ui.screens.progress.WeekSummary>? = null,
+    onDismissWeeklySummary: () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -451,7 +460,16 @@ fun DashboardScreen(
                     SugarFiberCard(totalSugar, SUGAR_GUIDELINE_G, totalFiber, FIBER_GUIDE_G) { onOpenGuide(GuideIds.SUGAR) }
                 }
 
-                // Optional personal plan: invitation, check-in, or target reached
+                weeklySummary?.let { (week, summary) ->
+                    WeeklySummaryCard(
+                        week = week,
+                        summary = summary,
+                        onSeeProgress = onOpenProgress,
+                        onDismiss = onDismissWeeklySummary,
+                    )
+                }
+
+                // Optional personal plan: invitation, check-in, suggestion, or target reached
                 when {
                     targetReached && planTarget != null -> PlanTargetReachedCard(
                         targetWeightKg = planTarget,
@@ -465,6 +483,13 @@ fun DashboardScreen(
                         onUpdate = onCheckIn,
                         onNotNow = onSnoozeCheckIn,
                         onWhyFluctuates = { onOpenGuide(GuideIds.TRACKING_WEIGHT) },
+                    )
+                    calorieSuggestion != null -> CalorieSuggestionCard(
+                        currentCalories = profile.calGoal,
+                        suggestion = calorieSuggestion,
+                        onAccept = onAcceptSuggestion,
+                        onNotNow = onDismissSuggestion,
+                        onLearnMore = { onOpenGuide(GuideIds.TRACKING_WEIGHT) },
                     )
                     targetsMode == TargetsMode.NONE && showPlanPrompt -> PlanPromptCard(
                         onSetUp = onSetUpPlan,
