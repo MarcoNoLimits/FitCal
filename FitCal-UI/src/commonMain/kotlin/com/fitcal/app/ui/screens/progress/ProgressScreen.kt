@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fitcal.app.ads.BannerScaffold
 import com.fitcal.app.nutrition.SUGAR_GUIDELINE_G
+import com.fitcal.app.nutrition.FIBER_GUIDE_G
 import com.fitcal.app.ui.screens.dashboard.components.mealStreak
 import com.fitcal.app.plan.TargetsMode
 import com.fitcal.app.plan.formatKg
@@ -74,6 +75,7 @@ import com.fitcal.app.ui.theme.TextColor
 import com.fitcal.app.ui.theme.CarbsColor
 import com.fitcal.app.ui.theme.FatColor
 import com.fitcal.app.ui.theme.SugarColor
+import com.fitcal.app.ui.theme.FiberColor
 import com.fitcal.shared.model.LoggedMeal
 import com.fitcal.shared.model.UserProfile
 import com.fitcal.shared.model.WeightEntry
@@ -208,6 +210,18 @@ fun ProgressScreen(
                     target = SUGAR_GUIDELINE_G,
                     targetLabel = "Guide $SUGAR_GUIDELINE_G g",
                     color = SugarColor,
+                )
+
+                // Fibre: a "get enough" guide, so the bars are never shown as over.
+                WeekBarsCard(
+                    title = "FIBRE",
+                    unit = "g",
+                    days = week,
+                    values = week.map { it.fiberG },
+                    target = FIBER_GUIDE_G,
+                    targetLabel = "Aim for $FIBER_GUIDE_G g",
+                    color = FiberColor,
+                    targetIsMinimum = true,
                 )
 
                 summary.split?.let { MacroSplitCard(it) }
@@ -454,6 +468,8 @@ private fun WeekBarsCard(
     target: Int?,
     color: Color,
     targetLabel: String? = null,
+    // For "get enough" values such as fibre: reaching the line is good, so bars never fade.
+    targetIsMinimum: Boolean = false,
 ) {
     ProgressCard {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -498,7 +514,7 @@ private fun WeekBarsCard(
                     cornerRadius = CornerRadius(6.dp.toPx()),
                 )
                 if (h > 0f) {
-                    val over = target != null && v > target
+                    val over = !targetIsMinimum && target != null && v > target
                     drawRoundRect(
                         color = if (over) color.copy(alpha = 0.55f) else color,
                         topLeft = Offset(left, size.height - h),

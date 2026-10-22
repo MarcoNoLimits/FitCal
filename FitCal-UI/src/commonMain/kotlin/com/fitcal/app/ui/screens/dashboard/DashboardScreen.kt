@@ -28,7 +28,8 @@ import androidx.compose.ui.draw.clip
 import com.fitcal.app.mealPhotoModel
 import com.fitcal.app.nutrition.SUGAR_GUIDELINE_G
 import com.fitcal.app.nutrition.isOver
-import com.fitcal.app.ui.screens.dashboard.components.SugarGuidelineBar
+import com.fitcal.app.ui.screens.dashboard.components.SugarFiberCard
+import com.fitcal.app.nutrition.FIBER_GUIDE_G
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
@@ -162,6 +163,7 @@ fun DashboardScreen(
     val totalCarbs = filteredMeals.sumOf { it.carbs.toDouble() }.toFloat()
     val totalFat = filteredMeals.sumOf { it.fat.toDouble() }.toFloat()
     val totalSugar = filteredMeals.sumOf { it.sugar.toDouble() }.toFloat()
+    val totalFiber = filteredMeals.sumOf { it.fiber.toDouble() }.toFloat()
 
     // Targets are optional: without a plan or own numbers, show what was eaten, no goals.
     val targetsMode = remember(profile) { profile.resolvedTargetsMode() }
@@ -445,7 +447,7 @@ fun DashboardScreen(
 
                 // Only once something is logged, so an empty day stays uncluttered.
                 if (filteredMeals.isNotEmpty()) {
-                    SugarGuidelineBar(totalSugar, SUGAR_GUIDELINE_G) { onOpenGuide(GuideIds.SUGAR) }
+                    SugarFiberCard(totalSugar, SUGAR_GUIDELINE_G, totalFiber, FIBER_GUIDE_G) { onOpenGuide(GuideIds.SUGAR) }
                 }
 
                 // Optional personal plan: invitation, check-in, or target reached

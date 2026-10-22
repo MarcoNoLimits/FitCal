@@ -31,7 +31,8 @@ data class EditableFoodItem(
     val carbsPerGram: Float,
     val fatPerGram: Float,
     val confidence: String,
-    val sugarPerGram: Float = 0f
+    val sugarPerGram: Float = 0f,
+    val fiberPerGram: Float = 0f
 )
 
 @Composable

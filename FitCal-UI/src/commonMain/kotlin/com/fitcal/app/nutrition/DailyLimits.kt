@@ -9,6 +9,12 @@ import kotlin.math.roundToInt
  */
 const val SUGAR_GUIDELINE_G = 50
 
+/**
+ * Fibre is a "get enough" number, not a limit: EFSA and most guidelines suggest at least 25 g a
+ * day for adults. Shown as progress towards it; never an over-target note.
+ */
+const val FIBER_GUIDE_G = 25
+
 /** What a day (or a meal) adds up to. */
 data class DayTotals(
     val calories: Int = 0,
@@ -16,6 +22,7 @@ data class DayTotals(
     val carbs: Float = 0f,
     val fat: Float = 0f,
     val sugar: Float = 0f,
+    val fiber: Float = 0f,
 ) {
     operator fun plus(other: DayTotals) = DayTotals(
         calories + other.calories,
@@ -23,11 +30,12 @@ data class DayTotals(
         carbs + other.carbs,
         fat + other.fat,
         sugar + other.sugar,
+        fiber + other.fiber,
     )
 }
 
 fun List<LoggedMeal>.dayTotals(): DayTotals =
-    fold(DayTotals()) { acc, m -> acc + DayTotals(m.calories, m.protein, m.carbs, m.fat, m.sugar) }
+    fold(DayTotals()) { acc, m -> acc + DayTotals(m.calories, m.protein, m.carbs, m.fat, m.sugar, m.fiber) }
 
 /** The daily goals the over-target check compares against; 0 = no goal for that value. */
 data class DailyGoals(val calories: Int, val carbs: Int, val fat: Int)

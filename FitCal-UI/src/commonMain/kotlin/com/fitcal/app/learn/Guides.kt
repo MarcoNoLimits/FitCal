@@ -271,8 +271,8 @@ object Guides {
 
         Guide(
             id = GuideIds.SUGAR,
-            title = "Sugar",
-            summary = "What the sugar number in FitCal means and where the 50 g guide comes from.",
+            title = "Sugar and fibre",
+            summary = "What the sugar and fibre numbers in FitCal mean, and where the 50 g and 25 g guides come from.",
             sections = listOf(
                 GuideSection(
                     paragraphs = listOf(
@@ -292,7 +292,17 @@ object Guides {
                     ),
                 ),
                 GuideSection(
-                    heading = "Easy places to look",
+                    heading = "Fibre: aim for at least 25 g",
+                    paragraphs = listOf(
+                        "Fibre is the part of plant foods you don't fully digest. It supports digestion and helps you feel full. EFSA suggests at least 25 g a day for adults, and many people eat less. Unlike sugar, it's a number to reach, not a limit.",
+                    ),
+                    bullets = listOf(
+                        "Good sources: oats and whole grains, beans and lentils, vegetables, fruit with the skin, nuts and seeds.",
+                        "Add it gradually and drink enough water, so your gut can adjust.",
+                    ),
+                ),
+                GuideSection(
+                    heading = "Easy places to look for sugar",
                     bullets = listOf(
                         "Soft drinks, energy drinks and fruit juice.",
                         "Sweetened yoghurts, cereals and cereal bars.",
@@ -302,6 +312,7 @@ object Guides {
             ),
             sources = listOf(
                 "WHO (2015), Guideline: sugars intake for adults and children",
+                "EFSA (2010), Dietary reference values for carbohydrates and dietary fibre",
             ),
             related = listOf(GuideIds.CARBS),
         ),
