@@ -733,7 +733,7 @@ Deno.serve(async (req: Request) => {
       let effectiveAllowance = BASE_DAILY_ALLOWANCE + accountBonus;
       if (!isPremium) {
         try {
-          const quotaCheck = await checkQuotaServerSide(userId, accountBonus);
+          const quotaCheck = await checkQuotaServerSide(userId, permanentAccount);
           effectiveAllowance = quotaCheck.effectiveAllowance;
           if (!quotaCheck.allowed) {
             trackServerEvent(userId, "quota_denied", { allowance: effectiveAllowance, input: "text" });
