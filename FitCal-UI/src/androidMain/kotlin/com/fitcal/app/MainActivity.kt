@@ -19,6 +19,8 @@ class MainActivity : ComponentActivity() {
         appContext = applicationContext
         initPrivacyConsentStore()
         AndroidAdManager.currentActivityRef = WeakReference(this)
+        // Opened from the home-screen widget's Scan button (not on a config-change recreation).
+        if (savedInstanceState == null) handleLaunchIntent(intent)
 
         setContent {
             LaunchAnimationHost {
@@ -51,6 +53,22 @@ class MainActivity : ComponentActivity() {
                     android.util.Log.i("FitCal_Privacy", "Ads limited to non-personalized")
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleLaunchIntent(intent)
+    }
+
+    private fun handleLaunchIntent(intent: android.content.Intent?) {
+        if (intent?.getStringExtra(com.fitcal.app.widget.TodayWidgetProvider.EXTRA_LAUNCH_ACTION) ==
+            com.fitcal.app.widget.TodayWidgetProvider.ACTION_SCAN
+        ) {
+            PendingLaunchAction.post(LaunchAction.SCAN)
+            // Consumed: a later recreation of this activity must not open the camera again.
+            intent.removeExtra(com.fitcal.app.widget.TodayWidgetProvider.EXTRA_LAUNCH_ACTION)
         }
     }
 
