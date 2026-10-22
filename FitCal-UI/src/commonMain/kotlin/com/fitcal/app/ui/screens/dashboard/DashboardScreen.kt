@@ -30,6 +30,7 @@ import com.fitcal.app.nutrition.SUGAR_GUIDELINE_G
 import com.fitcal.app.nutrition.isOver
 import com.fitcal.app.ui.screens.dashboard.components.SugarFiberCard
 import com.fitcal.app.nutrition.FIBER_GUIDE_G
+import com.fitcal.app.nutrition.SHOW_SUGAR_AND_FIBRE
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
@@ -446,7 +447,7 @@ fun DashboardScreen(
                 }
 
                 // Only once something is logged, so an empty day stays uncluttered.
-                if (filteredMeals.isNotEmpty()) {
+                if (SHOW_SUGAR_AND_FIBRE && filteredMeals.isNotEmpty()) {
                     SugarFiberCard(totalSugar, SUGAR_GUIDELINE_G, totalFiber, FIBER_GUIDE_G) { onOpenGuide(GuideIds.SUGAR) }
                 }
 

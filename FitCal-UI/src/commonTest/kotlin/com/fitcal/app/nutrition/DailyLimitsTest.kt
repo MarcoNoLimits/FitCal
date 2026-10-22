@@ -31,7 +31,7 @@ class DailyLimitsTest {
 
     @Test
     fun sugarUsesTheGuidelineEvenWithoutTargets() {
-        val notes = overTargetNotes(DayTotals(sugar = 40f), DayTotals(sugar = 25f), goals = null)
+        val notes = overTargetNotes(DayTotals(sugar = 40f), DayTotals(sugar = 25f), goals = null, includeSugar = true)
         assertEquals(listOf("This meal takes you 15 g over your sugar guideline for today."), notes)
     }
 
@@ -56,7 +56,7 @@ class DailyLimitsTest {
 
     @Test
     fun noWordsThatJudgeTheFood() {
-        val notes = overTargetNotes(DayTotals(2500, 0f, 300f, 90f, 80f), DayTotals(900, 0f, 120f, 40f, 30f), goals)
+        val notes = overTargetNotes(DayTotals(2500, 0f, 300f, 90f, 80f), DayTotals(900, 0f, 120f, 40f, 30f), goals, includeSugar = true)
         assertEquals(4, notes.size)
         val banned = listOf("bad", "unhealthy", "cheat", "guilt", "too much", "should")
         notes.forEach { n -> banned.forEach { assertFalse(Regex("\\b$it\\b").containsMatchIn(n.lowercase()), n) } }
@@ -93,5 +93,10 @@ class DailyLimitsTest {
         val notes = overTargetNotes(DayTotals(fiber = 40f), DayTotals(fiber = 20f), goals)
         assertTrue(notes.isEmpty())
     }
-}
 
+    @Test
+    fun noSugarNoteWhileSugarIsHidden() {
+        val notes = overTargetNotes(DayTotals(sugar = 80f), DayTotals(sugar = 40f), goals = null, includeSugar = false)
+        assertTrue(notes.isEmpty())
+    }
+}

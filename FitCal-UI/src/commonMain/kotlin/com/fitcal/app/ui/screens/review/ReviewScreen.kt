@@ -46,6 +46,7 @@ import com.fitcal.app.nutrition.DailyGoals
 import com.fitcal.app.nutrition.DayTotals
 import com.fitcal.app.nutrition.SUGAR_GUIDELINE_G
 import com.fitcal.app.nutrition.FIBER_GUIDE_G
+import com.fitcal.app.nutrition.SHOW_SUGAR_AND_FIBRE
 import com.fitcal.app.nutrition.overTargetNotes
 import androidx.compose.ui.semantics.semantics
 import kotlin.math.roundToInt
@@ -468,8 +469,10 @@ fun ResultScreen(
                                     MacroGridCard("Fats", "${totalFat.toInt()}g", if (hasTargets) "$fatPercent%" else "", FatColor)
                                 }
                             }
-                            SugarLine(totalSugar)
-                            FiberLine(totalFiber)
+                            if (SHOW_SUGAR_AND_FIBRE) {
+                                SugarLine(totalSugar)
+                                FiberLine(totalFiber)
+                            }
                         }
                     }
                 }
