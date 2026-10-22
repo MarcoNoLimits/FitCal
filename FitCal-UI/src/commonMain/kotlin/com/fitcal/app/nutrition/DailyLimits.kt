@@ -4,6 +4,16 @@ import com.fitcal.shared.model.LoggedMeal
 import kotlin.math.roundToInt
 
 /**
+ * Sugar and fibre are hidden for launch (owner decision 2026-10-23): photo estimates of them
+ * aren't validated yet, so they stay out of the UI. The data is still kept per food (barcode
+ * labels carry it), so turning this on later shows them everywhere at once: the review lines,
+ * the dashboard card, the Progress charts, the sugar over-guideline note and the guide.
+ * Before turning it on, see the safeguards in tasks/NEXT.md (estimate marks, diabetes line,
+ * a setting to hide notes, label test).
+ */
+const val SHOW_SUGAR_AND_FIBRE = false
+
+/**
  * WHO guideline: keep free sugars under 10% of energy, about 50 g a day for an adult.
  * FitCal's figure is total sugars (fruit and milk included), so it's shown as a guide, not a limit.
  */
@@ -45,11 +55,16 @@ data class DailyGoals(val calories: Int, val carbs: Int, val fat: Int)
  *
  * - Calories, carbs and fat against the user's own goals, only when targets are on ([goals] null = off).
  *   Protein is left out: going over a protein target isn't a concern for most people.
- * - Sugar against [SUGAR_GUIDELINE_G], for everyone.
+ * - Sugar against [SUGAR_GUIDELINE_G], for everyone, only while [SHOW_SUGAR_AND_FIBRE] is on.
  * - Only a value this meal pushes over (or adds to while already over) is mentioned; the wording
  *   states the amount and never judges the food (some users read the eating-disorder guide).
  */
-fun overTargetNotes(before: DayTotals, meal: DayTotals, goals: DailyGoals?): List<String> {
+fun overTargetNotes(
+    before: DayTotals,
+    meal: DayTotals,
+    goals: DailyGoals?,
+    includeSugar: Boolean = SHOW_SUGAR_AND_FIBRE,
+): List<String> {
     val after = before + meal
     val notes = mutableListOf<String>()
     fun check(label: String, unit: String, goal: Int, beforeValue: Float, mealValue: Float, afterValue: Float, target: String) {
@@ -67,7 +82,7 @@ fun overTargetNotes(before: DayTotals, meal: DayTotals, goals: DailyGoals?): Lis
         check("carb", "g", goals.carbs, before.carbs, meal.carbs, after.carbs, "target")
         check("fat", "g", goals.fat, before.fat, meal.fat, after.fat, "target")
     }
-    check("sugar", "g", SUGAR_GUIDELINE_G, before.sugar, meal.sugar, after.sugar, "guideline")
+    if (includeSugar) check("sugar", "g", SUGAR_GUIDELINE_G, before.sugar, meal.sugar, after.sugar, "guideline")
     return notes
 }
 

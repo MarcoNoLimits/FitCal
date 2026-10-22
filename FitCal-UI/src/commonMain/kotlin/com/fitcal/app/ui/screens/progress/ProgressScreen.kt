@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import com.fitcal.app.ads.BannerScaffold
 import com.fitcal.app.nutrition.SUGAR_GUIDELINE_G
 import com.fitcal.app.nutrition.FIBER_GUIDE_G
+import com.fitcal.app.nutrition.SHOW_SUGAR_AND_FIBRE
 import com.fitcal.app.ui.screens.dashboard.components.mealStreak
 import com.fitcal.app.plan.TargetsMode
 import com.fitcal.app.plan.formatKg
@@ -202,7 +203,7 @@ fun ProgressScreen(
                 )
 
                 // Everyone gets the WHO guideline line for sugar, targets or not.
-                WeekBarsCard(
+                if (SHOW_SUGAR_AND_FIBRE) WeekBarsCard(
                     title = "SUGAR",
                     unit = "g",
                     days = week,
@@ -213,7 +214,7 @@ fun ProgressScreen(
                 )
 
                 // Fibre: a "get enough" guide, so the bars are never shown as over.
-                WeekBarsCard(
+                if (SHOW_SUGAR_AND_FIBRE) WeekBarsCard(
                     title = "FIBRE",
                     unit = "g",
                     days = week,

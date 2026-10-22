@@ -1,10 +1,25 @@
 # FitCal — where to pick up
 
-## Spend protection (launch sprint WP6, 2026-10-22): owner tasks
-Code is written; nothing is deployed or applied. In order:
+## Sugar and fibre: hidden for launch (owner decision 2026-10-23)
+Built but switched off with `SHOW_SUGAR_AND_FIBRE = false` (`nutrition/DailyLimits.kt`). The app
+still stores sugar and fibre per food when a barcode label has them; nothing shows. The gateway
+prompt does not ask the AI for them (the sugar/fibre prompt was reverted, so v5 stays as deployed).
+Research behind the decision: photo apps under-estimate calories and fat (NIH, 102 meals, 2026);
+no study validates sugar from photos; fibre had one small promising study. Before turning it on:
+- [ ] Label test: scan ~20 packaged foods by photo and compare sugar and fibre with the labels.
+- [ ] Restore the gateway prompt fields (`git show 6fc4d43 -- supabase/functions/analyze-meal/index.ts`) and deploy.
+- [ ] Mark photo/typed values "≈ est."; barcode values stay exact.
+- [ ] Diabetes line in the guide and the card: an estimate for general awareness; rely on your
+      glucose meter and care team. Never market FitCal for diabetes (EU MDR intended purpose).
+- [ ] Settings switch "Show nutrition notes" (on by default) that hides the amber notes.
+- [ ] Line under the sugar bar: "Includes natural sugar from fruit and milk."
 
-1. [ ] **Apply migration `0008_cleanup_and_ssv.sql`** (SSV claims table and RPCs, `pg_cron` job `fitcal-cleanup-anonymous-users`). Check afterwards: `select jobname, schedule from cron.job;` shows the job, daily at 03:17 UTC.
-2. [ ] **Deploy `analyze-meal`** (it now includes `ssv.ts`). Leave `REWARD_REQUIRE_SSV` unset (= false): `/v1/reward/ad-earned` keeps granting as today, and SSV callbacks are only verified and recorded.
+
+## Spend protection (launch sprint WP6, 2026-10-22): owner tasks
+Migration 0008 is applied and `analyze-meal` v5 is deployed (2026-10-22). Remaining, in order:
+
+1. [x] **Apply migration `0008_cleanup_and_ssv.sql`** (done 2026-10-22) (SSV claims table and RPCs, `pg_cron` job `fitcal-cleanup-anonymous-users`). Check afterwards: `select jobname, schedule from cron.job;` shows the job, daily at 03:17 UTC.
+2. [x] **Deploy `analyze-meal`** (done 2026-10-22, version 5) (it now includes `ssv.ts`). Leave `REWARD_REQUIRE_SSV` unset (= false): `/v1/reward/ad-earned` keeps granting as today, and SSV callbacks are only verified and recorded.
 3. [ ] **AdMob SSV callback URL** (AdMob → Apps → FitCal → Ad units → the rewarded unit → *Server-side verification*):
    - Callback URL: `https://uedtovphilwstzdpzjrk.supabase.co/functions/v1/analyze-meal/v1/reward/ssv`
    - Press *Verify URL*. A valid signed test callback answers 200 with `{"status":"ignored","reason":"no_user"}` (the test has no FitCal user). 403 means a signature problem; 503 means Google's keys could not be fetched.

@@ -36,7 +36,8 @@ class GuidesTest {
 
     @Test
     fun everyGuideHasContentSourcesAndAReadingTime() {
-        assertEquals(9, Guides.all.size)
+        // The sugar and fibre guide is hidden while SHOW_SUGAR_AND_FIBRE is off.
+        assertEquals(if (com.fitcal.app.nutrition.SHOW_SUGAR_AND_FIBRE) 9 else 8, Guides.all.size)
         Guides.all.forEach { g ->
             assertTrue(g.sections.isNotEmpty(), g.id)
             assertTrue(g.sources.isNotEmpty(), "${g.id} has no sources")

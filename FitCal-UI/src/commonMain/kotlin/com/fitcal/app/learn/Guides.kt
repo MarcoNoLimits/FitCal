@@ -354,7 +354,7 @@ object Guides {
                 "EFSA (2010), Dietary reference values for carbohydrates and dietary fibre",
                 "Gardner CD et al. (2018), DIETFITS randomized clinical trial, JAMA",
             ),
-            related = listOf(GuideIds.PROTEIN, GuideIds.FAT, GuideIds.SUGAR),
+            related = listOf(GuideIds.PROTEIN, GuideIds.FAT) + if (com.fitcal.app.nutrition.SHOW_SUGAR_AND_FIBRE) listOf(GuideIds.SUGAR) else emptyList(),
             personalNote = { p -> p.planTargetsIfAny()?.let { "Your plan's carbohydrate target is ${it.carbsG} g a day: the calories left after protein and fat." } },
         ),
 
@@ -475,7 +475,7 @@ object Guides {
             related = listOf(GuideIds.TRACKING_WEIGHT),
             adFree = true,
         ),
-    )
+    ).filter { it.id != GuideIds.SUGAR || com.fitcal.app.nutrition.SHOW_SUGAR_AND_FIBRE }  // hidden for launch
 
     fun byId(id: String): Guide? = all.firstOrNull { it.id == id }
 

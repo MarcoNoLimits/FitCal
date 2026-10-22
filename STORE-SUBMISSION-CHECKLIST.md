@@ -94,8 +94,10 @@ PRIVACY
 • One-tap deletion of your account and all data
 • We never sell your data
 
-FitCal provides automated estimates only and is not medical advice. It is intended
-for adults 18+. It is not a substitute for professional medical or dietary advice.
+FitCal is not a medical device and does not diagnose, treat, cure, or prevent any
+medical condition. It provides automated estimates only. Consult a healthcare
+professional for medical advice, diagnosis, or treatment. FitCal is intended for
+adults 18+.
 ```
 
 ---
