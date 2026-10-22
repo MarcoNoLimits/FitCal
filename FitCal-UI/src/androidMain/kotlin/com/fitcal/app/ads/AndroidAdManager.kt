@@ -6,6 +6,7 @@ import android.util.Log
 import com.fitcal.app.telemetry.AdRevenuePayload
 import com.fitcal.app.telemetry.AdTelemetryManager
 import com.fitcal.app.telemetry.DiagnosticsCrashHook
+import com.fitcal.shared.telemetry.TelemetryUploader
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -15,9 +16,18 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.android.gms.ads.rewarded.ServerSideVerificationOptions
 import java.lang.ref.WeakReference
 
 class AndroidAdManager(
+    /**
+     * The signed-in Supabase user (guests included). Sent to AdMob with each rewarded view so
+     * its server-side verification callback (GET /v1/reward/ssv) can credit the right user.
+     * SupabaseAuthService keeps TelemetryUploader.userIdProvider on the current user.
+     * Declared first so `AndroidAdManager { context }` still binds the trailing lambda to
+     * contextProvider.
+     */
+    private val userIdProvider: () -> String? = { TelemetryUploader.userIdProvider() },
     private val contextProvider: () -> Context
 ) : AdManager {
 
@@ -146,6 +156,7 @@ class AndroidAdManager(
         if (activity != null && !activity.isFinishing && !activity.isDestroyed && ad != null) {
             activity.runOnUiThread {
                 var rewardGranted = false
+                applyServerSideVerification(ad)
                 ad.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdShowedFullScreenContent() {
                         AdTelemetryManager.trackRewardedImpression()
@@ -182,6 +193,28 @@ class AndroidAdManager(
             }
             preloadRewarded()
         }
+    }
+
+    /**
+     * Tags the rewarded view with the Supabase user ID (as user_id and custom_data) for AdMob
+     * SSV. Set right before showing, because the user can change after the ad was loaded.
+     */
+    private fun applyServerSideVerification(ad: RewardedAd) {
+        val userId = try {
+            userIdProvider()
+        } catch (_: Throwable) {
+            null
+        }
+        if (userId.isNullOrBlank()) {
+            Log.w(TAG, "No user ID for rewarded SSV; the server-side callback will be ignored.")
+            return
+        }
+        ad.setServerSideVerificationOptions(
+            ServerSideVerificationOptions.Builder()
+                .setUserId(userId)
+                .setCustomData(userId)
+                .build()
+        )
     }
 
     override fun isInterstitialReady(): Boolean = interstitialAd != null
