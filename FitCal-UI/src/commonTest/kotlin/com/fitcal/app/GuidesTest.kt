@@ -36,7 +36,7 @@ class GuidesTest {
 
     @Test
     fun everyGuideHasContentSourcesAndAReadingTime() {
-        assertEquals(8, Guides.all.size)
+        assertEquals(9, Guides.all.size)
         Guides.all.forEach { g ->
             assertTrue(g.sections.isNotEmpty(), g.id)
             assertTrue(g.sources.isNotEmpty(), "${g.id} has no sources")

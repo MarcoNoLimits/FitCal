@@ -49,6 +49,8 @@ data class BarcodeProduct(
     val fatPer100g: Float,
     /** The label's serving size in grams, or null when the label doesn't give one. */
     val servingGrams: Float? = null,
+    /** Total sugars per 100 g; 0 when the label doesn't list them. */
+    val sugarsPer100g: Float = 0f,
 )
 
 sealed class BarcodeLookupResult {
@@ -104,6 +106,7 @@ object OpenFoodFactsParser {
         val protein = nutriments.number("proteins_100g")
         val carbs = nutriments.number("carbohydrates_100g")
         val fat = nutriments.number("fat_100g")
+        val sugars = nutriments.number("sugars_100g")
         val kcal = nutriments.number("energy-kcal_100g")
             ?: nutriments.number("energy-kj_100g")?.div(KJ_PER_KCAL)
             // Plain `energy_100g` is always kJ in Open Food Facts.
@@ -128,6 +131,7 @@ object OpenFoodFactsParser {
                 proteinPer100g = (protein ?: 0f).coerceAtLeast(0f),
                 carbsPer100g = (carbs ?: 0f).coerceAtLeast(0f),
                 fatPer100g = (fat ?: 0f).coerceAtLeast(0f),
+                sugarsPer100g = (sugars ?: 0f).coerceAtLeast(0f),
                 servingGrams = serving,
             )
         )
@@ -176,12 +180,13 @@ fun BarcodeProduct.toNutritionResponse(grams: Int = portionGrams()): NutritionRe
         carbs_g = carbsPer100g.scaledTo(weight).oneDecimal(),
         fat_g = fatPer100g.scaledTo(weight).oneDecimal(),
         confidence = "high",
+        sugar_g = sugarsPer100g.scaledTo(weight).oneDecimal(),
     )
     val portionNote = if (servingGrams != null) "one serving ($weight g)" else "$weight g (no serving size on the label)"
     return NutritionResponse(
         meal_name = displayName,
         items = listOf(item),
-        totals = Totals(item.calories, item.protein_g, item.carbs_g, item.fat_g),
+        totals = Totals(item.calories, item.protein_g, item.carbs_g, item.fat_g, item.sugar_g),
         estimation_notes = "Label values from Open Food Facts, scaled to $portionNote.",
     )
 }

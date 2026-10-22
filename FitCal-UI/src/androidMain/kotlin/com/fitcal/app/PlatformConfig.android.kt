@@ -278,3 +278,30 @@ actual fun syncPlatformMealReminders(
     }
 }
 
+private fun mealPhotoDir(): java.io.File =
+    java.io.File(appContext.filesDir, "meal_photos").apply { mkdirs() }
+
+actual fun saveMealPhoto(mealId: String, jpegBytes: ByteArray): String? = try {
+    if (!isAppContextReady || jpegBytes.isEmpty()) null
+    else {
+        // Ids are UUIDs; anything else is reduced to safe file-name characters.
+        val safeId = mealId.filter { it.isLetterOrDigit() || it == '-' }.ifEmpty { return null }
+        java.io.File(mealPhotoDir(), "$safeId.jpg").apply { writeBytes(jpegBytes) }.absolutePath
+    }
+} catch (_: Exception) {
+    null
+}
+
+actual fun pruneMealPhotos(keepMealIds: Set<String>) {
+    if (!isAppContextReady) return
+    try {
+        mealPhotoDir().listFiles()?.forEach { file ->
+            if (file.nameWithoutExtension !in keepMealIds) file.delete()
+        }
+    } catch (_: Exception) {
+        // Best effort: a leftover file is retried on the next launch.
+    }
+}
+
+actual fun mealPhotoModel(path: String?): Any? =
+    path?.let { java.io.File(it) }?.takeIf { it.isFile }

@@ -52,6 +52,7 @@ object GuideIds {
     const val PROTEIN = "protein"
     const val CARBS = "carbohydrates"
     const val FAT = "fat"
+    const val SUGAR = "sugar"
     const val PHOTO_ESTIMATES = "photo-estimates"
     const val PROFESSIONAL_HELP = "professional-help"
 }
@@ -269,6 +270,43 @@ object Guides {
         ),
 
         Guide(
+            id = GuideIds.SUGAR,
+            title = "Sugar",
+            summary = "What the sugar number in FitCal means and where the 50 g guide comes from.",
+            sections = listOf(
+                GuideSection(
+                    paragraphs = listOf(
+                        "Sugar is a carbohydrate, so it is already part of your carbs. FitCal shows it on its own because many people want to keep an eye on it.",
+                    ),
+                ),
+                GuideSection(
+                    heading = "The 50 g guide",
+                    paragraphs = listOf(
+                        "The WHO recommends keeping free sugars under 10% of daily energy, which is about 50 g a day for most adults, and ideally under 5% (about 25 g). Free sugars are sugars added to food and drinks, plus those in honey, syrups and fruit juice.",
+                    ),
+                ),
+                GuideSection(
+                    heading = "Why FitCal's number can look high",
+                    paragraphs = listOf(
+                        "FitCal estimates total sugars, so it also counts the sugar in whole fruit, vegetables and milk. Those don't count towards the WHO limit. A day with plenty of fruit can pass 50 g without any added sugar, and that's fine.",
+                    ),
+                ),
+                GuideSection(
+                    heading = "Easy places to look",
+                    bullets = listOf(
+                        "Soft drinks, energy drinks and fruit juice.",
+                        "Sweetened yoghurts, cereals and cereal bars.",
+                        "Sauces such as ketchup and some ready meals.",
+                    ),
+                ),
+            ),
+            sources = listOf(
+                "WHO (2015), Guideline: sugars intake for adults and children",
+            ),
+            related = listOf(GuideIds.CARBS),
+        ),
+
+        Guide(
             id = GuideIds.CARBS,
             title = "Carbohydrates",
             summary = "Your body's main fuel, why fibre matters, and how sugar fits in.",
@@ -305,7 +343,7 @@ object Guides {
                 "EFSA (2010), Dietary reference values for carbohydrates and dietary fibre",
                 "Gardner CD et al. (2018), DIETFITS randomized clinical trial, JAMA",
             ),
-            related = listOf(GuideIds.PROTEIN, GuideIds.FAT),
+            related = listOf(GuideIds.PROTEIN, GuideIds.FAT, GuideIds.SUGAR),
             personalNote = { p -> p.planTargetsIfAny()?.let { "Your plan's carbohydrate target is ${it.carbsG} g a day: the calories left after protein and fat." } },
         ),
 

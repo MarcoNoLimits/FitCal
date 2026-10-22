@@ -1,5 +1,6 @@
 package com.fitcal.app
 
+import com.fitcal.app.nutrition.dayTotals
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -318,12 +319,21 @@ fun App() {
             var deletingAccount by remember { mutableStateOf(false) }
             var deleteAccountMessage by remember { mutableStateOf<String?>(null) }
             var totalMealsLogged by remember { mutableStateOf(0) }
-            LaunchedEffect(Unit) { totalMealsLogged = localMealRepository.getAllMeals().size }
+            LaunchedEffect(Unit) {
+                val stored = localMealRepository.getAllMeals()
+                totalMealsLogged = stored.size
+                // Photos of meals deleted since the last launch (after their undo window).
+                pruneMealPhotos(stored.mapTo(mutableSetOf()) { it.id })
+            }
             var showSignInCard by remember { mutableStateOf(false) }
 
             var scansRemainingToday by remember(selectedDateKey) {
                 mutableStateOf(ScanQuotaManager.getRemainingScans(selectedDateKey))
             }
+
+            // What the other meals of [date] add up to, for the review screen's over-target note.
+            fun eatenOn(date: String, excludeMealId: String? = null): com.fitcal.app.nutrition.DayTotals =
+                allMeals.filter { it.date == date && it.id != excludeMealId }.dayTotals()
 
             // Brings back the account's last year of meals and water, so a reinstall or a new
             // phone shows the history and not only the day on screen.
@@ -754,6 +764,7 @@ fun App() {
                         profile = userProfile,
                         isMock = isMockMode,
                         capturedImageBytes = null,
+                        eatenBeforeThisMeal = eatenOn(selectedDateKey),
                         ingredientsNote = if (nutritionData.items.isEmpty()) {
                             "Add what you ate from the food library."
                         } else {
@@ -854,9 +865,13 @@ fun App() {
                         profile = userProfile,
                         isMock = isMockMode,
                         capturedImageBytes = lastCapturedImageBytes,
+                        eatenBeforeThisMeal = eatenOn(selectedDateKey),
                         onMealLogged = { mealName, cal, p, c, f, items ->
+                            val mealId = newMealId() // F0.1: collision-proof UUID v4
+                            // Kept on this phone only, at upload size (owner decision 2026-10-22).
+                            val photoPath = lastCapturedImageBytes?.let { saveMealPhoto(mealId, compressImage(it)) }
                             val newMeal = LoggedMeal(
-                                id = newMealId(), // F0.1: collision-proof UUID v4
+                                id = mealId,
                                 name = mealName,
                                 calories = cal,
                                 protein = p,
@@ -864,7 +879,8 @@ fun App() {
                                 fat = f,
                                 timestamp = getCurrentTimeString(),
                                 date = selectedDateKey,
-                                items = items
+                                items = items,
+                                photoPath = photoPath,
                             )
                             totalMealsLogged += 1
                             if (totalMealsLogged == 1) Analytics.track("first_meal_logged")
@@ -979,6 +995,8 @@ fun App() {
                         profile = userProfile,
                         isMock = isMockMode,
                         capturedImageBytes = null,
+                        savedPhoto = mealPhotoModel(meal.photoPath),
+                        eatenBeforeThisMeal = eatenOn(meal.date, excludeMealId = meal.id),
                         isEditingLoggedMeal = true,
                         ingredientsNote = if (meal.items.isEmpty()) {
                             "This meal was logged before ingredients were saved. $LEGACY_PORTION_GRAMS g = the amount you logged; change it to scale the whole meal."
@@ -1034,6 +1052,7 @@ fun App() {
                                     Analytics.track("signed_out")
                                     Analytics.flush()
                                     accountData.clearLocalData()
+                                    pruneMealPhotos(emptySet())
                                     authService.signOut()
                                     userEmail = accountEmailOrNull()
                                     userProfile = userRepository.getUserProfile()
@@ -1091,6 +1110,7 @@ fun App() {
                                 }
                                 if (confirmed) {
                                     accountData.clearLocalData()
+                                    pruneMealPhotos(emptySet())
                                     PrivacyConsent.clearAll()
                                     Analytics.onPrivacyStateChanged()
                                     AgeGate.reset()

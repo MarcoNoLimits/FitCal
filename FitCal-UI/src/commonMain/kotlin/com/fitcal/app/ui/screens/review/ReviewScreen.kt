@@ -42,6 +42,12 @@ import com.fitcal.app.ui.components.FitCalTextField
 import com.fitcal.app.ui.components.PressableBox
 import com.fitcal.app.ui.components.macroPercentOfGoal
 import com.fitcal.app.plan.hasDailyTargets
+import com.fitcal.app.nutrition.DailyGoals
+import com.fitcal.app.nutrition.DayTotals
+import com.fitcal.app.nutrition.SUGAR_GUIDELINE_G
+import com.fitcal.app.nutrition.overTargetNotes
+import androidx.compose.ui.semantics.semantics
+import kotlin.math.roundToInt
 import com.fitcal.app.ui.screens.review.components.EditableFoodItem
 import com.fitcal.app.ui.screens.review.components.caloriesAtCurrentWeight
 import com.fitcal.app.ui.screens.review.components.toEditable
@@ -78,6 +84,11 @@ fun ResultScreen(
     onSignInSuggestionDismissed: () -> Unit = {},
     onCreateAccount: () -> Unit = {},
     onRateEstimate: (positive: Boolean, reasons: List<String>) -> Unit = { _, _ -> },
+    // What the rest of the meal's day already adds up to (the edited meal itself excluded),
+    // for the over-target note.
+    eatenBeforeThisMeal: DayTotals = DayTotals(),
+    // A reopened meal's photo stored on this phone (see saveMealPhoto), or null.
+    savedPhoto: Any? = null,
 ) {
     val scrollState = rememberScrollState()
 
@@ -137,12 +148,21 @@ fun ResultScreen(
         val weight = it.currentWeightStr.toIntOrNull() ?: 0
         (it.fatPerGram * weight).toDouble()
     }.toFloat()
+    val totalSugar = editableItems.sumOf {
+        val weight = it.currentWeightStr.toIntOrNull() ?: 0
+        (it.sugarPerGram * weight).toDouble()
+    }.toFloat()
 
     // "% of daily goal" only when the user has targets (a plan or their own numbers).
     val hasTargets = profile.hasDailyTargets()
     val proteinPercent = macroPercentOfGoal(totalProtein, profile.proteinGoal)
     val carbsPercent = macroPercentOfGoal(totalCarbs, profile.carbsGoal)
     val fatPercent = macroPercentOfGoal(totalFat, profile.fatGoal)
+    val overNotes = overTargetNotes(
+        before = eatenBeforeThisMeal,
+        meal = DayTotals(totalCalories, totalProtein, totalCarbs, totalFat, totalSugar),
+        goals = if (hasTargets) DailyGoals(profile.calGoal, profile.carbsGoal, profile.fatGoal) else null,
+    )
 
     Column(
         modifier = Modifier
@@ -231,8 +251,10 @@ fun ResultScreen(
                 .border(1.dp, BorderColor, RoundedCornerShape(RadiusXL))
         ) {
             Column {
-                // Banner Image (a reopened meal has no photo; don't show the stock one)
-                if (capturedImageBytes != null || !isEditingLoggedMeal) Box(
+                // Banner Image: the scan's photo, or a reopened meal's saved photo. A reopened
+                // meal without one shows none rather than the stock picture.
+                val photo: Any? = capturedImageBytes ?: savedPhoto
+                if (photo != null || !isEditingLoggedMeal) Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
@@ -240,9 +262,9 @@ fun ResultScreen(
                         // F1.1: SurfaceTint replaces Color(0xFFF1F5F9)
                         .background(SurfaceTint)
                 ) {
-                    if (capturedImageBytes != null) {
+                    if (photo != null) {
                         AsyncImage(
-                            model = capturedImageBytes,
+                            model = photo,
                             contentDescription = "Meal Photo",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
@@ -441,8 +463,13 @@ fun ResultScreen(
                                     MacroGridCard("Fats", "${totalFat.toInt()}g", if (hasTargets) "$fatPercent%" else "", FatColor)
                                 }
                             }
+                            SugarLine(totalSugar)
                         }
                     }
+                }
+
+                if (overNotes.isNotEmpty()) {
+                    OverTargetNote(overNotes, modifier = Modifier.padding(horizontal = 24.dp).padding(top = 16.dp))
                 }
 
                 // Action Buttons
@@ -1191,3 +1218,45 @@ private fun FixHintField(
         }
     }
 }
+
+/** Sugar for the meal against the daily guideline (FitCal estimates total sugars). */
+@Composable
+private fun SugarLine(sugarG: Float) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Box(modifier = Modifier.size(6.dp).background(SugarColor, CircleShape))
+        Text("Sugar", style = BrandTypography.BodySmall, color = MutedTextColor)
+        Text(
+            "${sugarG.roundToInt()} g",
+            style = BrandTypography.BodySmall,
+            fontWeight = FontWeight.SemiBold,
+            color = TextColor,
+        )
+        Spacer(Modifier.weight(1f))
+        Text(
+            "${(sugarG / SUGAR_GUIDELINE_G * 100).roundToInt()}% of the $SUGAR_GUIDELINE_G g daily guideline",
+            style = BrandTypography.BodySmall,
+            color = MutedTextColor,
+        )
+    }
+}
+
+/** Calm amber note listing what logging this meal takes past a goal. Information, not a block. */
+@Composable
+fun OverTargetNote(notes: List<String>, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(WarningSoft, RoundedCornerShape(RadiusM))
+            .border(1.dp, WarningColor.copy(alpha = 0.35f), RoundedCornerShape(RadiusM))
+            .padding(14.dp)
+            .semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        notes.forEach { Text(it, style = BrandTypography.BodySmall, color = WarningText) }
+    }
+}
+

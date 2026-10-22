@@ -39,7 +39,8 @@ import com.fitcal.shared.model.LoggedMeal
  * favourites row doesn't fill up with duplicates.
  */
 fun LoggedMeal.copyAsNewLog(newId: String, today: String, time: String): LoggedMeal =
-    copy(id = newId, date = today, timestamp = time, favorite = false)
+    // The photo belongs to the original plate, so the copy has none.
+    copy(id = newId, date = today, timestamp = time, favorite = false, photoPath = null)
 
 // ── Favourites and recents ─────────────────────────────────────────────────────
 

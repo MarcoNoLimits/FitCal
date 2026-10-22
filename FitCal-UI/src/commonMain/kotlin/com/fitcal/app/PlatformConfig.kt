@@ -95,3 +95,15 @@ expect fun initPrivacyConsentStore()
  */
 internal expect fun createConsentStorage(): com.fitcal.app.privacy.PrivacyConsent.ConsentStorage
 
+/**
+ * Meal photos kept on this device only (owner decision 2026-10-22): never uploaded or synced,
+ * so a reinstall or a new phone has the meals but not their photos.
+ * [saveMealPhoto] returns the stored file's path, or null when it can't be saved.
+ */
+expect fun saveMealPhoto(mealId: String, jpegBytes: ByteArray): String?
+
+/** Deletes stored photos whose meal id is not in [keepMealIds] (deleted meals, cleared data). */
+expect fun pruneMealPhotos(keepMealIds: Set<String>)
+
+/** A model Coil can load for a stored photo path, or null when the file is gone. */
+expect fun mealPhotoModel(path: String?): Any?

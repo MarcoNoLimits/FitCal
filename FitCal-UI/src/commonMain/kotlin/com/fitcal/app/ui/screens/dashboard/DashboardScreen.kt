@@ -25,6 +25,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import com.fitcal.app.mealPhotoModel
+import com.fitcal.app.nutrition.SUGAR_GUIDELINE_G
+import com.fitcal.app.nutrition.isOver
+import com.fitcal.app.ui.screens.dashboard.components.SugarGuidelineBar
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
@@ -157,6 +161,7 @@ fun DashboardScreen(
     val totalProtein = filteredMeals.sumOf { it.protein.toDouble() }.toFloat()
     val totalCarbs = filteredMeals.sumOf { it.carbs.toDouble() }.toFloat()
     val totalFat = filteredMeals.sumOf { it.fat.toDouble() }.toFloat()
+    val totalSugar = filteredMeals.sumOf { it.sugar.toDouble() }.toFloat()
 
     // Targets are optional: without a plan or own numbers, show what was eaten, no goals.
     val targetsMode = remember(profile) { profile.resolvedTargetsMode() }
@@ -428,14 +433,19 @@ fun DashboardScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
-                        DashboardMacroCard("Protein", "${totalProtein.toInt()}g", if (hasTargets) "$proteinPercent%" else "", ProteinColor) { onOpenGuide(GuideIds.PROTEIN) }
+                        DashboardMacroCard("Protein", "${totalProtein.toInt()}g", if (hasTargets) "$proteinPercent%" else "", ProteinColor, over = false) { onOpenGuide(GuideIds.PROTEIN) }
                     }
                     Box(modifier = Modifier.weight(1f)) {
-                        DashboardMacroCard("Carbs", "${totalCarbs.toInt()}g", if (hasTargets) "$carbsPercent%" else "", CarbsColor) { onOpenGuide(GuideIds.CARBS) }
+                        DashboardMacroCard("Carbs", "${totalCarbs.toInt()}g", if (hasTargets) "$carbsPercent%" else "", CarbsColor, over = hasTargets && isOver(totalCarbs, profile.carbsGoal)) { onOpenGuide(GuideIds.CARBS) }
                     }
                     Box(modifier = Modifier.weight(1f)) {
-                        DashboardMacroCard("Fats", "${totalFat.toInt()}g", if (hasTargets) "$fatPercent%" else "", FatColor) { onOpenGuide(GuideIds.FAT) }
+                        DashboardMacroCard("Fats", "${totalFat.toInt()}g", if (hasTargets) "$fatPercent%" else "", FatColor, over = hasTargets && isOver(totalFat, profile.fatGoal)) { onOpenGuide(GuideIds.FAT) }
                     }
+                }
+
+                // Only once something is logged, so an empty day stays uncluttered.
+                if (filteredMeals.isNotEmpty()) {
+                    SugarGuidelineBar(totalSugar, SUGAR_GUIDELINE_G) { onOpenGuide(GuideIds.SUGAR) }
                 }
 
                 // Optional personal plan: invitation, check-in, or target reached
@@ -617,7 +627,18 @@ fun DashboardScreen(
                                             // F1.1: was Color(0xFFF1F5F9) → SurfaceTint
                                             .background(SurfaceTint, CircleShape)
                                     ) {
-                                        Text(text = emoji, fontSize = 24.sp) // non-interactive decoration
+                                        // The meal's own photo when this phone has it, else an emoji.
+                                        val photo = remember(meal.photoPath) { mealPhotoModel(meal.photoPath) }
+                                        if (photo != null) {
+                                            coil3.compose.AsyncImage(
+                                                model = photo,
+                                                contentDescription = null,
+                                                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                                modifier = Modifier.fillMaxSize().clip(CircleShape),
+                                            )
+                                        } else {
+                                            Text(text = emoji, fontSize = 24.sp) // non-interactive decoration
+                                        }
                                     }
 
                                     Column(modifier = Modifier.weight(1f)) {
