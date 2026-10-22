@@ -257,3 +257,7 @@ actual fun syncPlatformMealReminders(
     }
 }
 
+// iOS is not a v1 target: meal photos are not stored there.
+actual fun saveMealPhoto(mealId: String, jpegBytes: ByteArray): String? = null
+actual fun pruneMealPhotos(keepMealIds: Set<String>) {}
+actual fun mealPhotoModel(path: String?): Any? = null

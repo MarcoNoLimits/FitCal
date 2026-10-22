@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.fitcal.app.ui.theme.*
+import kotlin.math.roundToInt
 
 @Composable
 fun DashboardMacroCard(
@@ -26,6 +27,8 @@ fun DashboardMacroCard(
     value: String,
     percent: String,
     color: Color,
+    // Past the daily goal: the caption turns amber. Information only, never a red alarm.
+    over: Boolean = false,
     onLearnMore: (() -> Unit)? = null
 ) {
     // Tapping opens the guide for this macro; the small info icon hints that it's tappable.
@@ -65,7 +68,7 @@ fun DashboardMacroCard(
                         )
                     }
                 }
-                Box(modifier = Modifier.size(5.dp).background(color, CircleShape))
+                Box(modifier = Modifier.size(5.dp).background(if (over) WarningColor else color, CircleShape))
             }
             // F2.1: KpiNumeral replaces 16.sp inline
             Text(
@@ -77,11 +80,61 @@ fun DashboardMacroCard(
             // Note: 9.sp eliminated per spec; BodySmall is the closest permitted size for muted text
             Text(
                 // Without targets (no plan or own numbers) there is no goal to compare with.
-                text = if (percent.isEmpty()) "eaten" else "$percent of goal",
+                text = when {
+                    percent.isEmpty() -> "eaten"
+                    over -> "$percent · over goal"
+                    else -> "$percent of goal"
+                },
                 style = BrandTypography.BodySmall,
-                color = MutedTextColor
+                color = if (over) WarningText else MutedTextColor
             )
         }
     }
     }
 }
+
+/**
+ * Today's sugar against the WHO guideline (about 50 g of free sugars a day). FitCal estimates
+ * total sugars, so the bar is a guide; past the guideline it turns amber, never red.
+ */
+@Composable
+fun SugarGuidelineBar(sugarG: Float, guidelineG: Int, onLearnMore: (() -> Unit)? = null) {
+    val over = sugarG > guidelineG
+    val fraction = if (guidelineG > 0) (sugarG / guidelineG).coerceIn(0f, 1f) else 0f
+    PressableBox(onTap = { onLearnMore?.invoke() }) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(1.dp, RoundedCornerShape(RadiusM))
+                .background(Color.White, RoundedCornerShape(RadiusM))
+                .border(1.dp, SurfaceTint, RoundedCornerShape(RadiusM))
+                .padding(12.dp)
+                .semantics(mergeDescendants = true) {},
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("Sugar", style = BrandTypography.Eyebrow, color = MutedTextColor)
+                Spacer(Modifier.weight(1f))
+                Text(
+                    "${sugarG.roundToInt()} g of about $guidelineG g",
+                    style = BrandTypography.BodySmall,
+                    color = if (over) WarningText else TextColor,
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .background(SurfaceTint, RoundedCornerShape(3.dp))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction)
+                        .fillMaxHeight()
+                        .background(if (over) WarningColor else SugarColor, RoundedCornerShape(3.dp))
+                )
+            }
+        }
+    }
+}
+

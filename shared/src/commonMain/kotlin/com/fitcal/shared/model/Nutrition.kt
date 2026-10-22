@@ -1,4 +1,4 @@
-﻿package com.fitcal.shared.model
+package com.fitcal.shared.model
 
 import kotlinx.serialization.Serializable
 
@@ -18,7 +18,10 @@ data class FoodItem(
     val protein_g: Float,
     val carbs_g: Float,
     val fat_g: Float,
-    val confidence: String
+    val confidence: String,
+    // Total sugars (natural + added). Absent from estimates and meals made before sugar was
+    // tracked, which read as 0.
+    val sugar_g: Float = 0f
 )
 
 @Serializable
@@ -26,5 +29,6 @@ data class Totals(
     val calories: Int,
     val protein_g: Float,
     val carbs_g: Float,
-    val fat_g: Float
+    val fat_g: Float,
+    val sugar_g: Float = 0f
 )

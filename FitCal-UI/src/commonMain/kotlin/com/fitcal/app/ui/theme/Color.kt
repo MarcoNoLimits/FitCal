@@ -1,4 +1,4 @@
-﻿package com.fitcal.app.ui.theme
+package com.fitcal.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -17,6 +17,12 @@ val SecondaryAccent = Color(0xFF64748B) // Slate 500
 val ProteinColor = Color(0xFF34D399)    // Emerald 400
 val CarbsColor = Color(0xFF60A5FA)      // Blue 400
 val FatColor = Color(0xFFFBBF24)        // Amber 400
+val SugarColor = Color(0xFFF472B6)      // Pink 400
+
+// Over-target notes: calm amber, not error red.
+val WarningColor = Color(0xFFF59E0B)      // Amber 500 — over-target bar and dot
+val WarningSoft = Color(0xFFFFFBEB)       // Amber 50  — note background
+val WarningText = Color(0xFF92400E)       // Amber 800 — note text
 
 // ── F1.1 Semantic tokens ─────────────────────────────────────────────────────
 // Danger / error palette

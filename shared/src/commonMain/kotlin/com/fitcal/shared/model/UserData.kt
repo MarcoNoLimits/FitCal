@@ -1,4 +1,4 @@
-﻿package com.fitcal.shared.model
+package com.fitcal.shared.model
 
 import kotlinx.serialization.Serializable
 
@@ -59,8 +59,14 @@ data class LoggedMeal(
     val items: List<FoodItem> = emptyList(),
     // Starred by the user for one-tap logging from the dashboard. Absent in meals saved before
     // favourites existed, which load as not starred.
-    val favorite: Boolean = false
-)
+    val favorite: Boolean = false,
+    // On-device path of the meal's photo (never uploaded; see MealPhotoStore). Null for typed,
+    // barcode and older meals, and on another device after a sync.
+    val photoPath: String? = null
+) {
+    /** Total sugars, from the stored ingredients (they sync with the meal). 0 for older meals. */
+    val sugar: Float get() = items.sumOf { it.sugar_g.toDouble() }.toFloat()
+}
 
 @Serializable
 data class LoggedMealsWrapper(
