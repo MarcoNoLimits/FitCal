@@ -107,3 +107,16 @@ expect fun pruneMealPhotos(keepMealIds: Set<String>)
 
 /** A model Coil can load for a stored photo path, or null when the file is gone. */
 expect fun mealPhotoModel(path: String?): Any?
+
+/** Today's numbers for the home-screen widget. [calorieGoal] 0 = no targets (show "eaten"). */
+data class WidgetSummary(
+    val date: String,
+    val calories: Int,
+    val calorieGoal: Int,
+    val proteinG: Int,
+    val carbsG: Int,
+    val fatG: Int,
+)
+
+/** Stores [summary] for the home-screen widget and redraws any placed widgets. No-op elsewhere. */
+expect fun updateHomeWidget(summary: WidgetSummary)

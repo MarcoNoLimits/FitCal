@@ -261,3 +261,6 @@ actual fun syncPlatformMealReminders(
 actual fun saveMealPhoto(mealId: String, jpegBytes: ByteArray): String? = null
 actual fun pruneMealPhotos(keepMealIds: Set<String>) {}
 actual fun mealPhotoModel(path: String?): Any? = null
+
+// iOS is not a v1 target: no home-screen widget there.
+actual fun updateHomeWidget(summary: WidgetSummary) {}

@@ -1,6 +1,8 @@
 package com.fitcal.app
 
 import com.fitcal.app.nutrition.dayTotals
+import kotlin.math.roundToInt
+import com.fitcal.app.plan.hasDailyTargets
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -544,6 +546,31 @@ fun App() {
             // Client-side mock mode is retired. The gateway controls mock responses via FITCAL_ENV=dev.
             // Keep isMockMode = false so CameraScreen/ResultScreen compile without changes.
             val isMockMode = false
+
+            // Widget's Scan button: open the camera once the app can navigate (after consent).
+            val pendingLaunch by PendingLaunchAction.action.collectAsState()
+            LaunchedEffect(pendingLaunch) {
+                if (pendingLaunch == LaunchAction.SCAN && PendingLaunchAction.take() == LaunchAction.SCAN) {
+                    Analytics.track("widget_scan_opened")
+                    navController.navigate(CameraDestination) { launchSingleTop = true }
+                }
+            }
+
+            // Keep the home-screen widget in step with today's meals and targets.
+            val todayKey = getCurrentDateString()
+            LaunchedEffect(allMeals, userProfile, todayKey) {
+                val today = allMeals.filter { it.date == todayKey }.dayTotals()
+                updateHomeWidget(
+                    WidgetSummary(
+                        date = todayKey,
+                        calories = today.calories,
+                        calorieGoal = if (userProfile.hasDailyTargets()) userProfile.calGoal else 0,
+                        proteinG = today.protein.roundToInt(),
+                        carbsG = today.carbs.roundToInt(),
+                        fatG = today.fat.roundToInt(),
+                    )
+                )
+            }
 
             NavHost(
                 navController = navController,

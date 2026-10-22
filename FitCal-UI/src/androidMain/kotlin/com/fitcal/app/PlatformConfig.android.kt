@@ -305,3 +305,12 @@ actual fun pruneMealPhotos(keepMealIds: Set<String>) {
 
 actual fun mealPhotoModel(path: String?): Any? =
     path?.let { java.io.File(it) }?.takeIf { it.isFile }
+
+actual fun updateHomeWidget(summary: WidgetSummary) {
+    if (!isAppContextReady) return
+    try {
+        com.fitcal.app.widget.TodayWidgetProvider.save(appContext, summary)
+    } catch (_: Exception) {
+        // The widget is a convenience; never let it break the app.
+    }
+}
