@@ -29,6 +29,12 @@ import com.fitcal.app.ui.screens.describe.DescribeMealScreen
 import com.fitcal.app.ui.navigation.EditMealDestination
 import com.fitcal.app.ui.navigation.GoalQuizDestination
 import com.fitcal.app.plan.GoalQuizPolicy
+import com.fitcal.app.plan.acceptCalorieSuggestion
+import com.fitcal.app.plan.calorieSuggestion
+import com.fitcal.app.plan.dismissCalorieSuggestion
+import com.fitcal.app.ui.screens.progress.WeeklySummaryPrefs
+import com.fitcal.app.ui.screens.progress.lastCompletedWeek
+import com.fitcal.app.ui.screens.progress.weeklySummaryFor
 import com.fitcal.app.ui.screens.plan.GoalQuizOffer
 import com.fitcal.app.ui.screens.plan.GoalQuizScreen
 import com.fitcal.app.ui.navigation.PlanDestination
@@ -336,6 +342,9 @@ fun App() {
             // True once startup has loaded the account's synced profile (or found it offline),
             // so first-open offers never judge a returning user by the placeholder profile.
             var bootSyncDone by remember { mutableStateOf(false) }
+            var weeklySummaryCard by remember {
+                mutableStateOf<Pair<com.fitcal.app.ui.screens.progress.SummaryWeek, com.fitcal.app.ui.screens.progress.WeekSummary>?>(null)
+            }
 
             var scansRemainingToday by remember(selectedDateKey) {
                 mutableStateOf(ScanQuotaManager.getRemainingScans(selectedDateKey))
@@ -627,6 +636,23 @@ fun App() {
                             },
                         )
                     }
+                    // Adjusting target: recomputed as weigh-ins, meals or the plan change.
+                    val calorieSuggestion = remember(userProfile, weightEntries, allMeals) {
+                        userProfile.calorieSuggestion(weightEntries, allMeals, getCurrentDateString())
+                    }
+                    LaunchedEffect(calorieSuggestion) {
+                        calorieSuggestion?.let { Analytics.track("plan_adjustment_shown", "delta_kcal" to it.deltaKcal) }
+                    }
+                    // Last week's summary, once per week, after the meal history has loaded.
+                    LaunchedEffect(allMeals, bootSyncDone, userProfile) {
+                        if (!bootSyncDone || weeklySummaryCard != null) return@LaunchedEffect
+                        val week = lastCompletedWeek(getCurrentDateString()) ?: return@LaunchedEffect
+                        if (!WeeklySummaryPrefs.isDue(week)) return@LaunchedEffect
+                        val summary = weeklySummaryFor(allMeals, week, if (userProfile.hasDailyTargets()) userProfile.calGoal else null)
+                            ?: return@LaunchedEffect
+                        weeklySummaryCard = week to summary
+                        Analytics.track("weekly_summary_shown", "logged_days" to summary.loggedDays)
+                    }
                     DashboardScreen(
                         meals = loggedMeals,
                         profile = userProfile,
@@ -748,6 +774,35 @@ fun App() {
                         onOpenProgress = {
                             Analytics.track("progress_opened", "weight_entries" to weightEntries.size)
                             navController.navigate(ProgressDestination)
+                        },
+                        calorieSuggestion = calorieSuggestion,
+                        onAcceptSuggestion = {
+                            val s = calorieSuggestion ?: return@DashboardScreen
+                            val updated = userProfile.acceptCalorieSuggestion(s, getCurrentDateString())
+                            Analytics.track(
+                                "plan_adjustment_accepted",
+                                "delta_kcal" to s.deltaKcal,
+                                "actual_kg_week" to s.actualKgPerWeek,
+                                "planned_kg_week" to s.plannedKgPerWeek,
+                            )
+                            coroutineScope.launch {
+                                userRepository.saveUserProfile(updated)
+                                userProfile = updated
+                            }
+                        },
+                        onDismissSuggestion = {
+                            Analytics.track("plan_adjustment_dismissed", "delta_kcal" to (calorieSuggestion?.deltaKcal ?: 0))
+                            val updated = userProfile.dismissCalorieSuggestion(getCurrentDateString())
+                            coroutineScope.launch {
+                                userRepository.saveUserProfile(updated)
+                                userProfile = updated
+                            }
+                        },
+                        weeklySummary = weeklySummaryCard,
+                        onDismissWeeklySummary = {
+                            weeklySummaryCard?.first?.let { WeeklySummaryPrefs.markSeen(it) }
+                            Analytics.track("weekly_summary_dismissed")
+                            weeklySummaryCard = null
                         },
                     )
                 }
