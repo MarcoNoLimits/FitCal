@@ -27,6 +27,7 @@ fun FoodItem.toEditable(index: Int): EditableFoodItem {
         fatPerGram = perGram(fat_g),
         confidence = confidence,
         sugarPerGram = perGram(sugar_g),
+        fiberPerGram = perGram(fiber_g),
     )
 }
 
@@ -42,6 +43,7 @@ fun List<EditableFoodItem>.toFoodItems(): List<FoodItem> = map {
         fat_g = it.fatPerGram * weight,
         confidence = it.confidence,
         sugar_g = it.sugarPerGram * weight,
+        fiber_g = it.fiberPerGram * weight,
     )
 }
 
@@ -66,7 +68,7 @@ fun LoggedMeal.toEditableResponse(): NutritionResponse {
     return NutritionResponse(
         meal_name = name,
         items = editableItems,
-        totals = Totals(calories, protein, carbs, fat, sugar),
+        totals = Totals(calories, protein, carbs, fat, sugar, fiber),
         estimation_notes = "",
     )
 }

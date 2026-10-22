@@ -45,6 +45,7 @@ import com.fitcal.app.plan.hasDailyTargets
 import com.fitcal.app.nutrition.DailyGoals
 import com.fitcal.app.nutrition.DayTotals
 import com.fitcal.app.nutrition.SUGAR_GUIDELINE_G
+import com.fitcal.app.nutrition.FIBER_GUIDE_G
 import com.fitcal.app.nutrition.overTargetNotes
 import androidx.compose.ui.semantics.semantics
 import kotlin.math.roundToInt
@@ -152,6 +153,10 @@ fun ResultScreen(
         val weight = it.currentWeightStr.toIntOrNull() ?: 0
         (it.sugarPerGram * weight).toDouble()
     }.toFloat()
+    val totalFiber = editableItems.sumOf {
+        val weight = it.currentWeightStr.toIntOrNull() ?: 0
+        (it.fiberPerGram * weight).toDouble()
+    }.toFloat()
 
     // "% of daily goal" only when the user has targets (a plan or their own numbers).
     val hasTargets = profile.hasDailyTargets()
@@ -160,7 +165,7 @@ fun ResultScreen(
     val fatPercent = macroPercentOfGoal(totalFat, profile.fatGoal)
     val overNotes = overTargetNotes(
         before = eatenBeforeThisMeal,
-        meal = DayTotals(totalCalories, totalProtein, totalCarbs, totalFat, totalSugar),
+        meal = DayTotals(totalCalories, totalProtein, totalCarbs, totalFat, totalSugar, totalFiber),
         goals = if (hasTargets) DailyGoals(profile.calGoal, profile.carbsGoal, profile.fatGoal) else null,
     )
 
@@ -464,6 +469,7 @@ fun ResultScreen(
                                 }
                             }
                             SugarLine(totalSugar)
+                            FiberLine(totalFiber)
                         }
                     }
                 }
@@ -1238,6 +1244,31 @@ private fun SugarLine(sugarG: Float) {
         Spacer(Modifier.weight(1f))
         Text(
             "${(sugarG / SUGAR_GUIDELINE_G * 100).roundToInt()}% of the $SUGAR_GUIDELINE_G g daily guideline",
+            style = BrandTypography.BodySmall,
+            color = MutedTextColor,
+        )
+    }
+}
+
+/** Fibre for the meal, as progress towards the daily guide (more is better, so no warning). */
+@Composable
+private fun FiberLine(fiberG: Float) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Box(modifier = Modifier.size(6.dp).background(FiberColor, CircleShape))
+        Text("Fibre", style = BrandTypography.BodySmall, color = MutedTextColor)
+        Text(
+            "${fiberG.roundToInt()} g",
+            style = BrandTypography.BodySmall,
+            fontWeight = FontWeight.SemiBold,
+            color = TextColor,
+        )
+        Spacer(Modifier.weight(1f))
+        Text(
+            "${(fiberG / FIBER_GUIDE_G * 100).roundToInt()}% of the $FIBER_GUIDE_G g daily guide",
             style = BrandTypography.BodySmall,
             color = MutedTextColor,
         )

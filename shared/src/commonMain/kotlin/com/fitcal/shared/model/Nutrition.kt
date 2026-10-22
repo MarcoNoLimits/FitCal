@@ -21,7 +21,9 @@ data class FoodItem(
     val confidence: String,
     // Total sugars (natural + added). Absent from estimates and meals made before sugar was
     // tracked, which read as 0.
-    val sugar_g: Float = 0f
+    val sugar_g: Float = 0f,
+    // Dietary fibre, part of carbs. Absent from older estimates and meals, which read as 0.
+    val fiber_g: Float = 0f
 )
 
 @Serializable
@@ -30,5 +32,6 @@ data class Totals(
     val protein_g: Float,
     val carbs_g: Float,
     val fat_g: Float,
-    val sugar_g: Float = 0f
+    val sugar_g: Float = 0f,
+    val fiber_g: Float = 0f
 )

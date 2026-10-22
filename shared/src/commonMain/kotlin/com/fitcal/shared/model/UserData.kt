@@ -66,6 +66,9 @@ data class LoggedMeal(
 ) {
     /** Total sugars, from the stored ingredients (they sync with the meal). 0 for older meals. */
     val sugar: Float get() = items.sumOf { it.sugar_g.toDouble() }.toFloat()
+
+    /** Dietary fibre, from the stored ingredients. 0 for older meals. */
+    val fiber: Float get() = items.sumOf { it.fiber_g.toDouble() }.toFloat()
 }
 
 @Serializable

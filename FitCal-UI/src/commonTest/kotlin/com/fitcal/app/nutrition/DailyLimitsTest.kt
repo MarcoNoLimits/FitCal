@@ -81,4 +81,17 @@ class DailyLimitsTest {
         assertFalse(isOver(70f, 70))
         assertFalse(isOver(500f, 0))
     }
+
+    @Test
+    fun fibreIsSummedButNeverWarnsAboutGoingOver() {
+        val meal = LoggedMeal(
+            id = "1", name = "x", calories = 0, protein = 0f, carbs = 0f, fat = 0f, timestamp = "",
+            items = listOf(FoodItem("oats", 80, 0, 0f, 0f, 0f, "high", fiber_g = 8f), FoodItem("beans", 150, 0, 0f, 0f, 0f, "high", fiber_g = 9f)),
+        )
+        assertEquals(17f, meal.fiber)
+        assertEquals(17f, listOf(meal).dayTotals().fiber)
+        val notes = overTargetNotes(DayTotals(fiber = 40f), DayTotals(fiber = 20f), goals)
+        assertTrue(notes.isEmpty())
+    }
 }
+

@@ -94,13 +94,18 @@ fun DashboardMacroCard(
 }
 
 /**
- * Today's sugar against the WHO guideline (about 50 g of free sugars a day). FitCal estimates
- * total sugars, so the bar is a guide; past the guideline it turns amber, never red.
+ * Today's sugar and fibre. Sugar is shown against the WHO guideline (about 50 g of free sugars;
+ * FitCal estimates total sugars, so it is a guide) and turns amber past it, never red. Fibre is a
+ * "get enough" value, shown as progress towards the daily guide, and never warns.
  */
 @Composable
-fun SugarGuidelineBar(sugarG: Float, guidelineG: Int, onLearnMore: (() -> Unit)? = null) {
-    val over = sugarG > guidelineG
-    val fraction = if (guidelineG > 0) (sugarG / guidelineG).coerceIn(0f, 1f) else 0f
+fun SugarFiberCard(
+    sugarG: Float,
+    sugarGuidelineG: Int,
+    fiberG: Float,
+    fiberGuideG: Int,
+    onLearnMore: (() -> Unit)? = null,
+) {
     PressableBox(onTap = { onLearnMore?.invoke() }) {
         Column(
             modifier = Modifier
@@ -108,33 +113,52 @@ fun SugarGuidelineBar(sugarG: Float, guidelineG: Int, onLearnMore: (() -> Unit)?
                 .shadow(1.dp, RoundedCornerShape(RadiusM))
                 .background(Color.White, RoundedCornerShape(RadiusM))
                 .border(1.dp, SurfaceTint, RoundedCornerShape(RadiusM))
-                .padding(12.dp)
-                .semantics(mergeDescendants = true) {},
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("Sugar", style = BrandTypography.Eyebrow, color = MutedTextColor)
-                Spacer(Modifier.weight(1f))
-                Text(
-                    "${sugarG.roundToInt()} g of about $guidelineG g",
-                    style = BrandTypography.BodySmall,
-                    color = if (over) WarningText else TextColor,
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp)
-                    .background(SurfaceTint, RoundedCornerShape(3.dp))
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(fraction)
-                        .fillMaxHeight()
-                        .background(if (over) WarningColor else SugarColor, RoundedCornerShape(3.dp))
-                )
-            }
+            val sugarOver = sugarG > sugarGuidelineG
+            GuideBar(
+                label = "Sugar",
+                value = "${sugarG.roundToInt()} g of about $sugarGuidelineG g",
+                fraction = if (sugarGuidelineG > 0) sugarG / sugarGuidelineG else 0f,
+                color = if (sugarOver) WarningColor else SugarColor,
+                valueColor = if (sugarOver) WarningText else TextColor,
+            )
+            GuideBar(
+                label = "Fibre",
+                value = if (fiberG >= fiberGuideG) "${fiberG.roundToInt()} g · daily guide reached"
+                else "${fiberG.roundToInt()} g of $fiberGuideG g",
+                fraction = if (fiberGuideG > 0) fiberG / fiberGuideG else 0f,
+                color = FiberColor,
+                valueColor = TextColor,
+            )
         }
     }
 }
 
+@Composable
+private fun GuideBar(label: String, value: String, fraction: Float, color: Color, valueColor: Color) {
+    Column(
+        modifier = Modifier.semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(label, style = BrandTypography.Eyebrow, color = MutedTextColor)
+            Spacer(Modifier.weight(1f))
+            Text(value, style = BrandTypography.BodySmall, color = valueColor)
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .background(SurfaceTint, RoundedCornerShape(3.dp))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(fraction.coerceIn(0f, 1f))
+                    .fillMaxHeight()
+                    .background(color, RoundedCornerShape(3.dp))
+            )
+        }
+    }
+}

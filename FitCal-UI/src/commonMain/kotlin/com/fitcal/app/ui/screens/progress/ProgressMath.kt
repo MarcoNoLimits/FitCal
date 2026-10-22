@@ -92,6 +92,7 @@ data class DayTotals(
     val carbsG: Int = 0,
     val fatG: Int = 0,
     val sugarG: Int = 0,
+    val fiberG: Int = 0,
     val meals: Int = 0,
 )
 
@@ -111,6 +112,7 @@ fun dailyTotals(meals: List<LoggedMeal>, today: String, days: Int = 7): List<Day
             carbsG = dayMeals.sumOf { it.carbs.toDouble() }.roundToInt(),
             fatG = dayMeals.sumOf { it.fat.toDouble() }.roundToInt(),
             sugarG = dayMeals.sumOf { it.sugar.toDouble() }.roundToInt(),
+            fiberG = dayMeals.sumOf { it.fiber.toDouble() }.roundToInt(),
             meals = dayMeals.size,
         )
     }
