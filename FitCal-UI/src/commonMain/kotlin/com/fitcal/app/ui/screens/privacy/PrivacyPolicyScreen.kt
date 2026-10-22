@@ -183,8 +183,10 @@ private fun PrivacyPolicyContent() {
     }
 
     PolicySection("How long we keep data") {
-        "Meal photographs and nutrition logs are retained until you delete them or " +
-            "close your account. Our servers do not keep a separate cache of analysis results. " +
+        "Meal photographs are not stored on our servers: they are sent to the AI provider " +
+            "only to make the estimate, and kept on your phone to show next to the meal. " +
+            "Deleting the meal, clearing the app's data or uninstalling the app removes them. " +
+            "Nutrition logs are retained until you delete them or close your account. Our servers do not keep a separate cache of analysis results. " +
             "App usage events are retained for up to 13 months, feedback for up to 24 months. " +
             "Crash and diagnostic logs are retained for up to 90 days."
     }

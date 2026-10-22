@@ -42,7 +42,8 @@ import com.fitcal.shared.model.UserProfile
 
 /**
  * Optional personal plan: goal → body → activity → target weight and pace → targets.
- * Opened only when the user asks for it (dashboard card or Settings); never at first launch.
+ * Opened when the user asks for it (dashboard card or Settings). At first launch it is only
+ * offered, as the step-by-step GoalQuizScreen, and can be skipped.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -324,7 +325,7 @@ private fun PlanCard(title: String, content: @Composable ColumnScope.() -> Unit)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun <T> ChipRow(options: List<T>, selected: T, label: (T) -> String, onSelect: (T) -> Unit) {
+internal fun <T> ChipRow(options: List<T>, selected: T, label: (T) -> String, onSelect: (T) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         options.forEach { option ->
             val isSelected = option == selected
@@ -366,7 +367,7 @@ private fun <T> ChipRow(options: List<T>, selected: T, label: (T) -> String, onS
 }
 
 @Composable
-private fun PaceRow(
+internal fun PaceRow(
     title: String,
     detail: String,
     selected: Boolean,

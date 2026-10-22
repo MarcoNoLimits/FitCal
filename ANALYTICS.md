@@ -67,6 +67,9 @@ Every client event also carries `session_id`, `client_ts`, `app_version` and `pl
 | Event | Properties |
 |---|---|
 | `sign_in_prompt_shown` / `_dismissed` / `_accepted` | `meals_logged` (shown) |
+| `goal_quiz_offered` / `goal_quiz_started` | (none; the one-time first-open goal quiz offer) |
+| `goal_quiz_skipped` | `step` (`offer` or `quiz`) |
+| `goal_quiz_completed` | `goal_type`, `pace`, `activity_level` |
 | `signin_card_shown` / `signin_card_accept` / `signin_card_dismiss` | (none; the one-time first-open "Create a free account" card for guests, AGENTS.md 5.2a) |
 | `auth_started` | `method` (`google`, `apple`) |
 | `sign_up_started` | `outcome` (`CodeSent`, `Completed`, `EmailAlreadyRegistered`) |
