@@ -25,6 +25,10 @@ import com.fitcal.app.ui.navigation.DashboardDestination
 import com.fitcal.app.ui.navigation.DescribeMealDestination
 import com.fitcal.app.ui.screens.describe.DescribeMealScreen
 import com.fitcal.app.ui.navigation.EditMealDestination
+import com.fitcal.app.ui.navigation.GoalQuizDestination
+import com.fitcal.app.plan.GoalQuizPolicy
+import com.fitcal.app.ui.screens.plan.GoalQuizOffer
+import com.fitcal.app.ui.screens.plan.GoalQuizScreen
 import com.fitcal.app.ui.navigation.PlanDestination
 import com.fitcal.app.ui.screens.plan.PlanSetupScreen
 import com.fitcal.app.plan.BodyStats
@@ -326,6 +330,10 @@ fun App() {
                 pruneMealPhotos(stored.mapTo(mutableSetOf()) { it.id })
             }
             var showSignInCard by remember { mutableStateOf(false) }
+            var showQuizOffer by remember { mutableStateOf(false) }
+            // True once startup has loaded the account's synced profile (or found it offline),
+            // so first-open offers never judge a returning user by the placeholder profile.
+            var bootSyncDone by remember { mutableStateOf(false) }
 
             var scansRemainingToday by remember(selectedDateKey) {
                 mutableStateOf(ScanQuotaManager.getRemainingScans(selectedDateKey))
@@ -450,9 +458,12 @@ fun App() {
                     // Background sync
                     pullAccountHistory()
                     (userRepository as? com.fitcal.shared.data.SupabaseUserRepository)?.pullRemote(selectedDateKey)
+                    // Show the synced profile (targets, plan) right away, not after a restart.
+                    userProfile = userRepository.getUserProfile()
                     syncEngine.flushOutbox()
                     Analytics.flush()
                 }
+                bootSyncDone = true
 
                 // Ad preload + Meal Scan Reminder Notifications
                 adManager.preloadAds()
@@ -543,8 +554,32 @@ fun App() {
                     // One-time "Create a free account" card for guests (AGENTS.md 5.2a). Only on the
                     // dashboard, never over the camera, and only once the boot sign-in has told us
                     // whether this is a guest.
-                    LaunchedEffect(authReady, userEmail) {
-                        if (!showSignInCard &&
+                    // One-time goal quiz offer (owner decision 2026-10-22). Comes first; the
+                    // sign-in card waits until it has been answered, so they never stack.
+                    LaunchedEffect(userProfile, bootSyncDone) {
+                        if (bootSyncDone && !showQuizOffer && GoalQuizPolicy.shouldOffer(userProfile)) {
+                            GoalQuizPolicy.recordOffered()
+                            showQuizOffer = true
+                            Analytics.track("goal_quiz_offered")
+                        }
+                    }
+                    if (showQuizOffer) {
+                        GoalQuizOffer(
+                            onStart = {
+                                showQuizOffer = false
+                                Analytics.track("goal_quiz_started")
+                                navController.navigate(GoalQuizDestination)
+                            },
+                            onSkip = {
+                                showQuizOffer = false
+                                Analytics.track("goal_quiz_skipped", "step" to "offer")
+                            },
+                        )
+                    }
+                    LaunchedEffect(authReady, userEmail, showQuizOffer, bootSyncDone) {
+                        // Wait for the quiz offer to be answered (or not be due at all).
+                        val quizPending = !bootSyncDone || GoalQuizPolicy.shouldOffer(userProfile)
+                        if (!showSignInCard && !showQuizOffer && !quizPending &&
                             SignInCardPolicy.shouldShow(isPermanentUser = userEmail != null, signInSettled = authReady == true)
                         ) {
                             SignInCardPolicy.recordShown()
@@ -936,6 +971,28 @@ fun App() {
                                 popUpTo(DashboardDestination)
                             }
                         },
+                    )
+                }
+
+                composable<GoalQuizDestination> {
+                    GoalQuizScreen(
+                        profile = userProfile,
+                        today = getCurrentDateString(),
+                        onFinish = { updated ->
+                            Analytics.track(
+                                "goal_quiz_completed",
+                                "goal_type" to updated.goalType,
+                                "pace" to (updated.plan?.pace ?: ""),
+                                "activity_level" to updated.activityLevel,
+                            )
+                            coroutineScope.launch { saveProfileRecordingWeight(updated) }
+                            navController.popBackStack()
+                        },
+                        onSkip = {
+                            Analytics.track("goal_quiz_skipped", "step" to "quiz")
+                            navController.popBackStack()
+                        },
+                        onOpenGuide = { id -> navController.navigate(GuideDestination(id, "goal_quiz")) },
                     )
                 }
 

@@ -1,4 +1,4 @@
-﻿package com.fitcal.app.ui.navigation
+package com.fitcal.app.ui.navigation
 
 import kotlinx.serialization.Serializable
 
@@ -23,6 +23,10 @@ data class BarcodeResultDestination(val responseJson: String)
 /** The optional personal plan: set up, or edit an existing one. */
 @Serializable
 object PlanDestination
+
+/** The step-by-step goal quiz offered once at first open (skippable). */
+@Serializable
+object GoalQuizDestination
 
 /** A logged meal reopened from the dashboard for correction. */
 @Serializable
