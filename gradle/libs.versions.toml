@@ -1,7 +1,7 @@
 [versions]
 agp = "8.13.2"
 android-compileSdk = "36"
-android-minSdk = "24"
+android-minSdk = "26"   # Health Connect needs Android 8.0+
 android-targetSdk = "36"
 androidx-activity = "1.9.3"
 androidx-lifecycle = "2.8.7"
@@ -15,6 +15,7 @@ ktor = "3.4.3"
 material3 = "1.11.0-alpha07"
 camerax = "1.4.1"
 mlkitBarcode = "17.3.0"
+healthConnect = "1.1.0"
 playServicesAds = "23.6.0"
 sentry = "8.58.0"
 sentryGradle = "6.23.0"
@@ -36,6 +37,7 @@ camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", vers
 camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 # Barcode scanner: bundled on-device model (no Play Services download, works offline).
 mlkit-barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "mlkitBarcode" }
+health-connect-client = { module = "androidx.health.connect:connect-client", version.ref = "healthConnect" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coil" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }

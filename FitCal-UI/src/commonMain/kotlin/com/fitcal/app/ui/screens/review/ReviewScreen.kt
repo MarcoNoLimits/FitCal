@@ -56,6 +56,7 @@ import com.fitcal.app.ui.screens.review.components.toEditable
 import com.fitcal.app.ui.screens.review.components.toFoodItems
 import com.fitcal.app.ui.screens.review.components.MacroGridCard
 import com.fitcal.app.ui.screens.review.components.WeightInputPill
+import com.fitcal.app.ui.screens.review.components.hiddenIngredientsToOffer
 import com.fitcal.app.ui.theme.*
 import com.fitcal.app.ui.screens.auth.SignInSuggestionCard
 import com.fitcal.app.ui.screens.feedback.ScanAccuracyPrompt
@@ -91,6 +92,8 @@ fun ResultScreen(
     eatenBeforeThisMeal: DayTotals = DayTotals(),
     // A reopened meal's photo stored on this phone (see saveMealPhoto), or null.
     savedPhoto: Any? = null,
+    // Photo and typed scans ask about oil, butter and sauces the camera can't see.
+    offerHiddenIngredientCheck: Boolean = false,
 ) {
     val scrollState = rememberScrollState()
 
@@ -434,6 +437,19 @@ fun ResultScreen(
                             )
                         }
                     }
+                }
+
+                if (offerHiddenIngredientCheck) {
+                    HiddenIngredientCheck(
+                        offered = remember(data) { hiddenIngredientsToOffer(data.items.map { it.item }) },
+                        isAdded = { key -> editableItems.any { it.id == "hidden_$key" } },
+                        onToggle = { hidden ->
+                            val existing = editableItems.indexOfFirst { it.id == "hidden_${hidden.key}" }
+                            if (existing >= 0) editableItems.removeAt(existing) else editableItems.add(hidden.toEditable())
+                            Analytics.track("hidden_ingredient_toggled", "ingredient" to hidden.key, "added" to (existing < 0))
+                        },
+                        modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 20.dp),
+                    )
                 }
 
                 // Macro Breakdown Section
@@ -1291,6 +1307,49 @@ fun OverTargetNote(notes: List<String>, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         notes.forEach { Text(it, style = BrandTypography.BodySmall, color = WarningText) }
+    }
+}
+
+/** "Anything the photo can't see?": one tap adds a typical amount, a second tap removes it. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HiddenIngredientCheck(
+    offered: List<com.fitcal.app.ui.screens.review.components.HiddenIngredient>,
+    isAdded: (String) -> Boolean,
+    onToggle: (com.fitcal.app.ui.screens.review.components.HiddenIngredient) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (offered.isEmpty()) return
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(SurfaceTint, RoundedCornerShape(RadiusM))
+            .padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text("ANYTHING THE PHOTO CAN'T SEE?", style = BrandTypography.Eyebrow, color = MutedTextColor)
+        Text(
+            "Photo estimates often miss oil, butter and sauces. Tap to add a typical amount; you can change the grams.",
+            style = BrandTypography.BodySmall,
+            color = TextColor,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+            offered.forEach { hidden ->
+                val added = isAdded(hidden.key)
+                FilterChip(
+                    selected = added,
+                    onClick = { onToggle(hidden) },
+                    label = { Text(if (added) "✓ ${hidden.chipLabel}" else hidden.chipLabel, style = BrandTypography.BodySmall, maxLines = 1) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = PrimaryAccent,
+                        selectedLabelColor = Color.White,
+                        containerColor = Color.White,
+                        labelColor = TextColor,
+                    ),
+                    modifier = Modifier.heightIn(min = 44.dp),
+                )
+            }
+        }
     }
 }
 

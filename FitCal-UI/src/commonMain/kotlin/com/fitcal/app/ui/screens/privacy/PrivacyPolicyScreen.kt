@@ -173,6 +173,19 @@ private fun PrivacyPolicyContent() {
             "impact assessment."
     }
 
+    PolicySection("Health Connect") {
+        "If you connect Health Connect (Android), FitCal asks for read access to your weight, " +
+            "steps and active calories burned. FitCal never writes to Health Connect.\n\n" +
+            "• Weight: weigh-ins (for example from a smart scale) are added to your FitCal weight " +
+            "history, used for your progress chart and plan, and stored with your other FitCal data.\n" +
+            "• Steps and active calories: shown on your dashboard for today only. They stay on your " +
+            "phone and are not stored by FitCal or sent to our servers.\n\n" +
+            "Health Connect data is never used for advertising, never sold and never shared. You can " +
+            "disconnect in Settings → Health Connect or remove access in the Health Connect app. " +
+            "FitCal's use of information received from Health Connect adheres to the Health Connect " +
+            "Permissions policy, including the Limited Use requirements."
+    }
+
     PolicySection("Advertising") {
         "FitCal is supported by advertising. We use Google AdMob.\n\n" +
             "**Personalized ads are OFF by default.** If you opt in — and separately " +

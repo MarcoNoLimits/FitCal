@@ -23,3 +23,8 @@ worker/.dev.vars
 # Signing keys: never commit
 *.jks
 *.keystore
+
+# Accuracy benchmark downloads and per-run result files
+tools/accuracy-bench/.cache/
+tools/accuracy-bench/results/
+tools/food-data/
