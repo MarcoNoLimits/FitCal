@@ -23,3 +23,7 @@ worker/.dev.vars
 # Signing keys: never commit
 *.jks
 *.keystore
+
+# Accuracy benchmark downloads (Nutrition5k photos, USDA source files)
+tools/accuracy-bench/.cache/
+tools/food-data/.cache/
