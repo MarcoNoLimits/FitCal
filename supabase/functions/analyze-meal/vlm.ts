@@ -176,11 +176,18 @@ export async function callGemini(
   return validateAndFormatNutritionResponse(JSON.parse(cleanJson(text)));
 }
 
-export async function callOpenRouter(prompt: string, base64Image?: string, model = "qwen/qwen3-vl-235b-a22b-instruct"): Promise<NutritionResponse> {
+export async function callOpenRouter(
+  prompt: string,
+  base64Image?: string,
+  model = "qwen/qwen3-vl-235b-a22b-instruct",
+  // The benchmark sends dataset PNGs and may use the grounded prompt; the app uses the defaults.
+  mimeType = "image/jpeg",
+  systemPrompt: string = SYSTEM_PROMPT,
+): Promise<NutritionResponse> {
   const apiKey = Deno.env.get("OPENROUTER_API_KEY");
   if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
-  const content: any[] = [{ type: "text", text: `${SYSTEM_PROMPT}\n\n${prompt}` }];
-  if (base64Image) content.push({ type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } });
+  const content: any[] = [{ type: "text", text: `${systemPrompt}\n\n${prompt}` }];
+  if (base64Image) content.push({ type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Image}` } });
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
