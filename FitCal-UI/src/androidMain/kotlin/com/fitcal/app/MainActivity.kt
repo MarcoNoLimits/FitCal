@@ -19,6 +19,10 @@ class MainActivity : ComponentActivity() {
         appContext = applicationContext
         initPrivacyConsentStore()
         AndroidAdManager.currentActivityRef = WeakReference(this)
+        // Health Connect's permission screen must be registered before the activity starts.
+        com.fitcal.app.health.HealthConnectBridge.launcher = registerForActivityResult(
+            androidx.health.connect.client.PermissionController.createRequestPermissionResultContract()
+        ) { granted -> com.fitcal.app.health.HealthConnectBridge.onPermissionsResult(granted) }
         // Opened from the home-screen widget's Scan button (not on a config-change recreation).
         if (savedInstanceState == null) handleLaunchIntent(intent)
 
