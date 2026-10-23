@@ -11,7 +11,7 @@ This file is the authoritative instruction set for any agent (AI or human) worki
 - **Modules**: `:shared` (HTTP clients, models, VLM logic), `:FitCal-UI` (Compose Multiplatform UI + ads + quotas), `iosApp/` (native iOS wrapper).
 - **Release scope**: **Android only for v1.** iOS code stays in the repo but is not a release target.
 - **Backend**: Supabase (Postgres + RLS, Auth). The only AI gateway is the Edge Function `supabase/functions/analyze-meal`; it holds the paid provider keys. (The old Cloudflare Worker was removed.) FitCal has its **own Supabase project** `uedtovphilwstzdpzjrk` (EU, since 2026-10-11; the old shared project `mpsqdaptkkasjoepamwl` also hosts other apps, and its history is in `supabase/legacy-shared-project/`). All tables and RPCs live in schema `fitcal` (baseline: `supabase/migrations/0001_fitcal_baseline.sql`); analytics and feedback are documented in `ANALYTICS.md`.
-- **VLM Pipeline** (inside the gateway): Gemini → OpenRouter (Qwen VL) → Groq (`qwen/qwen3.8-27b`) failover.
+- **VLM Pipeline** (inside the gateway, since 2026-10-23): OpenRouter `google/gemini-3.1-flash-lite` → Gemini 2.5 Flash direct → Groq (`qwen/qwen3.8-27b`) failover. Chosen by `tools/accuracy-bench` (Nutrition5k); re-run it before changing models.
 - **Monetization state**: Google AdMob only (banners, forced interstitial at quota, rewarded); test IDs in debug builds. Daily scan quota system live (`ScanQuotaManager`).
 
 ## 2. Non-Negotiable Rules
@@ -24,7 +24,7 @@ This file is the authoritative instruction set for any agent (AI or human) worki
 ## 3. Existing Features (Do Not Regress)
 
 - Camera capture + on-device image optimization (resize/compress before upload)
-- VLM failover sequencing in the gateway (Gemini → OpenRouter → Groq)
+- VLM failover sequencing in the gateway (OpenRouter Gemini 3.1 Flash-Lite → Gemini 2.5 Flash → Groq)
 - Interactive corrections & local recalculation (~10x faster than re-upload)
 - Local food database grounding + Search-to-Swap overlay
 - Daily scan quota (`ScanQuotaManager`): currently 3 free scans/day, +2 bonus scans per rewarded ad, +1 free scan/day for permanent accounts (see 5.1)
@@ -125,8 +125,8 @@ Goal: as many interstitials for guests as AdMob allows without being flagged. Ad
 ### 5.9 Recommended Decisions & Next Steps (Task 8, 9, 10)
 
 1. **Model Stack Recommendation**:
-   - **Primary VLM**: **Gemini 2.0 Flash** (lowest cost at ~$0.00017/scan, native 768px spatial plate grounding, <800ms latency, high gross margin).
-   - **Secondary Failover**: **Qwen2.5-VL-72B** (via OpenRouter/Fireworks) as an automated edge fallback if Google has an outage.
+   - **Primary VLM** (owner decision 2026-10-23, from `tools/accuracy-bench`): **Gemini 3.1 Flash-Lite via OpenRouter**. On 100 Nutrition5k dishes: 40% mean calorie error and 38% within ±20%, vs 48% / 28% for Gemini 2.5 Flash; Claude Haiku/Sonnet 5.5 and GPT-5 mini over-estimated by ~38–40%.
+   - **Secondary Failover**: **Gemini 2.5 Flash** called directly (x-goog-api-key), then Groq.
 2. **Gateway Deployment**:
    - The gateway is the Supabase Edge Function `analyze-meal` (deployed with `verify_jwt = false`; it verifies tokens itself so the RevenueCat webhook can reach it).
 3. **Subscription Engine (Task 10)**:
