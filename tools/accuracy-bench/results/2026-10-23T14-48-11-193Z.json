@@ -1,0 +1,4270 @@
+{
+  "provider": "openrouter",
+  "model": "google/gemini-2.5-flash",
+  "seed": "1",
+  "grounded": true,
+  "n": 100,
+  "summary": {
+    "calories": {
+      "mae": 106.35503413000002,
+      "mape": 42.75518343120006,
+      "bias": -0.6056761596688763,
+      "within20": 28.000000000000004
+    },
+    "mass": {
+      "mae": 64.57,
+      "mape": 29.161133993928214,
+      "bias": 4.428585579903669,
+      "within20": 40
+    },
+    "protein": {
+      "mae": 8.55704974,
+      "mape": 44.486034176368655,
+      "bias": 6.445162546867492,
+      "within20": 33.33333333333333
+    },
+    "carbs": {
+      "mae": 8.004905600000003,
+      "mape": 48.55610095276717,
+      "bias": 28.42218532759645,
+      "within20": 35.714285714285715
+    },
+    "fat": {
+      "mae": 7.290348330000005,
+      "mape": 47.479496293433336,
+      "bias": -22.68282240391627,
+      "within20": 28.57142857142857
+    }
+  },
+  "groundedSummary": {
+    "calories": {
+      "mae": 118.85790783000002,
+      "mape": 45.93011229988866,
+      "bias": 1.3042410080329703,
+      "within20": 32
+    },
+    "mass": {
+      "mae": 64.57,
+      "mape": 29.161133993928214,
+      "bias": 4.428585579903669,
+      "within20": 40
+    },
+    "protein": {
+      "mae": 9.2399193,
+      "mape": 49.703144503762644,
+      "bias": 12.884656030493995,
+      "within20": 31.818181818181817
+    },
+    "carbs": {
+      "mae": 6.5036581,
+      "mape": 40.5137703345271,
+      "bias": 19.64879553755754,
+      "within20": 41.66666666666667
+    },
+    "fat": {
+      "mae": 9.553259030000003,
+      "mape": 62.77113880043417,
+      "bias": -17.57552969997919,
+      "within20": 15.584415584415584
+    }
+  },
+  "results": [
+    {
+      "grounded": {
+        "calories": 421,
+        "mass": 170,
+        "fat": 26.699999999999996,
+        "carbs": 8.700000000000001,
+        "protein": 34.9,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 465,
+        "mass": 170,
+        "fat": 28.9,
+        "carbs": 17.599999999999998,
+        "protein": 34.5,
+        "itemsGrounded": 0,
+        "itemsTotal": 3
+      },
+      "id": "dish_1562181247",
+      "reference": {
+        "id": "dish_1562181247",
+        "calories": 660.094482,
+        "mass": 220,
+        "fat": 45.323471,
+        "carbs": 11.534341,
+        "protein": 49.149761
+      },
+      "estimate": {
+        "calories": 465,
+        "mass": 170,
+        "fat": 28.9,
+        "carbs": 17.6,
+        "protein": 34.5
+      },
+      "items": [
+        "Fried Chicken",
+        "Coleslaw",
+        "Bacon"
+      ],
+      "latencyMs": 3781
+    },
+    {
+      "grounded": {
+        "calories": 252,
+        "mass": 340,
+        "fat": 13.700000000000001,
+        "carbs": 18.6,
+        "protein": 18.2,
+        "itemsGrounded": 2,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 252,
+        "mass": 340,
+        "fat": 13.700000000000001,
+        "carbs": 18.6,
+        "protein": 18.2,
+        "itemsGrounded": 2,
+        "itemsTotal": 4
+      },
+      "id": "dish_1565711183",
+      "reference": {
+        "id": "dish_1565711183",
+        "calories": 460.42337,
+        "mass": 461,
+        "fat": 20.747547,
+        "carbs": 20.976871,
+        "protein": 44.718552
+      },
+      "estimate": {
+        "calories": 252,
+        "mass": 340,
+        "fat": 13.5,
+        "carbs": 18.7,
+        "protein": 18.3
+      },
+      "items": [
+        "Cauliflower",
+        "Mixed greens salad",
+        "Roasted Brussels sprouts",
+        "Bacon, pan-fried"
+      ],
+      "latencyMs": 5290
+    },
+    {
+      "grounded": {
+        "calories": 96,
+        "mass": 100,
+        "fat": 1.5,
+        "carbs": 21,
+        "protein": 3.4,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 96,
+        "mass": 100,
+        "fat": 1.5,
+        "carbs": 21,
+        "protein": 3.4,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1558641253",
+      "reference": {
+        "id": "dish_1558641253",
+        "calories": 116.709999,
+        "mass": 110,
+        "fat": 2.64,
+        "carbs": 24.200001,
+        "protein": 3.41
+      },
+      "estimate": {
+        "calories": 86,
+        "mass": 100,
+        "fat": 1.4,
+        "carbs": 18.7,
+        "protein": 3.2
+      },
+      "items": [
+        "Corn on the cob"
+      ],
+      "latencyMs": 3512
+    },
+    {
+      "grounded": {
+        "calories": 469,
+        "mass": 490,
+        "fat": 18.9,
+        "carbs": 40.5,
+        "protein": 38.699999999999996,
+        "itemsGrounded": 4,
+        "itemsTotal": 5
+      },
+      "groundedPlain": {
+        "calories": 440,
+        "mass": 490,
+        "fat": 19.1,
+        "carbs": 35.4,
+        "protein": 36,
+        "itemsGrounded": 3,
+        "itemsTotal": 5
+      },
+      "id": "dish_1566931217",
+      "reference": {
+        "id": "dish_1566931217",
+        "calories": 333.108673,
+        "mass": 378,
+        "fat": 29.458878,
+        "carbs": 21.469036,
+        "protein": 21.408707
+      },
+      "estimate": {
+        "calories": 520,
+        "mass": 490,
+        "fat": 25.2,
+        "carbs": 36,
+        "protein": 42.5
+      },
+      "items": [
+        "Salmon fillet",
+        "White beans",
+        "Roasted cauliflower",
+        "Mixed green salad",
+        "Avocado"
+      ],
+      "latencyMs": 4707
+    },
+    {
+      "grounded": {
+        "calories": 25,
+        "mass": 70,
+        "fat": 0.1,
+        "carbs": 5.7,
+        "protein": 0.6,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 25,
+        "mass": 70,
+        "fat": 0.1,
+        "carbs": 5.7,
+        "protein": 0.6,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1558641007",
+      "reference": {
+        "id": "dish_1558641007",
+        "calories": 23.369999,
+        "mass": 57,
+        "fat": 0.114,
+        "carbs": 5.7,
+        "protein": 0.513
+      },
+      "estimate": {
+        "calories": 25,
+        "mass": 70,
+        "fat": 0.1,
+        "carbs": 5.8,
+        "protein": 0.6
+      },
+      "items": [
+        "Cooked carrots"
+      ],
+      "latencyMs": 3474
+    },
+    {
+      "grounded": {
+        "calories": 275,
+        "mass": 255,
+        "fat": 19.9,
+        "carbs": 16.1,
+        "protein": 12.799999999999999,
+        "itemsGrounded": 6,
+        "itemsTotal": 6
+      },
+      "groundedPlain": {
+        "calories": 289,
+        "mass": 255,
+        "fat": 21.2,
+        "carbs": 16.8,
+        "protein": 12.7,
+        "itemsGrounded": 5,
+        "itemsTotal": 6
+      },
+      "id": "dish_1566413510",
+      "reference": {
+        "id": "dish_1566413510",
+        "calories": 751.383057,
+        "mass": 412,
+        "fat": 58.564003,
+        "carbs": 17.134001,
+        "protein": 44.223
+      },
+      "estimate": {
+        "calories": 293,
+        "mass": 255,
+        "fat": 22,
+        "carbs": 17.2,
+        "protein": 12.6
+      },
+      "items": [
+        "Spinach",
+        "Broccoli",
+        "Avocado",
+        "Olives",
+        "Parmesan cheese",
+        "Salad dressing"
+      ],
+      "latencyMs": 5022
+    },
+    {
+      "grounded": {
+        "calories": 521,
+        "mass": 500,
+        "fat": 14.700000000000001,
+        "carbs": 36.6,
+        "protein": 61.7,
+        "itemsGrounded": 4,
+        "itemsTotal": 5
+      },
+      "groundedPlain": {
+        "calories": 521,
+        "mass": 500,
+        "fat": 14.700000000000001,
+        "carbs": 36.6,
+        "protein": 61.7,
+        "itemsGrounded": 4,
+        "itemsTotal": 5
+      },
+      "id": "dish_1560974009",
+      "reference": {
+        "id": "dish_1560974009",
+        "calories": 482.983063,
+        "mass": 409,
+        "fat": 20.768675,
+        "carbs": 30.18502,
+        "protein": 45.270073
+      },
+      "estimate": {
+        "calories": 718,
+        "mass": 500,
+        "fat": 29.2,
+        "carbs": 79.6,
+        "protein": 47.8
+      },
+      "items": [
+        "Orange Chicken",
+        "Coleslaw",
+        "Broccoli",
+        "Mixed Greens Salad",
+        "Lentils"
+      ],
+      "latencyMs": 5330
+    },
+    {
+      "grounded": {
+        "calories": 238,
+        "mass": 180,
+        "fat": 8.5,
+        "carbs": 7.5,
+        "protein": 31.2,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 238,
+        "mass": 180,
+        "fat": 8.5,
+        "carbs": 7.5,
+        "protein": 31.2,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "id": "dish_1562788760",
+      "reference": {
+        "id": "dish_1562788760",
+        "calories": 331.324493,
+        "mass": 178,
+        "fat": 23.029417,
+        "carbs": 6.902499,
+        "protein": 33.741703
+      },
+      "estimate": {
+        "calories": 329,
+        "mass": 180,
+        "fat": 18.5,
+        "carbs": 7.5,
+        "protein": 31.6
+      },
+      "items": [
+        "Roasted pork slices",
+        "Baked dish with spinach and sauce"
+      ],
+      "latencyMs": 3209
+    },
+    {
+      "grounded": {
+        "calories": 153,
+        "mass": 300,
+        "fat": 6.699999999999999,
+        "carbs": 11.3,
+        "protein": 16.6,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 153,
+        "mass": 300,
+        "fat": 6.8,
+        "carbs": 11.4,
+        "protein": 16.3,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1568318480",
+      "reference": {
+        "id": "dish_1568318480",
+        "calories": 1119.280029,
+        "mass": 587,
+        "fat": 67.208,
+        "carbs": 9.174999,
+        "protein": 117.905998
+      },
+      "estimate": {
+        "calories": 143,
+        "mass": 300,
+        "fat": 7.2,
+        "carbs": 10.5,
+        "protein": 14.1
+      },
+      "items": [
+        "Tofu",
+        "Broccoli",
+        "Mixed greens"
+      ],
+      "latencyMs": 4058
+    },
+    {
+      "grounded": {
+        "calories": 57,
+        "mass": 175,
+        "fat": 0.4,
+        "carbs": 13.699999999999998,
+        "protein": 1.6,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 58,
+        "mass": 175,
+        "fat": 0.5,
+        "carbs": 13.699999999999998,
+        "protein": 1.5,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "id": "dish_1562774159",
+      "reference": {
+        "id": "dish_1562774159",
+        "calories": 90.76355,
+        "mass": 129,
+        "fat": 3.002097,
+        "carbs": 15.496128,
+        "protein": 1.955
+      },
+      "estimate": {
+        "calories": 57,
+        "mass": 175,
+        "fat": 0.5,
+        "carbs": 13.7,
+        "protein": 1.6
+      },
+      "items": [
+        "Cantaloupe",
+        "Strawberries",
+        "Blueberries",
+        "Mixed Greens"
+      ],
+      "latencyMs": 4447
+    },
+    {
+      "grounded": {
+        "calories": 193,
+        "mass": 180,
+        "fat": 4.1,
+        "carbs": 30.9,
+        "protein": 8.1,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 200,
+        "mass": 180,
+        "fat": 4.3,
+        "carbs": 31.2,
+        "protein": 8.7,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "id": "dish_1567525712",
+      "reference": {
+        "id": "dish_1567525712",
+        "calories": 510.544769,
+        "mass": 184,
+        "fat": 40.46138,
+        "carbs": 32.97702,
+        "protein": 6.916218
+      },
+      "estimate": {
+        "calories": 210,
+        "mass": 180,
+        "fat": 6,
+        "carbs": 31,
+        "protein": 9
+      },
+      "items": [
+        "Rice Pilaf",
+        "Spinach Salad with Carrots",
+        "Bacon Strip"
+      ],
+      "latencyMs": 4370
+    },
+    {
+      "grounded": {
+        "calories": 114,
+        "mass": 295,
+        "fat": 1.1,
+        "carbs": 25.499999999999996,
+        "protein": 4.1,
+        "itemsGrounded": 5,
+        "itemsTotal": 6
+      },
+      "groundedPlain": {
+        "calories": 116,
+        "mass": 295,
+        "fat": 0.8,
+        "carbs": 25.599999999999998,
+        "protein": 3.8,
+        "itemsGrounded": 4,
+        "itemsTotal": 6
+      },
+      "id": "dish_1562687527",
+      "reference": {
+        "id": "dish_1562687527",
+        "calories": 203.221603,
+        "mass": 210,
+        "fat": 13.594805,
+        "carbs": 18.88726,
+        "protein": 3.396128
+      },
+      "estimate": {
+        "calories": 116,
+        "mass": 295,
+        "fat": 1,
+        "carbs": 24,
+        "protein": 3
+      },
+      "items": [
+        "Spinach Salad",
+        "Cherry Tomatoes",
+        "Cantaloupe",
+        "Blueberries",
+        "Strawberries",
+        "Crouton"
+      ],
+      "latencyMs": 4950
+    },
+    {
+      "grounded": {
+        "calories": 65,
+        "mass": 145,
+        "fat": 1,
+        "carbs": 12.399999999999999,
+        "protein": 3.4,
+        "itemsGrounded": 4,
+        "itemsTotal": 5
+      },
+      "groundedPlain": {
+        "calories": 54,
+        "mass": 145,
+        "fat": 0.5,
+        "carbs": 10.8,
+        "protein": 3.4,
+        "itemsGrounded": 3,
+        "itemsTotal": 5
+      },
+      "id": "dish_1563479596",
+      "reference": {
+        "id": "dish_1563479596",
+        "calories": 104.373558,
+        "mass": 151,
+        "fat": 5.351235,
+        "carbs": 12.756775,
+        "protein": 3.778007
+      },
+      "estimate": {
+        "calories": 54,
+        "mass": 145,
+        "fat": 0.5,
+        "carbs": 11.2,
+        "protein": 3.4
+      },
+      "items": [
+        "Mixed greens",
+        "Broccoli",
+        "Cauliflower",
+        "Brussels sprouts",
+        "Sweet potato"
+      ],
+      "latencyMs": 4648
+    },
+    {
+      "grounded": {
+        "calories": 191,
+        "mass": 190,
+        "fat": 11.5,
+        "carbs": 11,
+        "protein": 11.200000000000001,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 191,
+        "mass": 190,
+        "fat": 11.5,
+        "carbs": 11,
+        "protein": 11.200000000000001,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "id": "dish_1559751744",
+      "reference": {
+        "id": "dish_1559751744",
+        "calories": 227.329987,
+        "mass": 188,
+        "fat": 13.007999,
+        "carbs": 10.704,
+        "protein": 15.712
+      },
+      "estimate": {
+        "calories": 196,
+        "mass": 190,
+        "fat": 11.6,
+        "carbs": 11.4,
+        "protein": 11.7
+      },
+      "items": [
+        "Scrambled eggs",
+        "Blackberries",
+        "Raspberries"
+      ],
+      "latencyMs": 3802
+    },
+    {
+      "grounded": {
+        "calories": 284,
+        "mass": 350,
+        "fat": 11.399999999999999,
+        "carbs": 33.7,
+        "protein": 13,
+        "itemsGrounded": 4,
+        "itemsTotal": 6
+      },
+      "groundedPlain": {
+        "calories": 187,
+        "mass": 350,
+        "fat": 0.6,
+        "carbs": 33.2,
+        "protein": 13.9,
+        "itemsGrounded": 3,
+        "itemsTotal": 6
+      },
+      "id": "dish_1565194906",
+      "reference": {
+        "id": "dish_1565194906",
+        "calories": 451.795471,
+        "mass": 839,
+        "fat": 5.20372,
+        "carbs": 56.647617,
+        "protein": 42.000122
+      },
+      "estimate": {
+        "calories": 184,
+        "mass": 350,
+        "fat": 0.7,
+        "carbs": 37.3,
+        "protein": 13.6
+      },
+      "items": [
+        "Scrambled egg whites",
+        "Salsa",
+        "Roasted sweet potato cubes",
+        "Watermelon",
+        "Cantaloupe",
+        "Red grapes"
+      ],
+      "latencyMs": 5349
+    },
+    {
+      "grounded": {
+        "calories": 267,
+        "mass": 290,
+        "fat": 7.699999999999999,
+        "carbs": 14.9,
+        "protein": 35.3,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 355,
+        "mass": 290,
+        "fat": 16,
+        "carbs": 25,
+        "protein": 29,
+        "itemsGrounded": 0,
+        "itemsTotal": 3
+      },
+      "id": "dish_1561665065",
+      "reference": {
+        "id": "dish_1561665065",
+        "calories": 387.798126,
+        "mass": 303,
+        "fat": 15.23173,
+        "carbs": 14.161219,
+        "protein": 47.426922
+      },
+      "estimate": {
+        "calories": 355,
+        "mass": 290,
+        "fat": 16,
+        "carbs": 25,
+        "protein": 29
+      },
+      "items": [
+        "Chicken, breaded and baked",
+        "Mixed greens with nuts/seeds",
+        "Green beans or similar steamed vegetable"
+      ],
+      "latencyMs": 4094
+    },
+    {
+      "grounded": {
+        "calories": 116,
+        "mass": 20,
+        "fat": 10,
+        "carbs": 4.3,
+        "protein": 4.2,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 116,
+        "mass": 20,
+        "fat": 10,
+        "carbs": 4.3,
+        "protein": 4.2,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1558629818",
+      "reference": {
+        "id": "dish_1558629818",
+        "calories": 156.087006,
+        "mass": 27,
+        "fat": 13.365,
+        "carbs": 6.129,
+        "protein": 6.048
+      },
+      "estimate": {
+        "calories": 114,
+        "mass": 20,
+        "fat": 9.9,
+        "carbs": 3.9,
+        "protein": 4.2
+      },
+      "items": [
+        "Almonds"
+      ],
+      "latencyMs": 3090
+    },
+    {
+      "grounded": {
+        "calories": 46,
+        "mass": 40,
+        "fat": 4,
+        "carbs": 2.5999999999999996,
+        "protein": 0.5,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 41,
+        "mass": 40,
+        "fat": 4,
+        "carbs": 1.2,
+        "protein": 0.3,
+        "itemsGrounded": 0,
+        "itemsTotal": 2
+      },
+      "id": "dish_1560526408",
+      "reference": {
+        "id": "dish_1560526408",
+        "calories": 67.098175,
+        "mass": 51,
+        "fat": 6.105806,
+        "carbs": 2.743767,
+        "protein": 1.344815
+      },
+      "estimate": {
+        "calories": 41,
+        "mass": 40,
+        "fat": 4,
+        "carbs": 1.2,
+        "protein": 0.3
+      },
+      "items": [
+        "Mixed Greens (lettuce, dark green)",
+        "Salad Dressing, oil and vinegar"
+      ],
+      "latencyMs": 3552
+    },
+    {
+      "grounded": {
+        "calories": 8,
+        "mass": 30,
+        "fat": 0.2,
+        "carbs": 1.1,
+        "protein": 0.8,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 8,
+        "mass": 30,
+        "fat": 0.2,
+        "carbs": 1.1,
+        "protein": 0.8,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1565810146",
+      "reference": {
+        "id": "dish_1565810146",
+        "calories": 36.445538,
+        "mass": 29,
+        "fat": 3.106966,
+        "carbs": 1.861971,
+        "protein": 0.755749
+      },
+      "estimate": {
+        "calories": 8,
+        "mass": 30,
+        "fat": 0.2,
+        "carbs": 1.5,
+        "protein": 0.8
+      },
+      "items": [
+        "Arugula"
+      ],
+      "latencyMs": 2688
+    },
+    {
+      "grounded": {
+        "calories": 564,
+        "mass": 426,
+        "fat": 30.599999999999998,
+        "carbs": 69.9,
+        "protein": 14.799999999999999,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 564,
+        "mass": 426,
+        "fat": 30.599999999999998,
+        "carbs": 69.9,
+        "protein": 14.799999999999999,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "id": "dish_1559849537",
+      "reference": {
+        "id": "dish_1559849537",
+        "calories": 549.52301,
+        "mass": 393,
+        "fat": 30.711,
+        "carbs": 65.328995,
+        "protein": 15.438001
+      },
+      "estimate": {
+        "calories": 563,
+        "mass": 426,
+        "fat": 30.6,
+        "carbs": 68.5,
+        "protein": 14.7
+      },
+      "items": [
+        "Tangerine",
+        "Red Grapes",
+        "Almonds",
+        "Pear"
+      ],
+      "latencyMs": 4908
+    },
+    {
+      "grounded": {
+        "calories": 470,
+        "mass": 350,
+        "fat": 13.3,
+        "carbs": 50.3,
+        "protein": 35.9,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 470,
+        "mass": 350,
+        "fat": 13.3,
+        "carbs": 50.3,
+        "protein": 35.9,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1559934708",
+      "reference": {
+        "id": "dish_1559934708",
+        "calories": 202.445465,
+        "mass": 178,
+        "fat": 7.353578,
+        "carbs": 13.478154,
+        "protein": 19.764999
+      },
+      "estimate": {
+        "calories": 509,
+        "mass": 350,
+        "fat": 18.8,
+        "carbs": 50.8,
+        "protein": 34.1
+      },
+      "items": [
+        "White Rice",
+        "Chicken Thigh",
+        "Mixed Green Salad"
+      ],
+      "latencyMs": 4394
+    },
+    {
+      "grounded": {
+        "calories": 567,
+        "mass": 350,
+        "fat": 33.7,
+        "carbs": 45.099999999999994,
+        "protein": 20.799999999999997,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 426,
+        "mass": 350,
+        "fat": 24.3,
+        "carbs": 31,
+        "protein": 21.799999999999997,
+        "itemsGrounded": 2,
+        "itemsTotal": 4
+      },
+      "id": "dish_1562691466",
+      "reference": {
+        "id": "dish_1562691466",
+        "calories": 319.870972,
+        "mass": 267,
+        "fat": 15.903902,
+        "carbs": 27.777901,
+        "protein": 17.012196
+      },
+      "estimate": {
+        "calories": 426,
+        "mass": 350,
+        "fat": 24.5,
+        "carbs": 30.9,
+        "protein": 22.3
+      },
+      "items": [
+        "Scrambled eggs",
+        "Broccoli",
+        "Sweet potato",
+        "Sausage"
+      ],
+      "latencyMs": 4294
+    },
+    {
+      "grounded": {
+        "calories": 296,
+        "mass": 470,
+        "fat": 3.9000000000000004,
+        "carbs": 48.39999999999999,
+        "protein": 19.3,
+        "itemsGrounded": 5,
+        "itemsTotal": 7
+      },
+      "groundedPlain": {
+        "calories": 296,
+        "mass": 470,
+        "fat": 3.9000000000000004,
+        "carbs": 48.39999999999999,
+        "protein": 19.3,
+        "itemsGrounded": 5,
+        "itemsTotal": 7
+      },
+      "id": "dish_1566402232",
+      "reference": {
+        "id": "dish_1566402232",
+        "calories": 511.396118,
+        "mass": 841,
+        "fat": 8.997679,
+        "carbs": 54.081619,
+        "protein": 48.854603
+      },
+      "estimate": {
+        "calories": 334,
+        "mass": 470,
+        "fat": 5,
+        "carbs": 47,
+        "protein": 24
+      },
+      "items": [
+        "Cottage cheese",
+        "Salsa verde",
+        "Cooked sweet potato",
+        "Watermelon, diced",
+        "Cantaloupe, diced",
+        "Strawberries, sliced",
+        "Blueberries"
+      ],
+      "latencyMs": 5436
+    },
+    {
+      "grounded": {
+        "calories": 306,
+        "mass": 300,
+        "fat": 14.299999999999999,
+        "carbs": 11.400000000000002,
+        "protein": 34.599999999999994,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 306,
+        "mass": 300,
+        "fat": 14.299999999999999,
+        "carbs": 11.400000000000002,
+        "protein": 34.599999999999994,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "id": "dish_1566931620",
+      "reference": {
+        "id": "dish_1566931620",
+        "calories": 494.579987,
+        "mass": 461,
+        "fat": 26.081001,
+        "carbs": 22.006001,
+        "protein": 48.034
+      },
+      "estimate": {
+        "calories": 306,
+        "mass": 300,
+        "fat": 14.9,
+        "carbs": 11.5,
+        "protein": 34.4
+      },
+      "items": [
+        "Chicken breast, cubed",
+        "Avocado, sliced",
+        "Mixed greens",
+        "Broccoli florets"
+      ],
+      "latencyMs": 4618
+    },
+    {
+      "grounded": {
+        "calories": 163,
+        "mass": 145,
+        "fat": 1.0999999999999999,
+        "carbs": 34.2,
+        "protein": 4.300000000000001,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 163,
+        "mass": 145,
+        "fat": 1.0999999999999999,
+        "carbs": 34.2,
+        "protein": 4.300000000000001,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "id": "dish_1561062586",
+      "reference": {
+        "id": "dish_1561062586",
+        "calories": 121.193924,
+        "mass": 89,
+        "fat": 3.318568,
+        "carbs": 20.365366,
+        "protein": 2.566732
+      },
+      "estimate": {
+        "calories": 168,
+        "mass": 145,
+        "fat": 1.6,
+        "carbs": 34,
+        "protein": 4.2
+      },
+      "items": [
+        "Mixed greens",
+        "Olives",
+        "Goji berries",
+        "White rice"
+      ],
+      "latencyMs": 4449
+    },
+    {
+      "grounded": {
+        "calories": 450,
+        "mass": 320,
+        "fat": 18.7,
+        "carbs": 45.99999999999999,
+        "protein": 22.4,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 472,
+        "mass": 320,
+        "fat": 22.6,
+        "carbs": 44.2,
+        "protein": 22.9,
+        "itemsGrounded": 1,
+        "itemsTotal": 4
+      },
+      "id": "dish_1567525744",
+      "reference": {
+        "id": "dish_1567525744",
+        "calories": 679.264771,
+        "mass": 298,
+        "fat": 53.001377,
+        "carbs": 34.801022,
+        "protein": 18.316217
+      },
+      "estimate": {
+        "calories": 477,
+        "mass": 320,
+        "fat": 22.9,
+        "carbs": 43.8,
+        "protein": 23.5
+      },
+      "items": [
+        "Scrambled eggs",
+        "Rice pilaf with vegetables",
+        "Spinach with shredded carrots",
+        "Bacon"
+      ],
+      "latencyMs": 4508
+    },
+    {
+      "grounded": {
+        "calories": 343,
+        "mass": 175,
+        "fat": 15.3,
+        "carbs": 38.099999999999994,
+        "protein": 13.5,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 322,
+        "mass": 175,
+        "fat": 13,
+        "carbs": 39,
+        "protein": 13,
+        "itemsGrounded": 0,
+        "itemsTotal": 3
+      },
+      "id": "dish_1561578800",
+      "reference": {
+        "id": "dish_1561578800",
+        "calories": 338.354706,
+        "mass": 146,
+        "fat": 14.539577,
+        "carbs": 38.594208,
+        "protein": 13.271948
+      },
+      "estimate": {
+        "calories": 322,
+        "mass": 175,
+        "fat": 13,
+        "carbs": 39,
+        "protein": 13
+      },
+      "items": [
+        "Pizza slice",
+        "Mixed green salad",
+        "Olives"
+      ],
+      "latencyMs": 3771
+    },
+    {
+      "grounded": {
+        "calories": 46,
+        "mass": 30,
+        "fat": 3.5,
+        "carbs": 0.2,
+        "protein": 3.2,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 48,
+        "mass": 30,
+        "fat": 3.3,
+        "carbs": 0.9,
+        "protein": 3.7,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "id": "dish_1561663990",
+      "reference": {
+        "id": "dish_1561663990",
+        "calories": 181.4897,
+        "mass": 115,
+        "fat": 5.211059,
+        "carbs": 3.293709,
+        "protein": 28.614527
+      },
+      "estimate": {
+        "calories": 48,
+        "mass": 30,
+        "fat": 3.3,
+        "carbs": 0.9,
+        "protein": 3.7
+      },
+      "items": [
+        "Frittata or Omelette piece"
+      ],
+      "latencyMs": 2913
+    },
+    {
+      "grounded": {
+        "calories": 405,
+        "mass": 335,
+        "fat": 16.1,
+        "carbs": 26.5,
+        "protein": 41.300000000000004,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 405,
+        "mass": 335,
+        "fat": 16.1,
+        "carbs": 26.5,
+        "protein": 41.300000000000004,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "id": "dish_1566332193",
+      "reference": {
+        "id": "dish_1566332193",
+        "calories": 527.450012,
+        "mass": 504,
+        "fat": 29.494001,
+        "carbs": 18.466,
+        "protein": 51.841
+      },
+      "estimate": {
+        "calories": 404,
+        "mass": 335,
+        "fat": 16,
+        "carbs": 26.4,
+        "protein": 41.1
+      },
+      "items": [
+        "Chicken, cooked, diced",
+        "Spinach, raw",
+        "Avocado, sliced",
+        "Black beans, cooked"
+      ],
+      "latencyMs": 4460
+    },
+    {
+      "grounded": {
+        "calories": 95,
+        "mass": 150,
+        "fat": 2.4,
+        "carbs": 10.5,
+        "protein": 7.8,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 95,
+        "mass": 150,
+        "fat": 2.4,
+        "carbs": 10.5,
+        "protein": 7.8,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1560442450",
+      "reference": {
+        "id": "dish_1560442450",
+        "calories": 87.761002,
+        "mass": 149,
+        "fat": 0.596,
+        "carbs": 5.364,
+        "protein": 14.900001
+      },
+      "estimate": {
+        "calories": 90,
+        "mass": 150,
+        "fat": 0.5,
+        "carbs": 12,
+        "protein": 8.7
+      },
+      "items": [
+        "Yogurt"
+      ],
+      "latencyMs": 3228
+    },
+    {
+      "grounded": {
+        "calories": 240,
+        "mass": 250,
+        "fat": 3.8,
+        "carbs": 6.6,
+        "protein": 43.7,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 240,
+        "mass": 250,
+        "fat": 3.8,
+        "carbs": 6.6,
+        "protein": 43.7,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "id": "dish_1564775216",
+      "reference": {
+        "id": "dish_1564775216",
+        "calories": 530.596924,
+        "mass": 340,
+        "fat": 33.648357,
+        "carbs": 15.705273,
+        "protein": 40.410912
+      },
+      "estimate": {
+        "calories": 314,
+        "mass": 250,
+        "fat": 12.5,
+        "carbs": 6.6,
+        "protein": 45.1
+      },
+      "items": [
+        "Broccoli",
+        "Tuna steak",
+        "Meat (possibly pork or beef)"
+      ],
+      "latencyMs": 4300
+    },
+    {
+      "grounded": {
+        "calories": 23,
+        "mass": 35,
+        "fat": 0.2,
+        "carbs": 5.1,
+        "protein": 1,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 23,
+        "mass": 35,
+        "fat": 0.2,
+        "carbs": 5.1,
+        "protein": 1,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "id": "dish_1560973936",
+      "reference": {
+        "id": "dish_1560973936",
+        "calories": 75.243256,
+        "mass": 44,
+        "fat": 5.829186,
+        "carbs": 6.022747,
+        "protein": 1.078271
+      },
+      "estimate": {
+        "calories": 23,
+        "mass": 35,
+        "fat": 0.2,
+        "carbs": 5.4,
+        "protein": 0.9
+      },
+      "items": [
+        "Arugula",
+        "Raisins"
+      ],
+      "latencyMs": 3351
+    },
+    {
+      "grounded": {
+        "calories": 171,
+        "mass": 50,
+        "fat": 15.3,
+        "carbs": 1.8,
+        "protein": 6.1,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 150,
+        "mass": 50,
+        "fat": 13,
+        "carbs": 2,
+        "protein": 6,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "id": "dish_1558381143",
+      "reference": {
+        "id": "dish_1558381143",
+        "calories": 182.638,
+        "mass": 53,
+        "fat": 14.469,
+        "carbs": 2.226,
+        "protein": 10.229
+      },
+      "estimate": {
+        "calories": 150,
+        "mass": 50,
+        "fat": 13,
+        "carbs": 2,
+        "protein": 6
+      },
+      "items": [
+        "Sausage, smoked"
+      ],
+      "latencyMs": 2977
+    },
+    {
+      "grounded": {
+        "calories": 589,
+        "mass": 410,
+        "fat": 38.900000000000006,
+        "carbs": 10.8,
+        "protein": 52.1,
+        "itemsGrounded": 5,
+        "itemsTotal": 5
+      },
+      "groundedPlain": {
+        "calories": 540,
+        "mass": 410,
+        "fat": 32.7,
+        "carbs": 10.8,
+        "protein": 53.7,
+        "itemsGrounded": 4,
+        "itemsTotal": 5
+      },
+      "id": "dish_1568315001",
+      "reference": {
+        "id": "dish_1568315001",
+        "calories": 504.709412,
+        "mass": 364,
+        "fat": 30.381466,
+        "carbs": 19.98134,
+        "protein": 39.580326
+      },
+      "estimate": {
+        "calories": 593,
+        "mass": 410,
+        "fat": 38,
+        "carbs": 11.8,
+        "protein": 53.6
+      },
+      "items": [
+        "Cooked fish fillets",
+        "Beef steak",
+        "Mushrooms",
+        "Cherry tomatoes",
+        "Avocado"
+      ],
+      "latencyMs": 5001
+    },
+    {
+      "grounded": {
+        "calories": 87,
+        "mass": 182,
+        "fat": 0.2,
+        "carbs": 23.3,
+        "protein": 0.5,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 87,
+        "mass": 182,
+        "fat": 0.2,
+        "carbs": 23.3,
+        "protein": 0.5,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1558720364",
+      "reference": {
+        "id": "dish_1558720364",
+        "calories": 73.839996,
+        "mass": 142,
+        "fat": 0.284,
+        "carbs": 19.879999,
+        "protein": 0.426
+      },
+      "estimate": {
+        "calories": 95,
+        "mass": 182,
+        "fat": 0.3,
+        "carbs": 25.1,
+        "protein": 0.5
+      },
+      "items": [
+        "Apple"
+      ],
+      "latencyMs": 3109
+    },
+    {
+      "grounded": {
+        "calories": 134,
+        "mass": 180,
+        "fat": 7.6,
+        "carbs": 17.700000000000003,
+        "protein": 2.5999999999999996,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 134,
+        "mass": 180,
+        "fat": 7.6,
+        "carbs": 17.700000000000003,
+        "protein": 2.5999999999999996,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "id": "dish_1557863170",
+      "reference": {
+        "id": "dish_1557863170",
+        "calories": 129.820007,
+        "mass": 142,
+        "fat": 11.426001,
+        "carbs": 8.233999,
+        "protein": 2.266
+      },
+      "estimate": {
+        "calories": 134,
+        "mass": 180,
+        "fat": 8,
+        "carbs": 17.7,
+        "protein": 2.6
+      },
+      "items": [
+        "Spinach",
+        "Avocado",
+        "Cucumber",
+        "Grapes"
+      ],
+      "latencyMs": 4454
+    },
+    {
+      "grounded": {
+        "calories": 129,
+        "mass": 280,
+        "fat": 1.7999999999999998,
+        "carbs": 28.1,
+        "protein": 6.3,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 129,
+        "mass": 280,
+        "fat": 1.7999999999999998,
+        "carbs": 28.1,
+        "protein": 6.3,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "id": "dish_1564691420",
+      "reference": {
+        "id": "dish_1564691420",
+        "calories": 212.347305,
+        "mass": 226,
+        "fat": 13.716616,
+        "carbs": 22.601648,
+        "protein": 4.469414
+      },
+      "estimate": {
+        "calories": 129,
+        "mass": 280,
+        "fat": 1.8,
+        "carbs": 28.1,
+        "protein": 6.2
+      },
+      "items": [
+        "Green Beans",
+        "Mixed Green Salad",
+        "Corn on the Cob"
+      ],
+      "latencyMs": 3741
+    },
+    {
+      "grounded": {
+        "calories": 292,
+        "mass": 300,
+        "fat": 15.400000000000002,
+        "carbs": 8.8,
+        "protein": 29.9,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 292,
+        "mass": 300,
+        "fat": 15.400000000000002,
+        "carbs": 8.8,
+        "protein": 29.9,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1564428475",
+      "reference": {
+        "id": "dish_1564428475",
+        "calories": 261.616272,
+        "mass": 370,
+        "fat": 12.314557,
+        "carbs": 32.755318,
+        "protein": 8.607536
+      },
+      "estimate": {
+        "calories": 295,
+        "mass": 300,
+        "fat": 13.8,
+        "carbs": 8.8,
+        "protein": 34
+      },
+      "items": [
+        "Grilled Salmon",
+        "Mixed Green Salad",
+        "Cauliflower"
+      ],
+      "latencyMs": 3942
+    },
+    {
+      "grounded": {
+        "calories": 452,
+        "mass": 320,
+        "fat": 12.999999999999998,
+        "carbs": 37.900000000000006,
+        "protein": 44.7,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 545,
+        "mass": 320,
+        "fat": 23.3,
+        "carbs": 52.400000000000006,
+        "protein": 31.3,
+        "itemsGrounded": 2,
+        "itemsTotal": 4
+      },
+      "id": "dish_1562959103",
+      "reference": {
+        "id": "dish_1562959103",
+        "calories": 395.013611,
+        "mass": 255,
+        "fat": 22.101429,
+        "carbs": 43.194996,
+        "protein": 23.418005
+      },
+      "estimate": {
+        "calories": 572,
+        "mass": 320,
+        "fat": 23.3,
+        "carbs": 57.5,
+        "protein": 31.5
+      },
+      "items": [
+        "Breaded Chicken",
+        "Pizza Slice",
+        "Roasted Potatoes",
+        "Mushroom"
+      ],
+      "latencyMs": 4397
+    },
+    {
+      "grounded": {
+        "calories": 226,
+        "mass": 290,
+        "fat": 6.3,
+        "carbs": 38.7,
+        "protein": 7.699999999999999,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 273,
+        "mass": 290,
+        "fat": 8,
+        "carbs": 46.900000000000006,
+        "protein": 7.699999999999999,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1563565454",
+      "reference": {
+        "id": "dish_1563565454",
+        "calories": 350.788818,
+        "mass": 322,
+        "fat": 22.686897,
+        "carbs": 26.577688,
+        "protein": 22.234623
+      },
+      "estimate": {
+        "calories": 230,
+        "mass": 290,
+        "fat": 3,
+        "carbs": 49,
+        "protein": 7
+      },
+      "items": [
+        "Cooked Greens with Berries",
+        "Mashed Potatoes or Root Vegetable Mash",
+        "Corn on the Cob (cut)"
+      ],
+      "latencyMs": 3820
+    },
+    {
+      "grounded": {
+        "calories": 579,
+        "mass": 100,
+        "fat": 49.9,
+        "carbs": 21.6,
+        "protein": 21.1,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 579,
+        "mass": 100,
+        "fat": 49.9,
+        "carbs": 21.6,
+        "protein": 21.1,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1558639979",
+      "reference": {
+        "id": "dish_1558639979",
+        "calories": 520.290039,
+        "mass": 90,
+        "fat": 44.549999,
+        "carbs": 20.43,
+        "protein": 20.16
+      },
+      "estimate": {
+        "calories": 579,
+        "mass": 100,
+        "fat": 49.9,
+        "carbs": 21.6,
+        "protein": 21.1
+      },
+      "items": [
+        "Almonds"
+      ],
+      "latencyMs": 3437
+    },
+    {
+      "grounded": {
+        "calories": 512,
+        "mass": 300,
+        "fat": 19.8,
+        "carbs": 45.3,
+        "protein": 35.300000000000004,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 512,
+        "mass": 300,
+        "fat": 20.8,
+        "carbs": 44.7,
+        "protein": 35.1,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "id": "dish_1565638323",
+      "reference": {
+        "id": "dish_1565638323",
+        "calories": 467.824677,
+        "mass": 274,
+        "fat": 20.744896,
+        "carbs": 29.2488,
+        "protein": 38.302158
+      },
+      "estimate": {
+        "calories": 463,
+        "mass": 300,
+        "fat": 16.1,
+        "carbs": 44.4,
+        "protein": 33.5
+      },
+      "items": [
+        "Beef, braised/shredded",
+        "Rice, mixed with vegetables",
+        "Leafy greens (e.g., spinach)",
+        "Carrots, cooked"
+      ],
+      "latencyMs": 4628
+    },
+    {
+      "grounded": {
+        "calories": 108,
+        "mass": 120,
+        "fat": 0.1,
+        "carbs": 24.8,
+        "protein": 2.4,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 108,
+        "mass": 120,
+        "fat": 0.1,
+        "carbs": 24.8,
+        "protein": 2.4,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1563207277",
+      "reference": {
+        "id": "dish_1563207277",
+        "calories": 153.089996,
+        "mass": 106,
+        "fat": 6.1,
+        "carbs": 23.700001,
+        "protein": 1.3
+      },
+      "estimate": {
+        "calories": 103,
+        "mass": 120,
+        "fat": 0.2,
+        "carbs": 23.9,
+        "protein": 1.9
+      },
+      "items": [
+        "Roasted sweet potatoes"
+      ],
+      "latencyMs": 2888
+    },
+    {
+      "grounded": {
+        "calories": 196,
+        "mass": 180,
+        "fat": 7.8,
+        "carbs": 23.500000000000004,
+        "protein": 9.299999999999999,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 210,
+        "mass": 180,
+        "fat": 9.8,
+        "carbs": 23.2,
+        "protein": 9.499999999999998,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "id": "dish_1560787781",
+      "reference": {
+        "id": "dish_1560787781",
+        "calories": 108.628998,
+        "mass": 97,
+        "fat": 3.181,
+        "carbs": 17.164,
+        "protein": 3.481
+      },
+      "estimate": {
+        "calories": 208,
+        "mass": 180,
+        "fat": 9,
+        "carbs": 23,
+        "protein": 10
+      },
+      "items": [
+        "Sweet potatoes",
+        "Bacon strip",
+        "Raspberries",
+        "Blackberries"
+      ],
+      "latencyMs": 4386
+    },
+    {
+      "grounded": {
+        "calories": 271,
+        "mass": 530,
+        "fat": 2.8000000000000003,
+        "carbs": 44.4,
+        "protein": 18.200000000000003,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 277,
+        "mass": 530,
+        "fat": 3.6,
+        "carbs": 42.4,
+        "protein": 20.6,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "id": "dish_1563811463",
+      "reference": {
+        "id": "dish_1563811463",
+        "calories": 220.585373,
+        "mass": 376,
+        "fat": 2.699951,
+        "carbs": 22.557051,
+        "protein": 23.124781
+      },
+      "estimate": {
+        "calories": 312,
+        "mass": 530,
+        "fat": 3.7,
+        "carbs": 48.3,
+        "protein": 21.4
+      },
+      "items": [
+        "Roasted potatoes",
+        "Cantaloupe",
+        "Plain yogurt or cheese",
+        "Soup"
+      ],
+      "latencyMs": 4708
+    },
+    {
+      "grounded": {
+        "calories": 312,
+        "mass": 195,
+        "fat": 12.1,
+        "carbs": 15.7,
+        "protein": 35.099999999999994,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 340,
+        "mass": 195,
+        "fat": 15.2,
+        "carbs": 24.1,
+        "protein": 28.3,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "id": "dish_1561662869",
+      "reference": {
+        "id": "dish_1561662869",
+        "calories": 284.34552,
+        "mass": 192,
+        "fat": 9.242703,
+        "carbs": 10.282766,
+        "protein": 38.791027
+      },
+      "estimate": {
+        "calories": 335,
+        "mass": 195,
+        "fat": 15.1,
+        "carbs": 23,
+        "protein": 28.5
+      },
+      "items": [
+        "Chicken breast with breading",
+        "Kale salad with quinoa and roasted vegetables",
+        "Baby corn"
+      ],
+      "latencyMs": 4055
+    },
+    {
+      "grounded": {
+        "calories": 444,
+        "mass": 180,
+        "fat": 32.2,
+        "carbs": 9,
+        "protein": 30.7,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 330,
+        "mass": 180,
+        "fat": 18,
+        "carbs": 21,
+        "protein": 27,
+        "itemsGrounded": 0,
+        "itemsTotal": 2
+      },
+      "id": "dish_1562010394",
+      "reference": {
+        "id": "dish_1562010394",
+        "calories": 188.610443,
+        "mass": 116,
+        "fat": 12.935694,
+        "carbs": 3.708065,
+        "protein": 14.15958
+      },
+      "estimate": {
+        "calories": 330,
+        "mass": 180,
+        "fat": 18,
+        "carbs": 21,
+        "protein": 27
+      },
+      "items": [
+        "Mixed green salad",
+        "Meatloaf"
+      ],
+      "latencyMs": 3168
+    },
+    {
+      "grounded": {
+        "calories": 27,
+        "mass": 30,
+        "fat": 0,
+        "carbs": 6.2,
+        "protein": 0.6,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 27,
+        "mass": 30,
+        "fat": 0,
+        "carbs": 6.2,
+        "protein": 0.6,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1561739576",
+      "reference": {
+        "id": "dish_1561739576",
+        "calories": 63.84,
+        "mass": 84,
+        "fat": 0,
+        "carbs": 15.120001,
+        "protein": 0.84
+      },
+      "estimate": {
+        "calories": 26,
+        "mass": 30,
+        "fat": 0.1,
+        "carbs": 6.1,
+        "protein": 0.5
+      },
+      "items": [
+        "Sweet potato pieces"
+      ],
+      "latencyMs": 2991
+    },
+    {
+      "grounded": {
+        "calories": 371,
+        "mass": 340,
+        "fat": 22.5,
+        "carbs": 20.3,
+        "protein": 23.599999999999998,
+        "itemsGrounded": 5,
+        "itemsTotal": 5
+      },
+      "groundedPlain": {
+        "calories": 371,
+        "mass": 340,
+        "fat": 22.5,
+        "carbs": 20.3,
+        "protein": 23.599999999999998,
+        "itemsGrounded": 5,
+        "itemsTotal": 5
+      },
+      "id": "dish_1557937157",
+      "reference": {
+        "id": "dish_1557937157",
+        "calories": 355.25,
+        "mass": 271,
+        "fat": 22.122999,
+        "carbs": 14.700001,
+        "protein": 24.341999
+      },
+      "estimate": {
+        "calories": 397,
+        "mass": 340,
+        "fat": 25.1,
+        "carbs": 19.8,
+        "protein": 26.2
+      },
+      "items": [
+        "Scrambled eggs",
+        "Bacon",
+        "Raspberries",
+        "Strawberries",
+        "Broccoli"
+      ],
+      "latencyMs": 5104
+    },
+    {
+      "grounded": {
+        "calories": 1602,
+        "mass": 450,
+        "fat": 118.9,
+        "carbs": 94.9,
+        "protein": 37.3,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 993,
+        "mass": 450,
+        "fat": 51,
+        "carbs": 97,
+        "protein": 38,
+        "itemsGrounded": 0,
+        "itemsTotal": 2
+      },
+      "id": "dish_1565117463",
+      "reference": {
+        "id": "dish_1565117463",
+        "calories": 435.312988,
+        "mass": 248,
+        "fat": 15.939,
+        "carbs": 53.588001,
+        "protein": 19.696001
+      },
+      "estimate": {
+        "calories": 993,
+        "mass": 450,
+        "fat": 51,
+        "carbs": 97,
+        "protein": 38
+      },
+      "items": [
+        "Cheese Pizza",
+        "Caesar Salad"
+      ],
+      "latencyMs": 3418
+    },
+    {
+      "grounded": {
+        "calories": 47,
+        "mass": 10,
+        "fat": 3.5,
+        "carbs": 0.2,
+        "protein": 3.4,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 54,
+        "mass": 10,
+        "fat": 4.2,
+        "carbs": 0.1,
+        "protein": 3.7,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "id": "dish_1559059954",
+      "reference": {
+        "id": "dish_1559059954",
+        "calories": 108.199997,
+        "mass": 20,
+        "fat": 8.4,
+        "carbs": 0.28,
+        "protein": 7.4
+      },
+      "estimate": {
+        "calories": 54,
+        "mass": 10,
+        "fat": 4.2,
+        "carbs": 0.1,
+        "protein": 3.7
+      },
+      "items": [
+        "Bacon"
+      ],
+      "latencyMs": 3204
+    },
+    {
+      "grounded": {
+        "calories": 9,
+        "mass": 35,
+        "fat": 0.1,
+        "carbs": 1.6,
+        "protein": 0.9,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 9,
+        "mass": 35,
+        "fat": 0.1,
+        "carbs": 1.6,
+        "protein": 0.9,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "id": "dish_1561740321",
+      "reference": {
+        "id": "dish_1561740321",
+        "calories": 52.980408,
+        "mass": 28,
+        "fat": 5.462205,
+        "carbs": 1.063661,
+        "protein": 0.275927
+      },
+      "estimate": {
+        "calories": 9,
+        "mass": 35,
+        "fat": 0.1,
+        "carbs": 1.6,
+        "protein": 0.9
+      },
+      "items": [
+        "Spinach",
+        "Carrots"
+      ],
+      "latencyMs": 3259
+    },
+    {
+      "grounded": {
+        "calories": 139,
+        "mass": 230,
+        "fat": 6.5,
+        "carbs": 8.6,
+        "protein": 15.3,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 234,
+        "mass": 230,
+        "fat": 14.999999999999998,
+        "carbs": 9.299999999999999,
+        "protein": 18.9,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "id": "dish_1568401018",
+      "reference": {
+        "id": "dish_1568401018",
+        "calories": 587.709961,
+        "mass": 447,
+        "fat": 12.476,
+        "carbs": 7.196,
+        "protein": 106.168007
+      },
+      "estimate": {
+        "calories": 234,
+        "mass": 230,
+        "fat": 15,
+        "carbs": 9.4,
+        "protein": 18.6
+      },
+      "items": [
+        "Tofu, firm, baked or fried",
+        "Broccoli, cooked",
+        "Mixed greens"
+      ],
+      "latencyMs": 4207
+    },
+    {
+      "grounded": {
+        "calories": 96,
+        "mass": 60,
+        "fat": 4,
+        "carbs": 13.9,
+        "protein": 1.6,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 96,
+        "mass": 60,
+        "fat": 4,
+        "carbs": 13.9,
+        "protein": 1.6,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "id": "dish_1562960437",
+      "reference": {
+        "id": "dish_1562960437",
+        "calories": 97.290001,
+        "mass": 69,
+        "fat": 4.692,
+        "carbs": 12.42,
+        "protein": 1.449
+      },
+      "estimate": {
+        "calories": 96,
+        "mass": 60,
+        "fat": 4,
+        "carbs": 13.9,
+        "protein": 1.6
+      },
+      "items": [
+        "Fried potato balls"
+      ],
+      "latencyMs": 2776
+    },
+    {
+      "grounded": {
+        "calories": 81,
+        "mass": 220,
+        "fat": 0.5,
+        "carbs": 20.2,
+        "protein": 1.5,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 81,
+        "mass": 220,
+        "fat": 0.5,
+        "carbs": 20.2,
+        "protein": 1.5,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "id": "dish_1561392734",
+      "reference": {
+        "id": "dish_1561392734",
+        "calories": 84.239998,
+        "mass": 198,
+        "fat": 0.488,
+        "carbs": 20.936001,
+        "protein": 1.28
+      },
+      "estimate": {
+        "calories": 81,
+        "mass": 220,
+        "fat": 0.6,
+        "carbs": 20.1,
+        "protein": 1.5
+      },
+      "items": [
+        "Watermelon",
+        "Strawberries",
+        "Blueberries"
+      ],
+      "latencyMs": 3907
+    },
+    {
+      "grounded": {
+        "calories": 250,
+        "mass": 205,
+        "fat": 11.099999999999998,
+        "carbs": 17.7,
+        "protein": 22,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 250,
+        "mass": 205,
+        "fat": 11.099999999999998,
+        "carbs": 17.7,
+        "protein": 22,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1561491154",
+      "reference": {
+        "id": "dish_1561491154",
+        "calories": 166.137466,
+        "mass": 158,
+        "fat": 18.455791,
+        "carbs": 5.614334,
+        "protein": 18.301338
+      },
+      "estimate": {
+        "calories": 251,
+        "mass": 205,
+        "fat": 11,
+        "carbs": 18.5,
+        "protein": 21.9
+      },
+      "items": [
+        "Chicken with rice",
+        "Spinach",
+        "Yellow condiment"
+      ],
+      "latencyMs": 3802
+    },
+    {
+      "grounded": {
+        "calories": 316,
+        "mass": 370,
+        "fat": 6,
+        "carbs": 14,
+        "protein": 51.6,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 316,
+        "mass": 370,
+        "fat": 6,
+        "carbs": 13.6,
+        "protein": 51.4,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "id": "dish_1566415591",
+      "reference": {
+        "id": "dish_1566415591",
+        "calories": 214.780777,
+        "mass": 316,
+        "fat": 16.906708,
+        "carbs": 18.46199,
+        "protein": 16.844492
+      },
+      "estimate": {
+        "calories": 317,
+        "mass": 370,
+        "fat": 7.5,
+        "carbs": 14.3,
+        "protein": 51.1
+      },
+      "items": [
+        "Green beans",
+        "Chicken breast",
+        "Broccoli",
+        "Mushroom"
+      ],
+      "latencyMs": 4221
+    },
+    {
+      "grounded": {
+        "calories": 325,
+        "mass": 260,
+        "fat": 17,
+        "carbs": 24,
+        "protein": 22.2,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 325,
+        "mass": 260,
+        "fat": 17,
+        "carbs": 24,
+        "protein": 22.2,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "id": "dish_1565811588",
+      "reference": {
+        "id": "dish_1565811588",
+        "calories": 348.484161,
+        "mass": 263,
+        "fat": 21.454355,
+        "carbs": 7.568845,
+        "protein": 31.213434
+      },
+      "estimate": {
+        "calories": 325,
+        "mass": 260,
+        "fat": 17,
+        "carbs": 24,
+        "protein": 22
+      },
+      "items": [
+        "Mixed green salad with vinaigrette",
+        "Coleslaw with chicken",
+        "Watermelon radish"
+      ],
+      "latencyMs": 3983
+    },
+    {
+      "grounded": {
+        "calories": 460,
+        "mass": 470,
+        "fat": 23.9,
+        "carbs": 45.900000000000006,
+        "protein": 17.3,
+        "itemsGrounded": 3,
+        "itemsTotal": 5
+      },
+      "groundedPlain": {
+        "calories": 460,
+        "mass": 470,
+        "fat": 24,
+        "carbs": 45.900000000000006,
+        "protein": 17.2,
+        "itemsGrounded": 2,
+        "itemsTotal": 5
+      },
+      "id": "dish_1562873028",
+      "reference": {
+        "id": "dish_1562873028",
+        "calories": 280.3414,
+        "mass": 320,
+        "fat": 16.123878,
+        "carbs": 34.232201,
+        "protein": 20.963665
+      },
+      "estimate": {
+        "calories": 460,
+        "mass": 470,
+        "fat": 24,
+        "carbs": 45.8,
+        "protein": 17.2
+      },
+      "items": [
+        "Cherry tomatoes",
+        "Green beans",
+        "Pickled cucumbers",
+        "Potato salad",
+        "Baked casserole/frittata"
+      ],
+      "latencyMs": 4533
+    },
+    {
+      "grounded": {
+        "calories": 132,
+        "mass": 75,
+        "fat": 11.7,
+        "carbs": 3.5999999999999996,
+        "protein": 3.6999999999999997,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 121,
+        "mass": 75,
+        "fat": 10.1,
+        "carbs": 4.699999999999999,
+        "protein": 4,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "id": "dish_1561661324",
+      "reference": {
+        "id": "dish_1561661324",
+        "calories": 33,
+        "mass": 75,
+        "fat": 1.575,
+        "carbs": 3.225,
+        "protein": 2.4
+      },
+      "estimate": {
+        "calories": 121,
+        "mass": 75,
+        "fat": 10.1,
+        "carbs": 3.7,
+        "protein": 5
+      },
+      "items": [
+        "Romaine lettuce",
+        "Parmesan cheese",
+        "Caesar dressing"
+      ],
+      "latencyMs": 3646
+    },
+    {
+      "grounded": {
+        "calories": 30,
+        "mass": 95,
+        "fat": 0.5,
+        "carbs": 5.800000000000001,
+        "protein": 1.5,
+        "itemsGrounded": 5,
+        "itemsTotal": 6
+      },
+      "groundedPlain": {
+        "calories": 30,
+        "mass": 95,
+        "fat": 0.5,
+        "carbs": 5.800000000000001,
+        "protein": 1.5,
+        "itemsGrounded": 5,
+        "itemsTotal": 6
+      },
+      "id": "dish_1561576590",
+      "reference": {
+        "id": "dish_1561576590",
+        "calories": 29.231468,
+        "mass": 101,
+        "fat": 1.295191,
+        "carbs": 3.387423,
+        "protein": 0.896671
+      },
+      "estimate": {
+        "calories": 29,
+        "mass": 95,
+        "fat": 0.5,
+        "carbs": 6.1,
+        "protein": 1.9
+      },
+      "items": [
+        "Zucchini",
+        "Yellow Squash",
+        "Broccoli",
+        "Cherry Tomato",
+        "Spinach",
+        "Quinoa"
+      ],
+      "latencyMs": 4715
+    },
+    {
+      "grounded": {
+        "calories": 128,
+        "mass": 195,
+        "fat": 6.1,
+        "carbs": 9.399999999999999,
+        "protein": 11.299999999999999,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 128,
+        "mass": 195,
+        "fat": 6.1,
+        "carbs": 9.399999999999999,
+        "protein": 11.299999999999999,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1565727791",
+      "reference": {
+        "id": "dish_1565727791",
+        "calories": 121.074005,
+        "mass": 99,
+        "fat": 6.6,
+        "carbs": 6.161,
+        "protein": 10.278
+      },
+      "estimate": {
+        "calories": 123,
+        "mass": 195,
+        "fat": 5.8,
+        "carbs": 9.4,
+        "protein": 10.9
+      },
+      "items": [
+        "Mixed green salad",
+        "Broccoli florets",
+        "Parmesan cheese"
+      ],
+      "latencyMs": 4099
+    },
+    {
+      "grounded": {
+        "calories": 15,
+        "mass": 60,
+        "fat": 0.2,
+        "carbs": 2.5,
+        "protein": 1.5,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 15,
+        "mass": 60,
+        "fat": 0.2,
+        "carbs": 2.5,
+        "protein": 1.5,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "id": "dish_1567021799",
+      "reference": {
+        "id": "dish_1567021799",
+        "calories": 93.81813,
+        "mass": 76,
+        "fat": 8.914966,
+        "carbs": 3.059988,
+        "protein": 1.823886
+      },
+      "estimate": {
+        "calories": 15,
+        "mass": 60,
+        "fat": 0.2,
+        "carbs": 2.5,
+        "protein": 1.5
+      },
+      "items": [
+        "Mixed Greens"
+      ],
+      "latencyMs": 2961
+    },
+    {
+      "grounded": {
+        "calories": 62,
+        "mass": 40,
+        "fat": 1.2000000000000002,
+        "carbs": 2.6,
+        "protein": 9.700000000000001,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 62,
+        "mass": 40,
+        "fat": 1.2000000000000002,
+        "carbs": 2.6,
+        "protein": 9.700000000000001,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "id": "dish_1560369255",
+      "reference": {
+        "id": "dish_1560369255",
+        "calories": 132.666138,
+        "mass": 61,
+        "fat": 7.923563,
+        "carbs": 1.979007,
+        "protein": 12.538679
+      },
+      "estimate": {
+        "calories": 61,
+        "mass": 40,
+        "fat": 1.2,
+        "carbs": 2.6,
+        "protein": 9.7
+      },
+      "items": [
+        "Chicken breast",
+        "Brown rice"
+      ],
+      "latencyMs": 4049
+    },
+    {
+      "grounded": {
+        "calories": 109,
+        "mass": 220,
+        "fat": 0.6,
+        "carbs": 25,
+        "protein": 3.3,
+        "itemsGrounded": 3,
+        "itemsTotal": 5
+      },
+      "groundedPlain": {
+        "calories": 109,
+        "mass": 220,
+        "fat": 0.6,
+        "carbs": 25,
+        "protein": 3.3,
+        "itemsGrounded": 3,
+        "itemsTotal": 5
+      },
+      "id": "dish_1562774180",
+      "reference": {
+        "id": "dish_1562774180",
+        "calories": 164.083557,
+        "mass": 181,
+        "fat": 6.538097,
+        "carbs": 24.856129,
+        "protein": 3.047
+      },
+      "estimate": {
+        "calories": 111,
+        "mass": 220,
+        "fat": 0.6,
+        "carbs": 25.3,
+        "protein": 3.3
+      },
+      "items": [
+        "Mixed greens",
+        "Cantaloupe",
+        "Strawberries",
+        "Blueberries",
+        "Yellow potatoes"
+      ],
+      "latencyMs": 4491
+    },
+    {
+      "grounded": {
+        "calories": 321,
+        "mass": 150,
+        "fat": 19.7,
+        "carbs": 25.700000000000003,
+        "protein": 16.4,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 219,
+        "mass": 150,
+        "fat": 10.8,
+        "carbs": 21.8,
+        "protein": 10.1,
+        "itemsGrounded": 0,
+        "itemsTotal": 2
+      },
+      "id": "dish_1566316681",
+      "reference": {
+        "id": "dish_1566316681",
+        "calories": 116.762924,
+        "mass": 122,
+        "fat": 2.97561,
+        "carbs": 21.424391,
+        "protein": 1.190244
+      },
+      "estimate": {
+        "calories": 219,
+        "mass": 150,
+        "fat": 10.8,
+        "carbs": 21.8,
+        "protein": 10.1
+      },
+      "items": [
+        "Fried Tofu",
+        "Fried Potato"
+      ],
+      "latencyMs": 3641
+    },
+    {
+      "grounded": {
+        "calories": 244,
+        "mass": 280,
+        "fat": 1,
+        "carbs": 42.6,
+        "protein": 19,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 248,
+        "mass": 280,
+        "fat": 2.4000000000000004,
+        "carbs": 42.199999999999996,
+        "protein": 15.5,
+        "itemsGrounded": 0,
+        "itemsTotal": 2
+      },
+      "id": "dish_1567628157",
+      "reference": {
+        "id": "dish_1567628157",
+        "calories": 373.190979,
+        "mass": 355,
+        "fat": 36.018696,
+        "carbs": 25.867041,
+        "protein": 37.479683
+      },
+      "estimate": {
+        "calories": 248,
+        "mass": 280,
+        "fat": 2.4,
+        "carbs": 42.2,
+        "protein": 15.5
+      },
+      "items": [
+        "Lentil and cauliflower mixture",
+        "Mixed green salad"
+      ],
+      "latencyMs": 3699
+    },
+    {
+      "grounded": {
+        "calories": 243,
+        "mass": 130,
+        "fat": 15.1,
+        "carbs": 22.2,
+        "protein": 8,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 243,
+        "mass": 130,
+        "fat": 15.1,
+        "carbs": 22.2,
+        "protein": 8,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "id": "dish_1559844951",
+      "reference": {
+        "id": "dish_1559844951",
+        "calories": 274.335999,
+        "mass": 122,
+        "fat": 17.906,
+        "carbs": 22.792,
+        "protein": 9.784
+      },
+      "estimate": {
+        "calories": 267,
+        "mass": 130,
+        "fat": 15.2,
+        "carbs": 27.6,
+        "protein": 8.4
+      },
+      "items": [
+        "Almonds",
+        "Roasted Potatoes"
+      ],
+      "latencyMs": 3874
+    },
+    {
+      "grounded": {
+        "calories": 702,
+        "mass": 150,
+        "fat": 52.7,
+        "carbs": 2.6,
+        "protein": 50.8,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 400,
+        "mass": 150,
+        "fat": 25,
+        "carbs": 20,
+        "protein": 25,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "id": "dish_1563466280",
+      "reference": {
+        "id": "dish_1563466280",
+        "calories": 357.059998,
+        "mass": 66,
+        "fat": 27.719999,
+        "carbs": 0.924,
+        "protein": 24.42
+      },
+      "estimate": {
+        "calories": 400,
+        "mass": 150,
+        "fat": 25,
+        "carbs": 20,
+        "protein": 25
+      },
+      "items": [
+        "Unidentified cooked meat with sauce"
+      ],
+      "latencyMs": 3652
+    },
+    {
+      "grounded": {
+        "calories": 460,
+        "mass": 300,
+        "fat": 20.6,
+        "carbs": 35.8,
+        "protein": 31.1,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 467,
+        "mass": 300,
+        "fat": 21.400000000000002,
+        "carbs": 37.8,
+        "protein": 29.1,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1561578623",
+      "reference": {
+        "id": "dish_1561578623",
+        "calories": 208.514832,
+        "mass": 208,
+        "fat": 10.297771,
+        "carbs": 13.109113,
+        "protein": 15.945778
+      },
+      "estimate": {
+        "calories": 430,
+        "mass": 300,
+        "fat": 16,
+        "carbs": 42,
+        "protein": 28
+      },
+      "items": [
+        "Steak with chimichurri",
+        "Mashed potatoes",
+        "Roasted potatoes"
+      ],
+      "latencyMs": 4260
+    },
+    {
+      "grounded": {
+        "calories": 289,
+        "mass": 130,
+        "fat": 21.5,
+        "carbs": 2.1,
+        "protein": 20.2,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 310,
+        "mass": 130,
+        "fat": 23.8,
+        "carbs": 2,
+        "protein": 20.6,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "id": "dish_1562775373",
+      "reference": {
+        "id": "dish_1562775373",
+        "calories": 329.080017,
+        "mass": 148,
+        "fat": 24.959999,
+        "carbs": 2.312,
+        "protein": 22.360001
+      },
+      "estimate": {
+        "calories": 316,
+        "mass": 130,
+        "fat": 24,
+        "carbs": 1.5,
+        "protein": 21.5
+      },
+      "items": [
+        "Scrambled Eggs",
+        "Bacon"
+      ],
+      "latencyMs": 3536
+    },
+    {
+      "grounded": {
+        "calories": 162,
+        "mass": 200,
+        "fat": 4.6,
+        "carbs": 9.6,
+        "protein": 20.8,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 162,
+        "mass": 200,
+        "fat": 4.6,
+        "carbs": 9.6,
+        "protein": 20.8,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1562689519",
+      "reference": {
+        "id": "dish_1562689519",
+        "calories": 169.540009,
+        "mass": 173,
+        "fat": 7.439,
+        "carbs": 5.882,
+        "protein": 19.030001
+      },
+      "estimate": {
+        "calories": 164,
+        "mass": 200,
+        "fat": 4.6,
+        "carbs": 6.8,
+        "protein": 25.4
+      },
+      "items": [
+        "Cottage cheese"
+      ],
+      "latencyMs": 2865
+    },
+    {
+      "grounded": {
+        "calories": 75,
+        "mass": 75,
+        "fat": 6,
+        "carbs": 5.3,
+        "protein": 0.8999999999999999,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 59,
+        "mass": 75,
+        "fat": 5.1,
+        "carbs": 3.5,
+        "protein": 0.7999999999999999,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "id": "dish_1564428404",
+      "reference": {
+        "id": "dish_1564428404",
+        "calories": 113.751038,
+        "mass": 104,
+        "fat": 9.80839,
+        "carbs": 6.298835,
+        "protein": 1.598034
+      },
+      "estimate": {
+        "calories": 59,
+        "mass": 75,
+        "fat": 5.1,
+        "carbs": 3.5,
+        "protein": 0.8
+      },
+      "items": [
+        "Mixed greens",
+        "Shredded carrots",
+        "Salad dressing"
+      ],
+      "latencyMs": 3896
+    },
+    {
+      "grounded": {
+        "calories": 200,
+        "mass": 250,
+        "fat": 4.8,
+        "carbs": 27.5,
+        "protein": 12.4,
+        "itemsGrounded": 5,
+        "itemsTotal": 5
+      },
+      "groundedPlain": {
+        "calories": 200,
+        "mass": 250,
+        "fat": 4.8,
+        "carbs": 27.5,
+        "protein": 12.4,
+        "itemsGrounded": 5,
+        "itemsTotal": 5
+      },
+      "id": "dish_1563207364",
+      "reference": {
+        "id": "dish_1563207364",
+        "calories": 309.269989,
+        "mass": 271,
+        "fat": 13.774,
+        "carbs": 30.657,
+        "protein": 15.01
+      },
+      "estimate": {
+        "calories": 198,
+        "mass": 250,
+        "fat": 4.8,
+        "carbs": 26.7,
+        "protein": 12.9
+      },
+      "items": [
+        "Red Grapes",
+        "Roasted Sweet Potato",
+        "Scrambled Egg Whites",
+        "Scrambled Eggs",
+        "Pineapple Chunks"
+      ],
+      "latencyMs": 4647
+    },
+    {
+      "grounded": {
+        "calories": 628,
+        "mass": 450,
+        "fat": 26.6,
+        "carbs": 44,
+        "protein": 55,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 628,
+        "mass": 450,
+        "fat": 26.6,
+        "carbs": 44,
+        "protein": 55,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "id": "dish_1559678457",
+      "reference": {
+        "id": "dish_1559678457",
+        "calories": 624.236084,
+        "mass": 465,
+        "fat": 37.50322,
+        "carbs": 29.983656,
+        "protein": 43.010422
+      },
+      "estimate": {
+        "calories": 501,
+        "mass": 450,
+        "fat": 12.2,
+        "carbs": 45.3,
+        "protein": 55.3
+      },
+      "items": [
+        "Steak",
+        "Lentils",
+        "Broccoli",
+        "Spinach"
+      ],
+      "latencyMs": 4934
+    },
+    {
+      "grounded": {
+        "calories": 82,
+        "mass": 260,
+        "fat": 0.4,
+        "carbs": 20.4,
+        "protein": 1.7000000000000002,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 82,
+        "mass": 260,
+        "fat": 0.4,
+        "carbs": 20.4,
+        "protein": 1.7000000000000002,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "id": "dish_1563897837",
+      "reference": {
+        "id": "dish_1563897837",
+        "calories": 118.470001,
+        "mass": 304,
+        "fat": 0.709,
+        "carbs": 29.568001,
+        "protein": 1.925
+      },
+      "estimate": {
+        "calories": 82,
+        "mass": 260,
+        "fat": 0.7,
+        "carbs": 20.4,
+        "protein": 1.7
+      },
+      "items": [
+        "Watermelon, diced",
+        "Strawberries, sliced",
+        "Blueberries"
+      ],
+      "latencyMs": 3789
+    },
+    {
+      "grounded": {
+        "calories": 244,
+        "mass": 300,
+        "fat": 4.9,
+        "carbs": 8.899999999999999,
+        "protein": 41.1,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 244,
+        "mass": 300,
+        "fat": 4.9,
+        "carbs": 8.899999999999999,
+        "protein": 41.1,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1568666329",
+      "reference": {
+        "id": "dish_1568666329",
+        "calories": 743.76001,
+        "mass": 594,
+        "fat": 42.484001,
+        "carbs": 19.77,
+        "protein": 72.891998
+      },
+      "estimate": {
+        "calories": 244,
+        "mass": 300,
+        "fat": 4.9,
+        "carbs": 9,
+        "protein": 41
+      },
+      "items": [
+        "Chicken breast, cubed",
+        "Broccoli florets",
+        "Lettuce"
+      ],
+      "latencyMs": 3973
+    },
+    {
+      "grounded": {
+        "calories": 70,
+        "mass": 30,
+        "fat": 4,
+        "carbs": 5,
+        "protein": 5,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 70,
+        "mass": 30,
+        "fat": 4,
+        "carbs": 5,
+        "protein": 5,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "id": "dish_1557861605",
+      "reference": {
+        "id": "dish_1557861605",
+        "calories": 35.099998,
+        "mass": 39,
+        "fat": 5.07,
+        "carbs": 0,
+        "protein": 7.176
+      },
+      "estimate": {
+        "calories": 70,
+        "mass": 30,
+        "fat": 4,
+        "carbs": 5,
+        "protein": 5
+      },
+      "items": [
+        "Unidentified dish"
+      ],
+      "latencyMs": 2982
+    },
+    {
+      "grounded": {
+        "calories": 311,
+        "mass": 130,
+        "fat": 23.5,
+        "carbs": 2,
+        "protein": 21.1,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 311,
+        "mass": 130,
+        "fat": 24.6,
+        "carbs": 1.9000000000000001,
+        "protein": 19.9,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "id": "dish_1562086740",
+      "reference": {
+        "id": "dish_1562086740",
+        "calories": 447.890015,
+        "mass": 215,
+        "fat": 33.880001,
+        "carbs": 3.374,
+        "protein": 30.41
+      },
+      "estimate": {
+        "calories": 316,
+        "mass": 130,
+        "fat": 24.8,
+        "carbs": 1.4,
+        "protein": 21.8
+      },
+      "items": [
+        "Scrambled Eggs",
+        "Bacon Strips"
+      ],
+      "latencyMs": 4009
+    },
+    {
+      "grounded": {
+        "calories": 57,
+        "mass": 170,
+        "fat": 0.5,
+        "carbs": 12.8,
+        "protein": 2.5,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 57,
+        "mass": 170,
+        "fat": 0.5,
+        "carbs": 13.1,
+        "protein": 2.5,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1561392543",
+      "reference": {
+        "id": "dish_1561392543",
+        "calories": 126.004929,
+        "mass": 119,
+        "fat": 8.808466,
+        "carbs": 12.171466,
+        "protein": 0.9586
+      },
+      "estimate": {
+        "calories": 57,
+        "mass": 170,
+        "fat": 0.6,
+        "carbs": 13.2,
+        "protein": 2.6
+      },
+      "items": [
+        "Spinach Salad with Carrots",
+        "Strawberries",
+        "Blueberries"
+      ],
+      "latencyMs": 3936
+    },
+    {
+      "grounded": {
+        "calories": 56,
+        "mass": 60,
+        "fat": 0.4,
+        "carbs": 13.4,
+        "protein": 1.9,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 56,
+        "mass": 60,
+        "fat": 0.4,
+        "carbs": 13.4,
+        "protein": 1.9,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1558632080",
+      "reference": {
+        "id": "dish_1558632080",
+        "calories": 72.148003,
+        "mass": 68,
+        "fat": 1.632,
+        "carbs": 14.96,
+        "protein": 2.108
+      },
+      "estimate": {
+        "calories": 53,
+        "mass": 60,
+        "fat": 0.8,
+        "carbs": 12.3,
+        "protein": 1.7
+      },
+      "items": [
+        "Corn on the cob"
+      ],
+      "latencyMs": 3028
+    },
+    {
+      "grounded": {
+        "calories": 210,
+        "mass": 265,
+        "fat": 1.6,
+        "carbs": 34.50000000000001,
+        "protein": 16.5,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 368,
+        "mass": 265,
+        "fat": 18.1,
+        "carbs": 35.3,
+        "protein": 18.7,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "id": "dish_1560356355",
+      "reference": {
+        "id": "dish_1560356355",
+        "calories": 301.606934,
+        "mass": 148,
+        "fat": 15.277617,
+        "carbs": 28.402531,
+        "protein": 12.777824
+      },
+      "estimate": {
+        "calories": 362,
+        "mass": 265,
+        "fat": 18.1,
+        "carbs": 34,
+        "protein": 18.4
+      },
+      "items": [
+        "Spinach salad with carrots",
+        "Roasted sweet potato cubes",
+        "Bacon"
+      ],
+      "latencyMs": 4311
+    },
+    {
+      "grounded": {
+        "calories": 526,
+        "mass": 330,
+        "fat": 21.300000000000004,
+        "carbs": 60.7,
+        "protein": 23.8,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 543,
+        "mass": 330,
+        "fat": 22.3,
+        "carbs": 63.400000000000006,
+        "protein": 22.599999999999998,
+        "itemsGrounded": 0,
+        "itemsTotal": 4
+      },
+      "id": "dish_1565640272",
+      "reference": {
+        "id": "dish_1565640272",
+        "calories": 377.820007,
+        "mass": 405,
+        "fat": 13.907999,
+        "carbs": 49.740002,
+        "protein": 16.559999
+      },
+      "estimate": {
+        "calories": 543,
+        "mass": 330,
+        "fat": 22.3,
+        "carbs": 63.4,
+        "protein": 22.6
+      },
+      "items": [
+        "Pepperoni pizza slice",
+        "Cheese pizza slice",
+        "Sliced bell peppers (red and green)",
+        "Cherry tomatoes"
+      ],
+      "latencyMs": 4124
+    },
+    {
+      "grounded": {
+        "calories": 324,
+        "mass": 230,
+        "fat": 12.8,
+        "carbs": 40.4,
+        "protein": 14.2,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 324,
+        "mass": 230,
+        "fat": 12.8,
+        "carbs": 40.4,
+        "protein": 14.2,
+        "itemsGrounded": 1,
+        "itemsTotal": 3
+      },
+      "id": "dish_1559590005",
+      "reference": {
+        "id": "dish_1559590005",
+        "calories": 360.832489,
+        "mass": 241,
+        "fat": 16.641808,
+        "carbs": 39.46653,
+        "protein": 14.747198
+      },
+      "estimate": {
+        "calories": 327,
+        "mass": 230,
+        "fat": 12.8,
+        "carbs": 41.4,
+        "protein": 14.2
+      },
+      "items": [
+        "Cheese Pizza",
+        "Spinach Salad with dressing",
+        "Roasted Mushrooms"
+      ],
+      "latencyMs": 4082
+    },
+    {
+      "grounded": {
+        "calories": 602,
+        "mass": 320,
+        "fat": 30.900000000000002,
+        "carbs": 63.8,
+        "protein": 24.4,
+        "itemsGrounded": 7,
+        "itemsTotal": 7
+      },
+      "groundedPlain": {
+        "calories": 609,
+        "mass": 320,
+        "fat": 31.6,
+        "carbs": 63.7,
+        "protein": 24.700000000000003,
+        "itemsGrounded": 6,
+        "itemsTotal": 7
+      },
+      "id": "dish_1565020926",
+      "reference": {
+        "id": "dish_1565020926",
+        "calories": 398.496124,
+        "mass": 489,
+        "fat": 10.379284,
+        "carbs": 56.515961,
+        "protein": 21.472317
+      },
+      "estimate": {
+        "calories": 297,
+        "mass": 320,
+        "fat": 12.2,
+        "carbs": 38.2,
+        "protein": 14.7
+      },
+      "items": [
+        "Raspberries",
+        "Blackberries",
+        "Grapes",
+        "Roasted Sweet Potato",
+        "Bacon strip",
+        "Chia pudding",
+        "Cottage cheese"
+      ],
+      "latencyMs": 5569
+    },
+    {
+      "grounded": {
+        "calories": 87,
+        "mass": 182,
+        "fat": 0.2,
+        "carbs": 23.3,
+        "protein": 0.5,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 87,
+        "mass": 182,
+        "fat": 0.2,
+        "carbs": 23.3,
+        "protein": 0.5,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1558638137",
+      "reference": {
+        "id": "dish_1558638137",
+        "calories": 60.839996,
+        "mass": 117,
+        "fat": 0.234,
+        "carbs": 16.379999,
+        "protein": 0.351
+      },
+      "estimate": {
+        "calories": 95,
+        "mass": 182,
+        "fat": 0.3,
+        "carbs": 25.1,
+        "protein": 0.5
+      },
+      "items": [
+        "Apple"
+      ],
+      "latencyMs": 3281
+    },
+    {
+      "grounded": {
+        "calories": 133,
+        "mass": 70,
+        "fat": 8.5,
+        "carbs": 6.8999999999999995,
+        "protein": 7.7,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 133,
+        "mass": 70,
+        "fat": 8.6,
+        "carbs": 6.8,
+        "protein": 7.6,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "id": "dish_1563295016",
+      "reference": {
+        "id": "dish_1563295016",
+        "calories": 127.879997,
+        "mass": 79,
+        "fat": 7.621,
+        "carbs": 8.182,
+        "protein": 6.965
+      },
+      "estimate": {
+        "calories": 133,
+        "mass": 70,
+        "fat": 8.6,
+        "carbs": 6.8,
+        "protein": 7.6
+      },
+      "items": [
+        "Bacon",
+        "Pineapple chunks"
+      ],
+      "latencyMs": 3347
+    },
+    {
+      "grounded": {
+        "calories": 68,
+        "mass": 100,
+        "fat": 0.9,
+        "carbs": 14.3,
+        "protein": 2.5,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 68,
+        "mass": 100,
+        "fat": 0.9,
+        "carbs": 14.3,
+        "protein": 2.5,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1559242568",
+      "reference": {
+        "id": "dish_1559242568",
+        "calories": 116.116005,
+        "mass": 203,
+        "fat": 0.203,
+        "carbs": 30.855999,
+        "protein": 0.812
+      },
+      "estimate": {
+        "calories": 68,
+        "mass": 100,
+        "fat": 0.9,
+        "carbs": 14.3,
+        "protein": 2.5
+      },
+      "items": [
+        "Guava"
+      ],
+      "latencyMs": 2640
+    },
+    {
+      "grounded": {
+        "calories": 219,
+        "mass": 125,
+        "fat": 7.9,
+        "carbs": 7.5,
+        "protein": 27.900000000000002,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 222,
+        "mass": 125,
+        "fat": 6.5,
+        "carbs": 10.1,
+        "protein": 28.3,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1563221025",
+      "reference": {
+        "id": "dish_1563221025",
+        "calories": 245.445801,
+        "mass": 123,
+        "fat": 12.988835,
+        "carbs": 4.359616,
+        "protein": 25.94677
+      },
+      "estimate": {
+        "calories": 319,
+        "mass": 125,
+        "fat": 17,
+        "carbs": 10,
+        "protein": 28
+      },
+      "items": [
+        "pork pieces",
+        "fried dough",
+        "leafy greens"
+      ],
+      "latencyMs": 3612
+    },
+    {
+      "grounded": {
+        "calories": 373,
+        "mass": 320,
+        "fat": 12.000000000000002,
+        "carbs": 32,
+        "protein": 37,
+        "itemsGrounded": 3,
+        "itemsTotal": 3
+      },
+      "groundedPlain": {
+        "calories": 391,
+        "mass": 320,
+        "fat": 14.100000000000001,
+        "carbs": 32,
+        "protein": 35.800000000000004,
+        "itemsGrounded": 2,
+        "itemsTotal": 3
+      },
+      "id": "dish_1563568025",
+      "reference": {
+        "id": "dish_1563568025",
+        "calories": 244.986359,
+        "mass": 247,
+        "fat": 16.967199,
+        "carbs": 28.967131,
+        "protein": 19.446245
+      },
+      "estimate": {
+        "calories": 364,
+        "mass": 320,
+        "fat": 13.7,
+        "carbs": 27.3,
+        "protein": 34.7
+      },
+      "items": [
+        "Corn on the cob",
+        "Cooked fish",
+        "Cooked green vegetables"
+      ],
+      "latencyMs": 3862
+    },
+    {
+      "grounded": {
+        "calories": 297,
+        "mass": 320,
+        "fat": 6,
+        "carbs": 10,
+        "protein": 50.1,
+        "itemsGrounded": 5,
+        "itemsTotal": 5
+      },
+      "groundedPlain": {
+        "calories": 299,
+        "mass": 320,
+        "fat": 8.6,
+        "carbs": 30,
+        "protein": 28.6,
+        "itemsGrounded": 4,
+        "itemsTotal": 5
+      },
+      "id": "dish_1563393403",
+      "reference": {
+        "id": "dish_1563393403",
+        "calories": 103.154633,
+        "mass": 216,
+        "fat": 7.439952,
+        "carbs": 10.219167,
+        "protein": 10.354001
+      },
+      "estimate": {
+        "calories": 301,
+        "mass": 320,
+        "fat": 8.6,
+        "carbs": 30.4,
+        "protein": 28.7
+      },
+      "items": [
+        "Broccoli",
+        "Zucchini",
+        "Bell pepper (yellow)",
+        "Bell pepper (red)",
+        "Chicken or fish with sauce and rice"
+      ],
+      "latencyMs": 4716
+    },
+    {
+      "grounded": {
+        "calories": 404,
+        "mass": 250,
+        "fat": 11.1,
+        "carbs": 36,
+        "protein": 40,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 460,
+        "mass": 250,
+        "fat": 19,
+        "carbs": 41,
+        "protein": 32.5,
+        "itemsGrounded": 0,
+        "itemsTotal": 2
+      },
+      "id": "dish_1563476646",
+      "reference": {
+        "id": "dish_1563476646",
+        "calories": 380.158081,
+        "mass": 218,
+        "fat": 18.121593,
+        "carbs": 21.653313,
+        "protein": 29.908882
+      },
+      "estimate": {
+        "calories": 460,
+        "mass": 250,
+        "fat": 19,
+        "carbs": 41,
+        "protein": 32.5
+      },
+      "items": [
+        "Penne pasta with sauce",
+        "Meat chunks in sauce"
+      ],
+      "latencyMs": 3525
+    },
+    {
+      "grounded": {
+        "calories": 56,
+        "mass": 60,
+        "fat": 1.3,
+        "carbs": 10.4,
+        "protein": 3.4,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 41,
+        "mass": 60,
+        "fat": 0.2,
+        "carbs": 10.9,
+        "protein": 0.4,
+        "itemsGrounded": 0,
+        "itemsTotal": 1
+      },
+      "id": "dish_1558636813",
+      "reference": {
+        "id": "dish_1558636813",
+        "calories": 60.720001,
+        "mass": 88,
+        "fat": 0.176,
+        "carbs": 15.84,
+        "protein": 0.616
+      },
+      "estimate": {
+        "calories": 41,
+        "mass": 60,
+        "fat": 0.2,
+        "carbs": 10.9,
+        "protein": 0.4
+      },
+      "items": [
+        "Grapes"
+      ],
+      "latencyMs": 3097
+    },
+    {
+      "grounded": {
+        "calories": 184,
+        "mass": 120,
+        "fat": 7.1,
+        "carbs": 21,
+        "protein": 8.8,
+        "itemsGrounded": 2,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 198,
+        "mass": 120,
+        "fat": 8.799999999999999,
+        "carbs": 20.9,
+        "protein": 8.9,
+        "itemsGrounded": 1,
+        "itemsTotal": 2
+      },
+      "id": "dish_1559925083",
+      "reference": {
+        "id": "dish_1559925083",
+        "calories": 125.135506,
+        "mass": 81,
+        "fat": 4.271,
+        "carbs": 16.966999,
+        "protein": 4.623
+      },
+      "estimate": {
+        "calories": 198,
+        "mass": 120,
+        "fat": 8.8,
+        "carbs": 20.9,
+        "protein": 8.9
+      },
+      "items": [
+        "Roasted sweet potatoes",
+        "Bacon"
+      ],
+      "latencyMs": 3555
+    },
+    {
+      "grounded": {
+        "calories": 52,
+        "mass": 90,
+        "fat": 2.7,
+        "carbs": 5.9,
+        "protein": 2.4,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 53,
+        "mass": 90,
+        "fat": 2.7,
+        "carbs": 6.4,
+        "protein": 2.3,
+        "itemsGrounded": 3,
+        "itemsTotal": 4
+      },
+      "id": "dish_1560453132",
+      "reference": {
+        "id": "dish_1560453132",
+        "calories": 142.09024,
+        "mass": 108,
+        "fat": 12.929943,
+        "carbs": 5.810329,
+        "protein": 2.847845
+      },
+      "estimate": {
+        "calories": 53,
+        "mass": 90,
+        "fat": 2.6,
+        "carbs": 6.1,
+        "protein": 2.2
+      },
+      "items": [
+        "Mixed Greens",
+        "Shredded Carrots",
+        "Blueberries",
+        "Pumpkin Seeds"
+      ],
+      "latencyMs": 4247
+    },
+    {
+      "grounded": {
+        "calories": 69,
+        "mass": 100,
+        "fat": 0.1,
+        "carbs": 15.7,
+        "protein": 1.7,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 69,
+        "mass": 100,
+        "fat": 0.1,
+        "carbs": 15.7,
+        "protein": 1.7,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1562950895",
+      "reference": {
+        "id": "dish_1562950895",
+        "calories": 137.818542,
+        "mass": 144,
+        "fat": 3.512195,
+        "carbs": 25.287806,
+        "protein": 1.404878
+      },
+      "estimate": {
+        "calories": 93,
+        "mass": 100,
+        "fat": 0.1,
+        "carbs": 20.1,
+        "protein": 1.7
+      },
+      "items": [
+        "Diced Potatoes"
+      ],
+      "latencyMs": 2860
+    },
+    {
+      "grounded": {
+        "calories": 320,
+        "mass": 140,
+        "fat": 12.5,
+        "carbs": 27.299999999999997,
+        "protein": 25.4,
+        "itemsGrounded": 0,
+        "itemsTotal": 2
+      },
+      "groundedPlain": {
+        "calories": 320,
+        "mass": 140,
+        "fat": 12.5,
+        "carbs": 27.299999999999997,
+        "protein": 25.4,
+        "itemsGrounded": 0,
+        "itemsTotal": 2
+      },
+      "id": "dish_1565987298",
+      "reference": {
+        "id": "dish_1565987298",
+        "calories": 211.138992,
+        "mass": 88,
+        "fat": 10.094469,
+        "carbs": 16.614517,
+        "protein": 12.885552
+      },
+      "estimate": {
+        "calories": 320,
+        "mass": 140,
+        "fat": 12.5,
+        "carbs": 27.3,
+        "protein": 25.4
+      },
+      "items": [
+        "Cheese Pizza",
+        "Meatloaf"
+      ],
+      "latencyMs": 3368
+    },
+    {
+      "grounded": {
+        "calories": 13,
+        "mass": 50,
+        "fat": 0.2,
+        "carbs": 2.5,
+        "protein": 1,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "groundedPlain": {
+        "calories": 13,
+        "mass": 50,
+        "fat": 0.2,
+        "carbs": 2.5,
+        "protein": 1,
+        "itemsGrounded": 1,
+        "itemsTotal": 1
+      },
+      "id": "dish_1562700496",
+      "reference": {
+        "id": "dish_1562700496",
+        "calories": 31,
+        "mass": 124,
+        "fat": 0.372,
+        "carbs": 6.2,
+        "protein": 2.232
+      },
+      "estimate": {
+        "calories": 12,
+        "mass": 50,
+        "fat": 0.1,
+        "carbs": 2.4,
+        "protein": 0.9
+      },
+      "items": [
+        "Cauliflower"
+      ],
+      "latencyMs": 2772
+    },
+    {
+      "grounded": {
+        "calories": 509,
+        "mass": 330,
+        "fat": 24.400000000000002,
+        "carbs": 9.4,
+        "protein": 61.5,
+        "itemsGrounded": 4,
+        "itemsTotal": 4
+      },
+      "groundedPlain": {
+        "calories": 663,
+        "mass": 330,
+        "fat": 42.1,
+        "carbs": 25.9,
+        "protein": 43.7,
+        "itemsGrounded": 1,
+        "itemsTotal": 4
+      },
+      "id": "dish_1562181285",
+      "reference": {
+        "id": "dish_1562181285",
+        "calories": 796.922119,
+        "mass": 324,
+        "fat": 57.774529,
+        "carbs": 17.129475,
+        "protein": 51.892128
+      },
+      "estimate": {
+        "calories": 730,
+        "mass": 330,
+        "fat": 47,
+        "carbs": 31,
+        "protein": 44
+      },
+      "items": [
+        "Fried Chicken",
+        "Spinach Salad",
+        "Bacon",
+        "Coleslaw"
+      ],
+      "latencyMs": 4393
+    },
+    {
+      "grounded": {
+        "calories": 347,
+        "mass": 410,
+        "fat": 7.8999999999999995,
+        "carbs": 18.900000000000002,
+        "protein": 48.8,
+        "itemsGrounded": 6,
+        "itemsTotal": 6
+      },
+      "groundedPlain": {
+        "calories": 431,
+        "mass": 410,
+        "fat": 15.3,
+        "carbs": 20.900000000000002,
+        "protein": 50.6,
+        "itemsGrounded": 5,
+        "itemsTotal": 6
+      },
+      "id": "dish_1564516483",
+      "reference": {
+        "id": "dish_1564516483",
+        "calories": 364.234009,
+        "mass": 374,
+        "fat": 21.987663,
+        "carbs": 19.922529,
+        "protein": 44.513561
+      },
+      "estimate": {
+        "calories": 446,
+        "mass": 410,
+        "fat": 16.2,
+        "carbs": 21.3,
+        "protein": 50.8
+      },
+      "items": [
+        "Chicken breast, diced",
+        "Cooked carrots",
+        "Cherry tomatoes",
+        "Black olives",
+        "White beans",
+        "Fish with green sauce"
+      ],
+      "latencyMs": 5356
+    }
+  ]
+}
