@@ -9,7 +9,9 @@ $models = @(
     "google/gemini-2.5-flash",        # what FitCal uses today
     "google/gemini-3.1-flash-lite",
     "openai/gpt-5-mini",
-    "google/gemini-3-flash-preview"
+    "google/gemini-3-flash-preview",
+    "anthropic/claude-haiku-5.5",     # cheaper than today's model
+    "anthropic/claude-sonnet-5.5"     # ceiling test, ~4-7x the cost per scan
 )
 
 if (-not $env:OPENROUTER_API_KEY) { Write-Error "Set OPENROUTER_API_KEY first."; exit 1 }
