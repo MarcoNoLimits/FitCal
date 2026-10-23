@@ -984,6 +984,7 @@ fun App() {
                         isMock = isMockMode,
                         capturedImageBytes = lastCapturedImageBytes,
                         eatenBeforeThisMeal = eatenOn(selectedDateKey),
+                        offerHiddenIngredientCheck = true,
                         onMealLogged = { mealName, cal, p, c, f, items ->
                             val mealId = newMealId() // F0.1: collision-proof UUID v4
                             // Kept on this phone only, at upload size (owner decision 2026-10-22).
