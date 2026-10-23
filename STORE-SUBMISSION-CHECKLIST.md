@@ -34,6 +34,14 @@ the conservative answer protects you in review:
 | Feedback | Declare **Other user-generated content** (feedback messages) and **Email address** (optional reply address). Purpose: App functionality / Developer communications. Optional, user-initiated |
 | App activity detail | App interactions (screens, scan funnel, corrections as counts), in-app actions. Purpose: **Analytics**. Optional: users can turn it off in Settings → Privacy → Share usage analytics |
 | Purposes | Analytics, Advertising or marketing, App functionality, Personalization |
+| Health Connect (2026-10-23) | Weight read from Health Connect is stored (already declared under Fitness/Health → weight; purpose App functionality, never advertising). Steps and active calories are only displayed on the device, never stored or sent, so they are not "collected". |
+
+### Health Connect declaration (Play Console → App content → Health Connect)
+Required before release because the app asks for Health Connect permissions:
+- Permissions: READ_WEIGHT, READ_STEPS, READ_ACTIVE_CALORIES_BURNED (read only, no write).
+- Use case: nutrition and weight tracking; weight feeds progress and the plan, steps and active calories are shown for today.
+- Privacy policy link: `https://fitcal.tecaa.xyz/privacy.html#health-connect` (section added 2026-10-23).
+- Google may ask for a short video of the permission flow (Settings → Health Connect → Connect).
 
 ### Required store assets
 - **Feature graphic** 1024×500: done, `store-assets/feature-graphic-1024x500.png`

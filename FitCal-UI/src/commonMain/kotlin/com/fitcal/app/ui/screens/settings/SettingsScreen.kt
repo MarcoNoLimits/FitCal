@@ -73,6 +73,12 @@ fun SettingsScreen(
     onSendFeedback: (suspend (kind: String, message: String, email: String?) -> FeedbackSendResult)? = null,
     // Shares a CSV of meals and weigh-ins for [range]; false when nothing could be shared.
     onExportCsv: (com.fitcal.app.export.ExportRange) -> Boolean = { false },
+    // Health Connect (read only). The callback reports whether weight access was granted.
+    healthConnectStatus: com.fitcal.app.health.HealthConnectStatus = com.fitcal.app.health.HealthConnectStatus.UNAVAILABLE,
+    healthConnected: Boolean = false,
+    onConnectHealth: (onDone: (Boolean) -> Unit) -> Unit = { it(false) },
+    onDisconnectHealth: () -> Unit = {},
+    onManageHealthAccess: () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     var showFeedback by remember { mutableStateOf(false) }
@@ -598,6 +604,66 @@ fun SettingsScreen(
                             Text("Remove my targets", color = MutedTextColor)
                         }
                     }
+                }
+            }
+        }
+
+        // Health Connect (hidden where it doesn't exist, e.g. iOS)
+        if (healthConnectStatus != com.fitcal.app.health.HealthConnectStatus.UNAVAILABLE) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = CardBackground),
+                shape = RoundedCornerShape(RadiusL),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(2.dp, RoundedCornerShape(RadiusL))
+                    .border(1.dp, BorderColor, RoundedCornerShape(RadiusL))
+            ) {
+                Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(text = "HEALTH CONNECT", style = BrandTypography.CardTitle, color = MutedTextColor)
+                    Text(
+                        text = if (healthConnected) {
+                            "Connected. FitCal reads your weight (for example from a smart scale) into your progress, and shows today's steps and active calories. It never writes to Health Connect and never adds exercise to your calorie target."
+                        } else {
+                            "Bring in your weight from a smart scale or another app, and see today's steps and active calories. Read only: FitCal never writes to Health Connect."
+                        },
+                        style = BrandTypography.BodySmall,
+                        color = TextColor
+                    )
+                    var healthMessage by remember { mutableStateOf<String?>(null) }
+                    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+                    when {
+                        healthConnectStatus == com.fitcal.app.health.HealthConnectStatus.NEEDS_INSTALL_OR_UPDATE -> OutlinedButton(
+                            onClick = { uriHandler.openUri("https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata") },
+                            shape = RoundedCornerShape(RadiusM),
+                            border = BorderStroke(1.dp, BorderColor),
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)
+                        ) { Text("Install or update Health Connect", color = TextColor) }
+                        !healthConnected -> Button(
+                            onClick = {
+                                onConnectHealth { granted ->
+                                    healthMessage = if (granted) null else "Weight access wasn't allowed, so nothing is connected. You can try again any time."
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryAccent),
+                            shape = RoundedCornerShape(RadiusM),
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)
+                        ) { Text("Connect Health Connect", color = Color.White) }
+                        else -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(
+                                onClick = onManageHealthAccess,
+                                shape = RoundedCornerShape(RadiusM),
+                                border = BorderStroke(1.dp, BorderColor),
+                                modifier = Modifier.weight(1f).heightIn(min = 44.dp)
+                            ) { Text("Manage access", color = TextColor) }
+                            OutlinedButton(
+                                onClick = onDisconnectHealth,
+                                shape = RoundedCornerShape(RadiusM),
+                                border = BorderStroke(1.dp, BorderColor),
+                                modifier = Modifier.weight(1f).heightIn(min = 44.dp)
+                            ) { Text("Disconnect", color = TextColor) }
+                        }
+                    }
+                    healthMessage?.let { Text(it, style = BrandTypography.BodySmall, color = MutedTextColor) }
                 }
             }
         }
