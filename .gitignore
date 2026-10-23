@@ -24,6 +24,7 @@ worker/.dev.vars
 *.jks
 *.keystore
 
-# Accuracy benchmark downloads (Nutrition5k photos, USDA source files)
+# Accuracy benchmark downloads and per-run result files
 tools/accuracy-bench/.cache/
-tools/food-data/.cache/
+tools/accuracy-bench/results/
+tools/food-data/

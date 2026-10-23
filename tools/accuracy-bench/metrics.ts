@@ -26,10 +26,6 @@ export interface DishResult {
   estimate: Estimate;
   items: string[];
   latencyMs: number;
-  /** --grounded runs: the same answer with USDA values where an item matched. */
-  grounded?: Estimate & { itemsGrounded: number; itemsTotal: number };
-  /** --grounded runs: USDA values for plain foods with near-exact matches only. */
-  groundedPlain?: Estimate & { itemsGrounded: number; itemsTotal: number };
 }
 
 /**
