@@ -105,6 +105,26 @@ export interface GroundableItem {
   usda_description?: string;
 }
 
+/**
+ * Words that mark a mixed or prepared dish. The first benchmark (2026-10-23) showed USDA values
+ * help single plain foods but hurt dishes like "pesto pasta" or "barbecue ribs", where one
+ * USDA entry can't stand for the whole plate. "Plain" grounding skips these.
+ */
+const MIXED_DISH_WORDS = new Set([
+  "with", "and", "salad", "pasta", "pizza", "sandwich", "burger", "wrap", "taco", "burrito", "stew",
+  "soup", "curry", "casserole", "bowl", "pie", "cake", "sauce", "dressing", "pesto", "stir", "fried",
+  "breaded", "battered", "glazed", "barbecue", "bbq", "lasagna", "risotto", "omelet", "omelette",
+  "quiche", "chili", "processed", "mixed", "medley", "loaded", "stuffed",
+])
+
+/** True for a single plain food ("Grilled chicken breast", "Rice"), not a mixed dish. */
+export function isPlainFood(name: string): boolean {
+  return !name.toLowerCase().split(/[^a-z]+/).some((w) => MIXED_DISH_WORDS.has(w))
+}
+
+/** Stricter grounding: only plain foods, only near-exact matches. */
+export const PLAIN_GROUNDING_MIN_SCORE = 0.7
+
 /** The item with USDA values for its grams when the match is good enough, else unchanged. */
 export function groundItem<T extends GroundableItem>(item: T, index: FoodIndex, minScore = GROUNDING_MIN_SCORE): T & { grounded?: { fdcId: number; score: number } } {
   const desc = item.usda_description?.trim();
