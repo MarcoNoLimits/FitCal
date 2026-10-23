@@ -19,7 +19,8 @@
  *   SUPABASE_URL               (injected automatically by the runtime)
  *   REVENUECAT_WEBHOOK_SECRET
  *   FITCAL_ENV                 ("dev" enables mock responses; legacy name FITTER_ENV also read)
- *   VLM_PRIMARY_PROVIDER       ("gemini" | "openrouter" | "groq" | "mock")
+ *   VLM_PRIMARY_PROVIDER       ("openrouter" (default) | "gemini" | "groq" | "mock")
+ *   VLM_OPENROUTER_MODEL       (default "google/gemini-3.1-flash-lite"; see vlm.ts)
  *   VLM_ALLOW_FALLBACK         ("true" | "false", default "true")
  *   KILL_SWITCH                ("true" to disable all non-health endpoints)
  *   REWARD_REQUIRE_SSV         ("true" = rewarded bonus is granted only by AdMob's SSV
