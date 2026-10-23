@@ -1,4 +1,4 @@
-﻿import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
@@ -67,6 +67,9 @@ kotlin {
 
             // ML Kit barcode scanning (bundled model, on-device, free)
             implementation(libs.mlkit.barcode.scanning)
+
+            // Health Connect: read weight, steps and active calories (read only)
+            implementation(libs.health.connect.client)
             
             // Google Mobile Ads (AdMob) + User Messaging Platform (UMP Consent)
             implementation(libs.play.services.ads)

@@ -342,6 +342,24 @@ fun App() {
             // True once startup has loaded the account's synced profile (or found it offline),
             // so first-open offers never judge a returning user by the placeholder profile.
             var bootSyncDone by remember { mutableStateOf(false) }
+            // Health Connect (read only): weigh-ins into the history, today's movement on the dashboard.
+            var healthConnected by remember { mutableStateOf(com.fitcal.app.health.HealthSyncPrefs.isEnabled()) }
+            var todayActivity by remember { mutableStateOf<com.fitcal.app.health.TodayActivity?>(null) }
+            suspend fun syncHealthConnect() {
+                if (!healthConnected || !com.fitcal.app.health.hasHealthConnectPermissions()) {
+                    todayActivity = null
+                    return
+                }
+                val since = com.fitcal.app.plan.addDays(getCurrentDateString(), -90) ?: return
+                val imported = com.fitcal.app.health.weightsToImport(
+                    com.fitcal.app.health.readHealthConnectWeights(since),
+                    userRepository.getWeightEntries(),
+                )
+                imported.forEach { userRepository.recordWeight(it) }
+                if (imported.isNotEmpty()) Analytics.track("health_weights_imported", "count" to imported.size)
+                todayActivity = com.fitcal.app.health.readHealthConnectToday()
+            }
+            LaunchedEffect(healthConnected, selectedDateKey) { syncHealthConnect() }
             var weeklySummaryCard by remember {
                 mutableStateOf<Pair<com.fitcal.app.ui.screens.progress.SummaryWeek, com.fitcal.app.ui.screens.progress.WeekSummary>?>(null)
             }
@@ -799,6 +817,7 @@ fun App() {
                                 userProfile = updated
                             }
                         },
+                        todayActivity = todayActivity,
                         weeklySummary = weeklySummaryCard,
                         onDismissWeeklySummary = {
                             weeklySummaryCard?.first?.let { WeeklySummaryPrefs.markSeen(it) }
@@ -1176,6 +1195,25 @@ fun App() {
 
                 composable<SettingsDestination> {
                     SettingsScreen(
+                        healthConnectStatus = remember { com.fitcal.app.health.healthConnectStatus() },
+                        healthConnected = healthConnected,
+                        onConnectHealth = { onDone ->
+                            com.fitcal.app.health.requestHealthConnectPermissions { granted ->
+                                Analytics.track("health_connect_requested", "granted" to granted)
+                                if (granted) {
+                                    com.fitcal.app.health.HealthSyncPrefs.setEnabled(true)
+                                    healthConnected = true
+                                }
+                                onDone(granted)
+                            }
+                        },
+                        onDisconnectHealth = {
+                            Analytics.track("health_connect_disconnected")
+                            com.fitcal.app.health.HealthSyncPrefs.setEnabled(false)
+                            healthConnected = false
+                            todayActivity = null
+                        },
+                        onManageHealthAccess = { com.fitcal.app.health.openHealthConnectSettings() },
                         onExportCsv = { range ->
                             val today = getCurrentDateString()
                             val meals = com.fitcal.app.export.mealsInRange(allMeals, today, range)

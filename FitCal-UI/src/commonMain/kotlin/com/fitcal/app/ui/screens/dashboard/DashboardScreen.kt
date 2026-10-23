@@ -136,6 +136,8 @@ fun DashboardScreen(
     onAcceptSuggestion: () -> Unit = {},
     onDismissSuggestion: () -> Unit = {},
     // Last week's summary, on the first open of a new week.
+    // Steps and active calories from Health Connect, shown for today only.
+    todayActivity: com.fitcal.app.health.TodayActivity? = null,
     weeklySummary: Pair<com.fitcal.app.ui.screens.progress.SummaryWeek, com.fitcal.app.ui.screens.progress.WeekSummary>? = null,
     onDismissWeeklySummary: () -> Unit = {},
 ) {
@@ -459,6 +461,8 @@ fun DashboardScreen(
                 if (SHOW_SUGAR_AND_FIBRE && filteredMeals.isNotEmpty()) {
                     SugarFiberCard(totalSugar, SUGAR_GUIDELINE_G, totalFiber, FIBER_GUIDE_G) { onOpenGuide(GuideIds.SUGAR) }
                 }
+
+                if (selectedDate == today) todayActivity?.let { MovementRow(it) }
 
                 weeklySummary?.let { (week, summary) ->
                     WeeklySummaryCard(
@@ -818,3 +822,28 @@ private fun HeaderIconButton(icon: ImageVector, description: String, onClick: ()
         )
     }
 }
+
+/** Today's movement from Health Connect: information only, never added to the calorie budget. */
+@Composable
+private fun MovementRow(activity: com.fitcal.app.health.TodayActivity) {
+    val parts = listOfNotNull(
+        activity.steps?.let { "${withThousandsSep(it)} steps" },
+        activity.activeKcal?.let { "$it active kcal" },
+    )
+    if (parts.isEmpty()) return
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(SurfaceTint, RoundedCornerShape(RadiusM))
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+            .semantics(mergeDescendants = true) {},
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text("TODAY'S MOVEMENT", style = BrandTypography.Eyebrow, color = MutedTextColor)
+        Spacer(Modifier.weight(1f))
+        Text(parts.joinToString(" · "), style = BrandTypography.BodySmall, fontWeight = FontWeight.SemiBold, color = TextColor)
+    }
+}
+
+private fun withThousandsSep(n: Long): String = n.toString().reversed().chunked(3).joinToString(",").reversed()
+
