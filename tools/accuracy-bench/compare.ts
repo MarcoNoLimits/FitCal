@@ -17,7 +17,7 @@ for await (const e of Deno.readDir(dir)) {
   if ((stat.mtime?.getTime() ?? 0) < since) continue;
   const r = JSON.parse(await Deno.readTextFile(new URL(e.name, dir)));
   if (!r.n) continue;
-  const model = `${r.model}${r.grounded ? " (grounded prompt)" : ""}`;
+  const model = r.model;
   const prev = latest.get(model);
   if (!prev || e.name > prev.file) latest.set(model, { model, file: e.name, n: r.n, m: r.summary });
 }
