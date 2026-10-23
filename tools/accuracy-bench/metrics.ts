@@ -26,6 +26,8 @@ export interface DishResult {
   estimate: Estimate;
   items: string[];
   latencyMs: number;
+  /** --grounded runs: the same answer with USDA values where an item matched. */
+  grounded?: Estimate & { itemsGrounded: number; itemsTotal: number };
 }
 
 /**

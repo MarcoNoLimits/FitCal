@@ -14,7 +14,8 @@
  * Writes tools/accuracy-bench/results/<timestamp>.json and prints a summary table.
  */
 
-import { buildPhotoPrompt, callGemini, type NutritionResponse } from "../../supabase/functions/analyze-meal/vlm.ts";
+import { buildPhotoPrompt, callGemini, GROUNDED_SYSTEM_PROMPT, type NutritionResponse, SYSTEM_PROMPT } from "../../supabase/functions/analyze-meal/vlm.ts";
+import { FoodIndex, groundItem, type ReferenceRow } from "../../supabase/functions/analyze-meal/food_match.ts";
 import { encodeBase64 } from "jsr:@std/encoding@1/base64";
 import { parseArgs } from "jsr:@std/cli@1/parse-args";
 import { summarize, type DishResult, parseDishMetadata, type ReferenceDish, sampleDishes } from "./metrics.ts";
@@ -24,9 +25,16 @@ const HERE = new URL(".", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$
 const CACHE = `${HERE}.cache`;
 
 const args = parseArgs(Deno.args, {
-  string: ["n", "seed", "model", "concurrency"],
-  default: { n: "100", seed: "1", model: "gemini-2.5-flash", concurrency: "4" },
+  string: ["n", "seed", "model", "concurrency", "min-score"],
+  boolean: ["grounded"],
+  default: { n: "100", seed: "1", model: "gemini-2.5-flash", concurrency: "4", "min-score": "0.5" },
 });
+
+// --grounded: the prompt that also asks for USDA descriptions; every dish is then scored twice,
+// with the model's own numbers and with USDA values, from the same answer (a paired comparison).
+const foodIndex = args.grounded
+  ? new FoodIndex((JSON.parse(await Deno.readTextFile(new URL("../../supabase/functions/analyze-meal/reference_foods.json", import.meta.url))) as { foods: ReferenceRow[] }).foods)
+  : null;
 
 async function cachedFetch(url: string, path: string): Promise<Uint8Array | null> {
   try {
@@ -58,8 +66,28 @@ async function estimate(dish: ReferenceDish): Promise<DishResult | null> {
   if (!png) return null; // not every dish has an overhead photo
   const started = Date.now();
   try {
-    const r: NutritionResponse = await callGemini(buildPhotoPrompt(null), encodeBase64(png), args.model, "image/png");
+    const r: NutritionResponse = await callGemini(
+      buildPhotoPrompt(null),
+      encodeBase64(png),
+      args.model,
+      "image/png",
+      args.grounded ? GROUNDED_SYSTEM_PROMPT : SYSTEM_PROMPT,
+    );
+    let grounded: DishResult["grounded"];
+    if (foodIndex) {
+      const items = r.items.map((i) => groundItem(i, foodIndex, Number(args["min-score"])));
+      grounded = {
+        calories: items.reduce((a, i) => a + i.calories, 0),
+        mass: items.reduce((a, i) => a + i.weight_est_g, 0),
+        fat: items.reduce((a, i) => a + i.fat_g, 0),
+        carbs: items.reduce((a, i) => a + i.carbs_g, 0),
+        protein: items.reduce((a, i) => a + i.protein_g, 0),
+        itemsGrounded: items.filter((i) => i.grounded).length,
+        itemsTotal: items.length,
+      };
+    }
     return {
+      grounded,
       id: dish.id,
       reference: dish,
       estimate: {
@@ -101,8 +129,16 @@ async function worker() {
 await Promise.all(Array.from({ length: Number(args.concurrency) }, worker));
 
 const summary = summarize(results);
-console.log("\n" + summary.table);
+console.log("\nModel's own numbers\n" + summary.table);
+let groundedSummary: ReturnType<typeof summarize> | null = null;
+if (foodIndex) {
+  const asGrounded = results.filter((r) => r.grounded).map((r) => ({ ...r, estimate: r.grounded! }));
+  groundedSummary = summarize(asGrounded);
+  const covered = results.reduce((acc, r) => acc + (r.grounded?.itemsGrounded ?? 0), 0);
+  const total = results.reduce((acc, r) => acc + (r.grounded?.itemsTotal ?? 0), 0);
+  console.log(`\nUSDA values where matched (${covered}/${total} items, min score ${args["min-score"]})\n` + groundedSummary.table);
+}
 await Deno.mkdir(`${HERE}results`, { recursive: true });
 const out = `${HERE}results/${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
-await Deno.writeTextFile(out, JSON.stringify({ model: args.model, seed: args.seed, n: results.length, summary: summary.metrics, results }, null, 2));
+await Deno.writeTextFile(out, JSON.stringify({ model: args.model, seed: args.seed, grounded: args.grounded, n: results.length, summary: summary.metrics, groundedSummary: groundedSummary?.metrics ?? null, results }, null, 2));
 console.log(`\nSaved ${out}`);

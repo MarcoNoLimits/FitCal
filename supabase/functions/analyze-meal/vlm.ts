@@ -5,6 +5,8 @@
  */
 
 export interface FoodItem {
+  /** Closest USDA FoodData Central description; only asked for by the grounded prompt. */
+  usda_description?: string;
   item: string;
   weight_est_g: number;
   calories: number;
@@ -63,6 +65,23 @@ Use this exact structure:
 
 
 /** The user prompt for a photo scan; [plateSizeInches] is the user's plate setting, if any. */
+/**
+ * Grounded variant (accuracy work, 2026-10-23): also asks for each item's closest USDA
+ * FoodData Central (SR Legacy) description, so food_match.ts can use lab values. Not used in
+ * production until tools/accuracy-bench shows it is more accurate.
+ */
+export const GROUNDED_SYSTEM_PROMPT = SYSTEM_PROMPT.replace(
+  '      "confidence": "high" | "medium" | "low"',
+  '      "confidence": "high" | "medium" | "low",\n' +
+    '      "usda_description": "string"',
+) + `
+
+For every item, usda_description is the closest food description from USDA FoodData Central
+(SR Legacy) in its usual wording, main food first, then form and cooking method, for example
+"Rice, white, long-grain, regular, enriched, cooked" or
+"Chicken, broilers or fryers, breast, meat only, cooked, roasted". Match the preparation you
+see (fried, roasted, raw). weight_est_g is the edible weight on the plate.`;
+
 export function buildPhotoPrompt(plateSizeInches: number | null): string {
   let prompt = "What is in this meal? Please estimate its nutritional contents.";
   if (plateSizeInches) prompt += `\nNOTE: The user's plate size is exactly ${plateSizeInches} inches. Calibrate portion sizes accordingly.`;
@@ -91,6 +110,9 @@ export function validateAndFormatNutritionResponse(parsed: any): NutritionRespon
         carbs_g: parseFloat(Number(item.carbs_g || 0).toFixed(1)),
         fat_g: parseFloat(Number(item.fat_g || 0).toFixed(1)),
         confidence: String(item.confidence || "medium"),
+        ...(typeof item.usda_description === "string" && item.usda_description.trim()
+          ? { usda_description: item.usda_description.trim().slice(0, 160) }
+          : {}),
       }))
     : [];
   const rawTotals = parsed.totals || {};
@@ -119,6 +141,7 @@ export async function callGemini(
   model = "gemini-2.5-flash",
   // The app always sends JPEG; the accuracy benchmark sends dataset PNGs.
   mimeType = "image/jpeg",
+  systemPrompt: string = SYSTEM_PROMPT,
 ): Promise<NutritionResponse> {
   const apiKey = Deno.env.get("GEMINI_API_KEY");
   if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
@@ -131,7 +154,7 @@ export async function callGemini(
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
         contents: [{ parts }],
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        systemInstruction: { parts: [{ text: systemPrompt }] },
         // 4096 tokens prevents truncated JSON on complex multi-item meals.
         // gemini-2.5-flash still returns markdown fences despite responseMimeType;
         // cleanJson() strips them before parsing.
