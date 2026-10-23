@@ -63,8 +63,6 @@ Use this exact structure:
   "estimation_notes": "string"
 }`;
 
-
-/** The user prompt for a photo scan; [plateSizeInches] is the user's plate setting, if any. */
 /**
  * Grounded variant (accuracy work, 2026-10-23): also asks for each item's closest USDA
  * FoodData Central (SR Legacy) description, so food_match.ts can use lab values. Not used in
@@ -82,6 +80,7 @@ For every item, usda_description is the closest food description from USDA FoodD
 "Chicken, broilers or fryers, breast, meat only, cooked, roasted". Match the preparation you
 see (fried, roasted, raw). weight_est_g is the edible weight on the plate.`;
 
+/** The user prompt for a photo scan; [plateSizeInches] is the user's plate setting, if any. */
 export function buildPhotoPrompt(plateSizeInches: number | null): string {
   let prompt = "What is in this meal? Please estimate its nutritional contents.";
   if (plateSizeInches) prompt += `\nNOTE: The user's plate size is exactly ${plateSizeInches} inches. Calibrate portion sizes accordingly.`;
