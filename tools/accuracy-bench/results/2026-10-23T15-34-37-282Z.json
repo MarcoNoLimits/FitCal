@@ -1,0 +1,2503 @@
+{
+  "provider": "openrouter",
+  "model": "anthropic/claude-sonnet-5.5",
+  "seed": "1",
+  "grounded": false,
+  "n": 100,
+  "summary": {
+    "calories": {
+      "mae": 113.44145007999998,
+      "mape": 62.772585566613024,
+      "bias": 37.795276616171975,
+      "within20": 32
+    },
+    "mass": {
+      "mae": 69.33,
+      "mape": 37.32966735505631,
+      "bias": 22.289102303407255,
+      "within20": 37
+    },
+    "protein": {
+      "mae": 7.995659119999994,
+      "mape": 44.97429689086506,
+      "bias": 12.047765331466218,
+      "within20": 36.36363636363637
+    },
+    "carbs": {
+      "mae": 9.25748581,
+      "mape": 59.18710833621336,
+      "bias": 47.24289956688148,
+      "within20": 30.952380952380953
+    },
+    "fat": {
+      "mae": 7.008931460000001,
+      "mape": 49.1376969729482,
+      "bias": 4.53745208256053,
+      "within20": 27.27272727272727
+    }
+  },
+  "groundedSummary": null,
+  "results": [
+    {
+      "id": "dish_1565711183",
+      "reference": {
+        "id": "dish_1565711183",
+        "calories": 460.42337,
+        "mass": 461,
+        "fat": 20.747547,
+        "carbs": 20.976871,
+        "protein": 44.718552
+      },
+      "estimate": {
+        "calories": 248,
+        "mass": 310,
+        "fat": 10.6,
+        "carbs": 11.2,
+        "protein": 27.7
+      },
+      "items": [
+        "Scrambled egg whites",
+        "Roasted Brussels sprouts",
+        "Bacon strips, cooked",
+        "Mixed salad greens (arugula/baby greens)"
+      ],
+      "latencyMs": 7122
+    },
+    {
+      "id": "dish_1562181247",
+      "reference": {
+        "id": "dish_1562181247",
+        "calories": 660.094482,
+        "mass": 220,
+        "fat": 45.323471,
+        "carbs": 11.534341,
+        "protein": 49.149761
+      },
+      "estimate": {
+        "calories": 495,
+        "mass": 195,
+        "fat": 31,
+        "carbs": 23,
+        "protein": 30
+      },
+      "items": [
+        "Breaded fried chicken pieces",
+        "Coleslaw (cabbage, carrot, scallion with dressing)",
+        "Crispy bacon strips (2 slices)"
+      ],
+      "latencyMs": 7393
+    },
+    {
+      "id": "dish_1558641253",
+      "reference": {
+        "id": "dish_1558641253",
+        "calories": 116.709999,
+        "mass": 110,
+        "fat": 2.64,
+        "carbs": 24.200001,
+        "protein": 3.41
+      },
+      "estimate": {
+        "calories": 112,
+        "mass": 130,
+        "fat": 1.5,
+        "carbs": 25,
+        "protein": 4.1
+      },
+      "items": [
+        "Corn on the cob (two short cut pieces, cooked)"
+      ],
+      "latencyMs": 5436
+    },
+    {
+      "id": "dish_1566931217",
+      "reference": {
+        "id": "dish_1566931217",
+        "calories": 333.108673,
+        "mass": 378,
+        "fat": 29.458878,
+        "carbs": 21.469036,
+        "protein": 21.408707
+      },
+      "estimate": {
+        "calories": 583,
+        "mass": 460,
+        "fat": 31.1,
+        "carbs": 46,
+        "protein": 35.3
+      },
+      "items": [
+        "Baked salmon fillet piece",
+        "White beans (cannellini/butter beans), cooked",
+        "Roasted cauliflower",
+        "Spinach and mixed green salad",
+        "Salad toppings (dried cranberries/beets, feta or goat cheese crumbles, nuts)",
+        "Avocado, sliced (about 1/2 fruit)"
+      ],
+      "latencyMs": 7404
+    },
+    {
+      "id": "dish_1558641007",
+      "reference": {
+        "id": "dish_1558641007",
+        "calories": 23.369999,
+        "mass": 57,
+        "fat": 0.114,
+        "carbs": 5.7,
+        "protein": 0.513
+      },
+      "estimate": {
+        "calories": 40,
+        "mass": 90,
+        "fat": 0.3,
+        "carbs": 9,
+        "protein": 0.9
+      },
+      "items": [
+        "Cooked carrots (sliced, possibly lightly glazed or buttered)"
+      ],
+      "latencyMs": 6520
+    },
+    {
+      "id": "dish_1566413510",
+      "reference": {
+        "id": "dish_1566413510",
+        "calories": 751.383057,
+        "mass": 412,
+        "fat": 58.564003,
+        "carbs": 17.134001,
+        "protein": 44.223
+      },
+      "estimate": {
+        "calories": 346,
+        "mass": 270,
+        "fat": 27,
+        "carbs": 16.2,
+        "protein": 14.5
+      },
+      "items": [
+        "Fresh spinach leaves",
+        "Broccoli florets (appear lightly cooked or blanched)",
+        "Avocado slices",
+        "Dark olives (kalamata or black)",
+        "Shaved parmesan cheese",
+        "Oil-based dressing (yellowish, possibly lemon or vinaigrette)"
+      ],
+      "latencyMs": 8135
+    },
+    {
+      "id": "dish_1560974009",
+      "reference": {
+        "id": "dish_1560974009",
+        "calories": 482.983063,
+        "mass": 409,
+        "fat": 20.768675,
+        "carbs": 30.18502,
+        "protein": 45.270073
+      },
+      "estimate": {
+        "calories": 436,
+        "mass": 420,
+        "fat": 16.7,
+        "carbs": 39,
+        "protein": 37.5
+      },
+      "items": [
+        "Chicken pieces in red chili/tomato-style sauce",
+        "Shredded cabbage and carrot slaw",
+        "Steamed broccoli",
+        "Arugula salad with light dressing",
+        "Cooked lentils"
+      ],
+      "latencyMs": 7059
+    },
+    {
+      "id": "dish_1562788760",
+      "reference": {
+        "id": "dish_1562788760",
+        "calories": 331.324493,
+        "mass": 178,
+        "fat": 23.029417,
+        "carbs": 6.902499,
+        "protein": 33.741703
+      },
+      "estimate": {
+        "calories": 270,
+        "mass": 160,
+        "fat": 15,
+        "carbs": 3,
+        "protein": 30
+      },
+      "items": [
+        "Sliced roasted pork or turkey (2 slices)",
+        "Folded omelette or egg portion with green herb sauce and red/orange seasoning"
+      ],
+      "latencyMs": 5010
+    },
+    {
+      "id": "dish_1568318480",
+      "reference": {
+        "id": "dish_1568318480",
+        "calories": 1119.280029,
+        "mass": 587,
+        "fat": 67.208,
+        "carbs": 9.174999,
+        "protein": 117.905998
+      },
+      "estimate": {
+        "calories": 403,
+        "mass": 370,
+        "fat": 22.5,
+        "carbs": 26,
+        "protein": 28.8
+      },
+      "items": [
+        "Seasoned baked tofu cubes",
+        "Mixed salad greens",
+        "Broccoli florets (cooked)",
+        "Reddish-brown base (possibly sweet potato, roasted vegetable, or salmon)",
+        "Oil or dressing (possible, light coating)"
+      ],
+      "latencyMs": 8234
+    },
+    {
+      "id": "dish_1562774159",
+      "reference": {
+        "id": "dish_1562774159",
+        "calories": 90.76355,
+        "mass": 129,
+        "fat": 3.002097,
+        "carbs": 15.496128,
+        "protein": 1.955
+      },
+      "estimate": {
+        "calories": 105,
+        "mass": 215,
+        "fat": 3.9,
+        "carbs": 17.6,
+        "protein": 2.4
+      },
+      "items": [
+        "Mixed baby greens (spinach and lettuce blend)",
+        "Cantaloupe chunks",
+        "Strawberries (halved)",
+        "Blueberries",
+        "Light dressing (possible vinaigrette, small amount)"
+      ],
+      "latencyMs": 7201
+    },
+    {
+      "id": "dish_1567525712",
+      "reference": {
+        "id": "dish_1567525712",
+        "calories": 510.544769,
+        "mass": 184,
+        "fat": 40.46138,
+        "carbs": 32.97702,
+        "protein": 6.916218
+      },
+      "estimate": {
+        "calories": 289,
+        "mass": 218,
+        "fat": 11.4,
+        "carbs": 37,
+        "protein": 10.1
+      },
+      "items": [
+        "Fried rice with egg and shredded carrot",
+        "Fresh spinach leaves",
+        "Bacon strip (cooked)",
+        "Shredded carrot garnish"
+      ],
+      "latencyMs": 5738
+    },
+    {
+      "id": "dish_1562687527",
+      "reference": {
+        "id": "dish_1562687527",
+        "calories": 203.221603,
+        "mass": 210,
+        "fat": 13.594805,
+        "carbs": 18.88726,
+        "protein": 3.396128
+      },
+      "estimate": {
+        "calories": 141,
+        "mass": 275,
+        "fat": 2.1,
+        "carbs": 29.4,
+        "protein": 3.8
+      },
+      "items": [
+        "Baby spinach leaves",
+        "Shredded carrot",
+        "Cherry or grape tomato",
+        "Honeydew melon chunks",
+        "Strawberries",
+        "Blueberries",
+        "Small baked bread or muffin piece"
+      ],
+      "latencyMs": 6881
+    },
+    {
+      "id": "dish_1563479596",
+      "reference": {
+        "id": "dish_1563479596",
+        "calories": 104.373558,
+        "mass": 151,
+        "fat": 5.351235,
+        "carbs": 12.756775,
+        "protein": 3.778007
+      },
+      "estimate": {
+        "calories": 100,
+        "mass": 218,
+        "fat": 4.4,
+        "carbs": 13.1,
+        "protein": 5.9
+      },
+      "items": [
+        "Spinach leaves (possibly with red chard/beet greens)",
+        "Broccoli floret",
+        "Cauliflower florets",
+        "Brussels sprouts",
+        "Carrot pieces (diced)",
+        "Light dressing or oil/cheese crumbles (possible, small amount)"
+      ],
+      "latencyMs": 7641
+    },
+    {
+      "id": "dish_1559751744",
+      "reference": {
+        "id": "dish_1559751744",
+        "calories": 227.329987,
+        "mass": 188,
+        "fat": 13.007999,
+        "carbs": 10.704,
+        "protein": 15.712
+      },
+      "estimate": {
+        "calories": 238,
+        "mass": 210,
+        "fat": 15.5,
+        "carbs": 10.4,
+        "protein": 14.1
+      },
+      "items": [
+        "Scrambled eggs (possibly with a little cheese or hot sauce)",
+        "Blackberries",
+        "Raspberries"
+      ],
+      "latencyMs": 7607
+    },
+    {
+      "id": "dish_1565194906",
+      "reference": {
+        "id": "dish_1565194906",
+        "calories": 451.795471,
+        "mass": 839,
+        "fat": 5.20372,
+        "carbs": 56.647617,
+        "protein": 42.000122
+      },
+      "estimate": {
+        "calories": 318,
+        "mass": 525,
+        "fat": 3.7,
+        "carbs": 51,
+        "protein": 23.8
+      },
+      "items": [
+        "Scrambled egg whites",
+        "Tomato-based sauce or salsa (cooked)",
+        "Roasted sweet potato cubes",
+        "Watermelon chunks",
+        "Cantaloupe pieces",
+        "Dark grapes"
+      ],
+      "latencyMs": 9988
+    },
+    {
+      "id": "dish_1561665065",
+      "reference": {
+        "id": "dish_1561665065",
+        "calories": 387.798126,
+        "mass": 303,
+        "fat": 15.23173,
+        "carbs": 14.161219,
+        "protein": 47.426922
+      },
+      "estimate": {
+        "calories": 500,
+        "mass": 310,
+        "fat": 23,
+        "carbs": 42,
+        "protein": 35
+      },
+      "items": [
+        "Breaded/crusted chicken pieces (pan-fried or baked)",
+        "Dark leafy greens (kale or similar) with dressing",
+        "Green beans or thin green vegetable strands",
+        "Golden raisins"
+      ],
+      "latencyMs": 8773
+    },
+    {
+      "id": "dish_1558629818",
+      "reference": {
+        "id": "dish_1558629818",
+        "calories": 156.087006,
+        "mass": 27,
+        "fat": 13.365,
+        "carbs": 6.129,
+        "protein": 6.048
+      },
+      "estimate": {
+        "calories": 139,
+        "mass": 24,
+        "fat": 12,
+        "carbs": 5.3,
+        "protein": 5.1
+      },
+      "items": [
+        "Almonds (whole, raw or dry-roasted, unsalted appearance)"
+      ],
+      "latencyMs": 7227
+    },
+    {
+      "id": "dish_1560526408",
+      "reference": {
+        "id": "dish_1560526408",
+        "calories": 67.098175,
+        "mass": 51,
+        "fat": 6.105806,
+        "carbs": 2.743767,
+        "protein": 1.344815
+      },
+      "estimate": {
+        "calories": 80,
+        "mass": 80,
+        "fat": 7.2,
+        "carbs": 4.3,
+        "protein": 1.4
+      },
+      "items": [
+        "Mixed salad greens (red leaf lettuce, arugula, baby greens)",
+        "Tomato pieces or other red vegetable",
+        "Dark garnish (possibly black olives, berries or caviar-like topping)",
+        "Dressing or oil (visible sheen on leaves)"
+      ],
+      "latencyMs": 6243
+    },
+    {
+      "id": "dish_1565810146",
+      "reference": {
+        "id": "dish_1565810146",
+        "calories": 36.445538,
+        "mass": 29,
+        "fat": 3.106966,
+        "carbs": 1.861971,
+        "protein": 0.755749
+      },
+      "estimate": {
+        "calories": 8,
+        "mass": 30,
+        "fat": 0.2,
+        "carbs": 1.1,
+        "protein": 0.8
+      },
+      "items": [
+        "Arugula (rocket) leaves"
+      ],
+      "latencyMs": 6025
+    },
+    {
+      "id": "dish_1559849537",
+      "reference": {
+        "id": "dish_1559849537",
+        "calories": 549.52301,
+        "mass": 393,
+        "fat": 30.711,
+        "carbs": 65.328995,
+        "protein": 15.438001
+      },
+      "estimate": {
+        "calories": 408,
+        "mass": 345,
+        "fat": 20.4,
+        "carbs": 55.1,
+        "protein": 10.3
+      },
+      "items": [
+        "Almonds (whole, raw)",
+        "Red grapes",
+        "Pear (green, small to medium)",
+        "Mandarin/clementine orange"
+      ],
+      "latencyMs": 7193
+    },
+    {
+      "id": "dish_1559934708",
+      "reference": {
+        "id": "dish_1559934708",
+        "calories": 202.445465,
+        "mass": 178,
+        "fat": 7.353578,
+        "carbs": 13.478154,
+        "protein": 19.764999
+      },
+      "estimate": {
+        "calories": 580,
+        "mass": 365,
+        "fat": 24.5,
+        "carbs": 61,
+        "protein": 28.5
+      },
+      "items": [
+        "Breaded/crusted baked chicken piece with wilted spinach",
+        "Steamed white rice",
+        "Creamy romaine lettuce salad (Caesar-style dressing) with croutons",
+        "Cooked orange vegetable pieces (likely roasted squash or sweet potato)"
+      ],
+      "latencyMs": 6508
+    },
+    {
+      "id": "dish_1566402232",
+      "reference": {
+        "id": "dish_1566402232",
+        "calories": 511.396118,
+        "mass": 841,
+        "fat": 8.997679,
+        "carbs": 54.081619,
+        "protein": 48.854603
+      },
+      "estimate": {
+        "calories": 240,
+        "mass": 490,
+        "fat": 1.5,
+        "carbs": 35.9,
+        "protein": 21.9
+      },
+      "items": [
+        "Scrambled egg whites",
+        "Green salsa/tomatillo sauce",
+        "Roasted sweet potato cubes",
+        "Watermelon chunks",
+        "Cantaloupe cubes",
+        "Strawberries",
+        "Blueberries"
+      ],
+      "latencyMs": 6714
+    },
+    {
+      "id": "dish_1562691466",
+      "reference": {
+        "id": "dish_1562691466",
+        "calories": 319.870972,
+        "mass": 267,
+        "fat": 15.903902,
+        "carbs": 27.777901,
+        "protein": 17.012196
+      },
+      "estimate": {
+        "calories": 480,
+        "mass": 390,
+        "fat": 26.5,
+        "carbs": 37,
+        "protein": 26
+      },
+      "items": [
+        "Scrambled eggs (possibly with cheese)",
+        "Roasted sweet potato cubes",
+        "Roasted broccoli",
+        "Sliced chicken or pork breakfast sausage"
+      ],
+      "latencyMs": 7831
+    },
+    {
+      "id": "dish_1566931620",
+      "reference": {
+        "id": "dish_1566931620",
+        "calories": 494.579987,
+        "mass": 461,
+        "fat": 26.081001,
+        "carbs": 22.006001,
+        "protein": 48.034
+      },
+      "estimate": {
+        "calories": 394,
+        "mass": 350,
+        "fat": 19.5,
+        "carbs": 15.7,
+        "protein": 42.2
+      },
+      "items": [
+        "Diced cooked chicken breast",
+        "Avocado slices",
+        "Broccoli florets",
+        "Mixed salad greens (spinach, chard, lettuce)"
+      ],
+      "latencyMs": 7920
+    },
+    {
+      "id": "dish_1561062586",
+      "reference": {
+        "id": "dish_1561062586",
+        "calories": 121.193924,
+        "mass": 89,
+        "fat": 3.318568,
+        "carbs": 20.365366,
+        "protein": 2.566732
+      },
+      "estimate": {
+        "calories": 250,
+        "mass": 192,
+        "fat": 6.6,
+        "carbs": 43,
+        "protein": 5.3
+      },
+      "items": [
+        "Arugula (rocket) salad",
+        "Cooked white rice",
+        "Black olives",
+        "Dried red berries (possibly goji berries)",
+        "Possible light dressing or oil on salad"
+      ],
+      "latencyMs": 7048
+    },
+    {
+      "id": "dish_1567525744",
+      "reference": {
+        "id": "dish_1567525744",
+        "calories": 679.264771,
+        "mass": 298,
+        "fat": 53.001377,
+        "carbs": 34.801022,
+        "protein": 18.316217
+      },
+      "estimate": {
+        "calories": 417,
+        "mass": 310,
+        "fat": 21,
+        "carbs": 36,
+        "protein": 21
+      },
+      "items": [
+        "Scrambled eggs",
+        "Cooked rice (brown/mixed grain, possibly fried with shredded carrot)",
+        "Bacon strip (cooked)",
+        "Fresh spinach leaves",
+        "Shredded carrot"
+      ],
+      "latencyMs": 6451
+    },
+    {
+      "id": "dish_1561578800",
+      "reference": {
+        "id": "dish_1561578800",
+        "calories": 338.354706,
+        "mass": 146,
+        "fat": 14.539577,
+        "carbs": 38.594208,
+        "protein": 13.271948
+      },
+      "estimate": {
+        "calories": 579,
+        "mass": 258,
+        "fat": 24.9,
+        "carbs": 65,
+        "protein": 23.6
+      },
+      "items": [
+        "Cheese pizza (rectangular slices, tomato and mozzarella)",
+        "Arugula/mixed green salad (appears lightly dressed)",
+        "Black olives"
+      ],
+      "latencyMs": 5688
+    },
+    {
+      "id": "dish_1566332193",
+      "reference": {
+        "id": "dish_1566332193",
+        "calories": 527.450012,
+        "mass": 504,
+        "fat": 29.494001,
+        "carbs": 18.466,
+        "protein": 51.841
+      },
+      "estimate": {
+        "calories": 444,
+        "mass": 355,
+        "fat": 24.8,
+        "carbs": 15.3,
+        "protein": 44.2
+      },
+      "items": [
+        "Diced cooked chicken breast",
+        "Avocado slices",
+        "Fresh spinach",
+        "Dark olives (likely Kalamata)",
+        "Cucumber slices"
+      ],
+      "latencyMs": 7129
+    },
+    {
+      "id": "dish_1561663990",
+      "reference": {
+        "id": "dish_1561663990",
+        "calories": 181.4897,
+        "mass": 115,
+        "fat": 5.211059,
+        "carbs": 3.293709,
+        "protein": 28.614527
+      },
+      "estimate": {
+        "calories": 130,
+        "mass": 45,
+        "fat": 7,
+        "carbs": 12,
+        "protein": 5
+      },
+      "items": [
+        "Baked savory pastry/gratin-style piece with herbs and browned cheese or crust"
+      ],
+      "latencyMs": 5146
+    },
+    {
+      "id": "dish_1560442450",
+      "reference": {
+        "id": "dish_1560442450",
+        "calories": 87.761002,
+        "mass": 149,
+        "fat": 0.596,
+        "carbs": 5.364,
+        "protein": 14.900001
+      },
+      "estimate": {
+        "calories": 250,
+        "mass": 250,
+        "fat": 6,
+        "carbs": 38,
+        "protein": 8
+      },
+      "items": [
+        "Creamy white porridge/pudding (possibly cream of rice, oatmeal made with milk, or thick yogurt)"
+      ],
+      "latencyMs": 6470
+    },
+    {
+      "id": "dish_1564775216",
+      "reference": {
+        "id": "dish_1564775216",
+        "calories": 530.596924,
+        "mass": 340,
+        "fat": 33.648357,
+        "carbs": 15.705273,
+        "protein": 40.410912
+      },
+      "estimate": {
+        "calories": 525,
+        "mass": 358,
+        "fat": 31,
+        "carbs": 13,
+        "protein": 52.5
+      },
+      "items": [
+        "Roasted broccoli",
+        "Pan-seared fish fillet pieces with seasoning/crust (likely salmon or similar)",
+        "Cooked red meat slices (likely beef or similar)",
+        "Cooking oil/seasoning (estimated absorbed)"
+      ],
+      "latencyMs": 5382
+    },
+    {
+      "id": "dish_1560973936",
+      "reference": {
+        "id": "dish_1560973936",
+        "calories": 75.243256,
+        "mass": 44,
+        "fat": 5.829186,
+        "carbs": 6.022747,
+        "protein": 1.078271
+      },
+      "estimate": {
+        "calories": 102,
+        "mass": 66,
+        "fat": 7.3,
+        "carbs": 8.3,
+        "protein": 1.6
+      },
+      "items": [
+        "Arugula (rocket) leaves",
+        "Golden raisins / dried fruit pieces",
+        "Light oil-based dressing (appears as a sheen on leaves)"
+      ],
+      "latencyMs": 4838
+    },
+    {
+      "id": "dish_1568315001",
+      "reference": {
+        "id": "dish_1568315001",
+        "calories": 504.709412,
+        "mass": 364,
+        "fat": 30.381466,
+        "carbs": 19.98134,
+        "protein": 39.580326
+      },
+      "estimate": {
+        "calories": 615,
+        "mass": 450,
+        "fat": 38.1,
+        "carbs": 21.4,
+        "protein": 51
+      },
+      "items": [
+        "Stuffed or rolled white fish fillets with creamy sauce and herbs",
+        "Sliced grilled beef steak with seasoning",
+        "Avocado slices",
+        "Cherry tomatoes",
+        "Whole cooked mushrooms",
+        "Grilled zucchini slices"
+      ],
+      "latencyMs": 6319
+    },
+    {
+      "id": "dish_1558381143",
+      "reference": {
+        "id": "dish_1558381143",
+        "calories": 182.638,
+        "mass": 53,
+        "fat": 14.469,
+        "carbs": 2.226,
+        "protein": 10.229
+      },
+      "estimate": {
+        "calories": 280,
+        "mass": 90,
+        "fat": 24,
+        "carbs": 3,
+        "protein": 12
+      },
+      "items": [
+        "Cooked sausage pieces (appears to be smoked or grilled sausage, cut into 5 chunks)"
+      ],
+      "latencyMs": 5799
+    },
+    {
+      "id": "dish_1558720364",
+      "reference": {
+        "id": "dish_1558720364",
+        "calories": 73.839996,
+        "mass": 142,
+        "fat": 0.284,
+        "carbs": 19.879999,
+        "protein": 0.426
+      },
+      "estimate": {
+        "calories": 94,
+        "mass": 180,
+        "fat": 0.3,
+        "carbs": 25,
+        "protein": 0.5
+      },
+      "items": [
+        "Apple (red/yellow variety, whole, with skin)"
+      ],
+      "latencyMs": 4389
+    },
+    {
+      "id": "dish_1557863170",
+      "reference": {
+        "id": "dish_1557863170",
+        "calories": 129.820007,
+        "mass": 142,
+        "fat": 11.426001,
+        "carbs": 8.233999,
+        "protein": 2.266
+      },
+      "estimate": {
+        "calories": 190,
+        "mass": 200,
+        "fat": 16.1,
+        "carbs": 11.2,
+        "protein": 3.4
+      },
+      "items": [
+        "Fresh spinach leaves",
+        "Dark olives (Kalamata-style)",
+        "Avocado slices",
+        "Cucumber slices"
+      ],
+      "latencyMs": 5377
+    },
+    {
+      "id": "dish_1564691420",
+      "reference": {
+        "id": "dish_1564691420",
+        "calories": 212.347305,
+        "mass": 226,
+        "fat": 13.716616,
+        "carbs": 22.601648,
+        "protein": 4.469414
+      },
+      "estimate": {
+        "calories": 160,
+        "mass": 270,
+        "fat": 3.3,
+        "carbs": 31,
+        "protein": 6
+      },
+      "items": [
+        "Cooked green beans (long beans)",
+        "Mixed green salad with red onion, carrot and cucumber, lightly dressed",
+        "Corn on the cob, two small round pieces"
+      ],
+      "latencyMs": 5723
+    },
+    {
+      "id": "dish_1564428475",
+      "reference": {
+        "id": "dish_1564428475",
+        "calories": 261.616272,
+        "mass": 370,
+        "fat": 12.314557,
+        "carbs": 32.755318,
+        "protein": 8.607536
+      },
+      "estimate": {
+        "calories": 255,
+        "mass": 300,
+        "fat": 10.6,
+        "carbs": 11.5,
+        "protein": 30.3
+      },
+      "items": [
+        "Grilled/seasoned white fish fillet",
+        "Mixed green salad with shredded carrot (no visible dressing)",
+        "Steamed cauliflower florets",
+        "Salad dressing/oil and seeds (possible, small amount)"
+      ],
+      "latencyMs": 7043
+    },
+    {
+      "id": "dish_1562959103",
+      "reference": {
+        "id": "dish_1562959103",
+        "calories": 395.013611,
+        "mass": 255,
+        "fat": 22.101429,
+        "carbs": 43.194996,
+        "protein": 23.418005
+      },
+      "estimate": {
+        "calories": 702,
+        "mass": 375,
+        "fat": 30,
+        "carbs": 70.3,
+        "protein": 37.2
+      },
+      "items": [
+        "Breaded/crumb-crusted fish fillets with tomato topping and microgreens",
+        "Cheese pizza pieces with tomato sauce (thin crust)",
+        "Roasted baby potatoes (halved and whole)",
+        "Microgreens/herb garnish"
+      ],
+      "latencyMs": 6429
+    },
+    {
+      "id": "dish_1563565454",
+      "reference": {
+        "id": "dish_1563565454",
+        "calories": 350.788818,
+        "mass": 322,
+        "fat": 22.686897,
+        "carbs": 26.577688,
+        "protein": 22.234623
+      },
+      "estimate": {
+        "calories": 377,
+        "mass": 390,
+        "fat": 11.1,
+        "carbs": 37,
+        "protein": 37.2
+      },
+      "items": [
+        "Mixed leafy greens salad (spinach, bok choy/lettuce) with blueberries and blackberry, lightly dressed",
+        "Cooked chicken pieces (breast/thigh, appears roasted or baked with some herbs)",
+        "Corn on the cob, two short segments",
+        "Berries (blueberries and a blackberry, mixed into salad)"
+      ],
+      "latencyMs": 6085
+    },
+    {
+      "id": "dish_1565638323",
+      "reference": {
+        "id": "dish_1565638323",
+        "calories": 467.824677,
+        "mass": 274,
+        "fat": 20.744896,
+        "carbs": 29.2488,
+        "protein": 38.302158
+      },
+      "estimate": {
+        "calories": 555,
+        "mass": 313,
+        "fat": 26.6,
+        "carbs": 45.6,
+        "protein": 32.3
+      },
+      "items": [
+        "Cooked braised/roasted meat (pork or beef, sliced)",
+        "Cooked white rice (mixed with sauce)",
+        "Fried/seasoned tempeh pieces",
+        "Arugula/leafy greens",
+        "Cooked carrot/tomato pieces",
+        "Cooking oil/sauce (estimated absorbed)"
+      ],
+      "latencyMs": 6206
+    },
+    {
+      "id": "dish_1558639979",
+      "reference": {
+        "id": "dish_1558639979",
+        "calories": 520.290039,
+        "mass": 90,
+        "fat": 44.549999,
+        "carbs": 20.43,
+        "protein": 20.16
+      },
+      "estimate": {
+        "calories": 521,
+        "mass": 90,
+        "fat": 44.9,
+        "carbs": 19.4,
+        "protein": 19.1
+      },
+      "items": [
+        "Almonds (whole, unsalted, appear raw)"
+      ],
+      "latencyMs": 6327
+    },
+    {
+      "id": "dish_1563207277",
+      "reference": {
+        "id": "dish_1563207277",
+        "calories": 153.089996,
+        "mass": 106,
+        "fat": 6.1,
+        "carbs": 23.700001,
+        "protein": 1.3
+      },
+      "estimate": {
+        "calories": 133,
+        "mass": 84,
+        "fat": 6,
+        "carbs": 19.5,
+        "protein": 1.8
+      },
+      "items": [
+        "Roasted sweet potato cubes (orange, with some caramelized edges)",
+        "Roasted white/yellow potato cubes",
+        "Roasting oil (absorbed, estimated)"
+      ],
+      "latencyMs": 4962
+    },
+    {
+      "id": "dish_1560787781",
+      "reference": {
+        "id": "dish_1560787781",
+        "calories": 108.628998,
+        "mass": 97,
+        "fat": 3.181,
+        "carbs": 17.164,
+        "protein": 3.481
+      },
+      "estimate": {
+        "calories": 145,
+        "mass": 134,
+        "fat": 5.5,
+        "carbs": 20.2,
+        "protein": 5.3
+      },
+      "items": [
+        "Bacon strip (cooked)",
+        "Roasted sweet potato cubes",
+        "Raspberries",
+        "Blackberries"
+      ],
+      "latencyMs": 6162
+    },
+    {
+      "id": "dish_1563811463",
+      "reference": {
+        "id": "dish_1563811463",
+        "calories": 220.585373,
+        "mass": 376,
+        "fat": 2.699951,
+        "carbs": 22.557051,
+        "protein": 23.124781
+      },
+      "estimate": {
+        "calories": 322,
+        "mass": 520,
+        "fat": 8.2,
+        "carbs": 41.3,
+        "protein": 21.3
+      },
+      "items": [
+        "Scrambled egg whites",
+        "Roasted potato cubes (pan-fried/roasted with oil)",
+        "Cantaloupe chunks",
+        "Soup or sauce in side bowl (partially visible)"
+      ],
+      "latencyMs": 7586
+    },
+    {
+      "id": "dish_1561662869",
+      "reference": {
+        "id": "dish_1561662869",
+        "calories": 284.34552,
+        "mass": 192,
+        "fat": 9.242703,
+        "carbs": 10.282766,
+        "protein": 38.791027
+      },
+      "estimate": {
+        "calories": 395,
+        "mass": 260,
+        "fat": 18.4,
+        "carbs": 25.8,
+        "protein": 33
+      },
+      "items": [
+        "Breaded/crusted chicken roll (sliced, appears stuffed)",
+        "Sautéed leafy greens (spinach/kale) with mushrooms",
+        "Quinoa or grain crumbles",
+        "Roasted carrot or orange pepper piece",
+        "Baby corn cob piece (cross-section)"
+      ],
+      "latencyMs": 6268
+    },
+    {
+      "id": "dish_1562010394",
+      "reference": {
+        "id": "dish_1562010394",
+        "calories": 188.610443,
+        "mass": 116,
+        "fat": 12.935694,
+        "carbs": 3.708065,
+        "protein": 14.15958
+      },
+      "estimate": {
+        "calories": 210,
+        "mass": 150,
+        "fat": 11,
+        "carbs": 12,
+        "protein": 16
+      },
+      "items": [
+        "Mixed salad greens (red leaf, green leaf, baby lettuces) with light dressing",
+        "Crusted meat or fish piece (appears to have a toasted, shredded coating, possibly coconut or fried onion/potato)"
+      ],
+      "latencyMs": 6337
+    },
+    {
+      "id": "dish_1557937157",
+      "reference": {
+        "id": "dish_1557937157",
+        "calories": 355.25,
+        "mass": 271,
+        "fat": 22.122999,
+        "carbs": 14.700001,
+        "protein": 24.341999
+      },
+      "estimate": {
+        "calories": 377,
+        "mass": 345,
+        "fat": 23.9,
+        "carbs": 18.8,
+        "protein": 23.5
+      },
+      "items": [
+        "Scrambled eggs",
+        "Bacon strips (cooked)",
+        "Steamed broccoli florets",
+        "Raspberries",
+        "Strawberries (sliced)"
+      ],
+      "latencyMs": 5583
+    },
+    {
+      "id": "dish_1561739576",
+      "reference": {
+        "id": "dish_1561739576",
+        "calories": 63.84,
+        "mass": 84,
+        "fat": 0,
+        "carbs": 15.120001,
+        "protein": 0.84
+      },
+      "estimate": {
+        "calories": 115,
+        "mass": 84,
+        "fat": 4.3,
+        "carbs": 18.3,
+        "protein": 1.5
+      },
+      "items": [
+        "Roasted sweet potato cubes with skin",
+        "Oil/seasoning coating (estimated)"
+      ],
+      "latencyMs": 5514
+    },
+    {
+      "id": "dish_1565117463",
+      "reference": {
+        "id": "dish_1565117463",
+        "calories": 435.312988,
+        "mass": 248,
+        "fat": 15.939,
+        "carbs": 53.588001,
+        "protein": 19.696001
+      },
+      "estimate": {
+        "calories": 815,
+        "mass": 370,
+        "fat": 34,
+        "carbs": 92,
+        "protein": 34
+      },
+      "items": [
+        "Cheese pizza slice (rectangular/square cut, top left)",
+        "Cheese pizza slice (triangular, top right)",
+        "Cheese pizza slice (bottom right)",
+        "Romaine salad with creamy Caesar-style dressing"
+      ],
+      "latencyMs": 7169
+    },
+    {
+      "id": "dish_1559059954",
+      "reference": {
+        "id": "dish_1559059954",
+        "calories": 108.199997,
+        "mass": 20,
+        "fat": 8.4,
+        "carbs": 0.28,
+        "protein": 7.4
+      },
+      "estimate": {
+        "calories": 87,
+        "mass": 16,
+        "fat": 6.7,
+        "carbs": 0.2,
+        "protein": 6
+      },
+      "items": [
+        "Crispy cooked bacon strips (approx. 2 slices)"
+      ],
+      "latencyMs": 5896
+    },
+    {
+      "id": "dish_1561740321",
+      "reference": {
+        "id": "dish_1561740321",
+        "calories": 52.980408,
+        "mass": 28,
+        "fat": 5.462205,
+        "carbs": 1.063661,
+        "protein": 0.275927
+      },
+      "estimate": {
+        "calories": 42,
+        "mass": 72,
+        "fat": 2.6,
+        "carbs": 3.4,
+        "protein": 2.1
+      },
+      "items": [
+        "Fresh spinach leaves",
+        "Shredded carrot",
+        "Small bits of possible egg or cheese crumbles",
+        "Possible light dressing or oil residue"
+      ],
+      "latencyMs": 6439
+    },
+    {
+      "id": "dish_1568401018",
+      "reference": {
+        "id": "dish_1568401018",
+        "calories": 587.709961,
+        "mass": 447,
+        "fat": 12.476,
+        "carbs": 7.196,
+        "protein": 106.168007
+      },
+      "estimate": {
+        "calories": 328,
+        "mass": 290,
+        "fat": 7,
+        "carbs": 5.5,
+        "protein": 58.9
+      },
+      "items": [
+        "Diced cooked chicken breast",
+        "Mixed salad greens (arugula, spinach, baby leaves)",
+        "Broccoli florets"
+      ],
+      "latencyMs": 5456
+    },
+    {
+      "id": "dish_1561392734",
+      "reference": {
+        "id": "dish_1561392734",
+        "calories": 84.239998,
+        "mass": 198,
+        "fat": 0.488,
+        "carbs": 20.936001,
+        "protein": 1.28
+      },
+      "estimate": {
+        "calories": 84,
+        "mass": 250,
+        "fat": 0.5,
+        "carbs": 21,
+        "protein": 1.6
+      },
+      "items": [
+        "Watermelon chunks",
+        "Strawberries (halved/sliced)",
+        "Blueberries"
+      ],
+      "latencyMs": 6288
+    },
+    {
+      "id": "dish_1562960437",
+      "reference": {
+        "id": "dish_1562960437",
+        "calories": 97.290001,
+        "mass": 69,
+        "fat": 4.692,
+        "carbs": 12.42,
+        "protein": 1.449
+      },
+      "estimate": {
+        "calories": 254,
+        "mass": 102,
+        "fat": 12,
+        "carbs": 29,
+        "protein": 7
+      },
+      "items": [
+        "Fried breaded balls (croquette/arancini-style)",
+        "Fried breaded ball (croquette/arancini-style)",
+        "Fresh herb/leaf garnish"
+      ],
+      "latencyMs": 7619
+    },
+    {
+      "id": "dish_1561491154",
+      "reference": {
+        "id": "dish_1561491154",
+        "calories": 166.137466,
+        "mass": 158,
+        "fat": 18.455791,
+        "carbs": 5.614334,
+        "protein": 18.301338
+      },
+      "estimate": {
+        "calories": 290,
+        "mass": 185,
+        "fat": 15.5,
+        "carbs": 8.5,
+        "protein": 29.7
+      },
+      "items": [
+        "Pan-cooked meat cutlet pieces (likely chicken or veal) with herb sauce",
+        "Cooked spinach leaves",
+        "Small yellow garnish or sauce (possibly mashed potato, citrus or ginger)",
+        "Cooking oil or sauce glaze (estimated)"
+      ],
+      "latencyMs": 7739
+    },
+    {
+      "id": "dish_1566415591",
+      "reference": {
+        "id": "dish_1566415591",
+        "calories": 214.780777,
+        "mass": 316,
+        "fat": 16.906708,
+        "carbs": 18.46199,
+        "protein": 16.844492
+      },
+      "estimate": {
+        "calories": 341,
+        "mass": 405,
+        "fat": 11.2,
+        "carbs": 22.6,
+        "protein": 41.3
+      },
+      "items": [
+        "Green beans (steamed/boiled)",
+        "Roasted broccoli florets (with spice/oil coating)",
+        "Cooked chicken breast pieces (pan-cooked, lightly crusted/seasoned)",
+        "Roasted mushroom (portobello-type)"
+      ],
+      "latencyMs": 7223
+    },
+    {
+      "id": "dish_1563827132",
+      "reference": {
+        "id": "dish_1563827132",
+        "calories": 240.020004,
+        "mass": 302,
+        "fat": 8.043666,
+        "carbs": 32.756668,
+        "protein": 11.456667
+      },
+      "estimate": {
+        "calories": 430,
+        "mass": 370,
+        "fat": 24,
+        "carbs": 43,
+        "protein": 15
+      },
+      "items": [
+        "Cheese flatbread/pizza slice (browned melted cheese)",
+        "Romaine salad with creamy dressing (Caesar-style)",
+        "Cooked yellow squash and zucchini slices",
+        "Pineapple chunks"
+      ],
+      "latencyMs": 5788
+    },
+    {
+      "id": "dish_1562873028",
+      "reference": {
+        "id": "dish_1562873028",
+        "calories": 280.3414,
+        "mass": 320,
+        "fat": 16.123878,
+        "carbs": 34.232201,
+        "protein": 20.963665
+      },
+      "estimate": {
+        "calories": 486,
+        "mass": 490,
+        "fat": 20.5,
+        "carbs": 42.6,
+        "protein": 34.5
+      },
+      "items": [
+        "Baked fish fillet (herb/tomato topping, possibly salmon)",
+        "Roasted potato chunks with mushrooms and herbs",
+        "Green beans",
+        "Cherry tomatoes, halved",
+        "Sliced cucumber"
+      ],
+      "latencyMs": 6589
+    },
+    {
+      "id": "dish_1565811588",
+      "reference": {
+        "id": "dish_1565811588",
+        "calories": 348.484161,
+        "mass": 263,
+        "fat": 21.454355,
+        "carbs": 7.568845,
+        "protein": 31.213434
+      },
+      "estimate": {
+        "calories": 193,
+        "mass": 258,
+        "fat": 9.2,
+        "carbs": 23.7,
+        "protein": 5.6
+      },
+      "items": [
+        "Mixed baby greens (spinach and lettuce) with shredded carrot",
+        "Red onion slices",
+        "Shredded cabbage slaw in orange-colored sauce (possibly with nuts or seeds)",
+        "Watermelon radish slices",
+        "Dark balsamic-style drizzle"
+      ],
+      "latencyMs": 6981
+    },
+    {
+      "id": "dish_1561661324",
+      "reference": {
+        "id": "dish_1561661324",
+        "calories": 33,
+        "mass": 75,
+        "fat": 1.575,
+        "carbs": 3.225,
+        "protein": 2.4
+      },
+      "estimate": {
+        "calories": 113,
+        "mass": 83,
+        "fat": 9.8,
+        "carbs": 3.3,
+        "protein": 4.2
+      },
+      "items": [
+        "Chopped romaine lettuce",
+        "Creamy dressing (Caesar-style)",
+        "Shaved Parmesan cheese"
+      ],
+      "latencyMs": 7489
+    },
+    {
+      "id": "dish_1561576590",
+      "reference": {
+        "id": "dish_1561576590",
+        "calories": 29.231468,
+        "mass": 101,
+        "fat": 1.295191,
+        "carbs": 3.387423,
+        "protein": 0.896671
+      },
+      "estimate": {
+        "calories": 138,
+        "mass": 170,
+        "fat": 6.3,
+        "carbs": 18.3,
+        "protein": 4.8
+      },
+      "items": [
+        "Zucchini and yellow squash, roasted",
+        "Broccoli floret, roasted",
+        "Cherry tomato",
+        "Baby potato piece, roasted",
+        "Spinach or leafy greens, cooked",
+        "Oil, seasoning and breadcrumb or grain topping"
+      ],
+      "latencyMs": 7506
+    },
+    {
+      "id": "dish_1565727791",
+      "reference": {
+        "id": "dish_1565727791",
+        "calories": 121.074005,
+        "mass": 99,
+        "fat": 6.6,
+        "carbs": 6.161,
+        "protein": 10.278
+      },
+      "estimate": {
+        "calories": 198,
+        "mass": 190,
+        "fat": 13.5,
+        "carbs": 9.7,
+        "protein": 10.9
+      },
+      "items": [
+        "Mixed salad greens (red leaf, green leaf, baby lettuces)",
+        "Broccoli florets (raw or lightly blanched)",
+        "Shaved Parmesan cheese",
+        "Dressing/oil (possible light coating, not clearly visible)"
+      ],
+      "latencyMs": 6912
+    },
+    {
+      "id": "dish_1560369255",
+      "reference": {
+        "id": "dish_1560369255",
+        "calories": 132.666138,
+        "mass": 61,
+        "fat": 7.923563,
+        "carbs": 1.979007,
+        "protein": 12.538679
+      },
+      "estimate": {
+        "calories": 215,
+        "mass": 148,
+        "fat": 7,
+        "carbs": 14.3,
+        "protein": 24.1
+      },
+      "items": [
+        "Sliced cooked meat (pork loin or chicken breast), partially eaten",
+        "Seasoned rice with small bits (scattered remnants)",
+        "Beans (a few scattered pinto or brown beans)",
+        "Green vegetable pieces (possibly pepper or spinach)",
+        "Sauce smears and residue on plate"
+      ],
+      "latencyMs": 6078
+    },
+    {
+      "id": "dish_1567021799",
+      "reference": {
+        "id": "dish_1567021799",
+        "calories": 93.81813,
+        "mass": 76,
+        "fat": 8.914966,
+        "carbs": 3.059988,
+        "protein": 1.823886
+      },
+      "estimate": {
+        "calories": 16,
+        "mass": 67,
+        "fat": 0.4,
+        "carbs": 2.6,
+        "protein": 1.6
+      },
+      "items": [
+        "Arugula (rocket) leaves",
+        "Red chard / beet baby leaves",
+        "Baby spinach leaves",
+        "Blueberry (single, possible)"
+      ],
+      "latencyMs": 7268
+    },
+    {
+      "id": "dish_1562774180",
+      "reference": {
+        "id": "dish_1562774180",
+        "calories": 164.083557,
+        "mass": 181,
+        "fat": 6.538097,
+        "carbs": 24.856129,
+        "protein": 3.047
+      },
+      "estimate": {
+        "calories": 261,
+        "mass": 350,
+        "fat": 9.4,
+        "carbs": 40.8,
+        "protein": 5.8
+      },
+      "items": [
+        "Spinach salad with light dressing",
+        "Cantaloupe chunks",
+        "Strawberry pieces",
+        "Blueberries",
+        "Roasted baby potatoes"
+      ],
+      "latencyMs": 5338
+    },
+    {
+      "id": "dish_1566316681",
+      "reference": {
+        "id": "dish_1566316681",
+        "calories": 116.762924,
+        "mass": 122,
+        "fat": 2.97561,
+        "carbs": 21.424391,
+        "protein": 1.190244
+      },
+      "estimate": {
+        "calories": 140,
+        "mass": 110,
+        "fat": 3,
+        "carbs": 28,
+        "protein": 2
+      },
+      "items": [
+        "Roasted sweet potato cubes (with skin, lightly oiled)"
+      ],
+      "latencyMs": 5430
+    },
+    {
+      "id": "dish_1567628157",
+      "reference": {
+        "id": "dish_1567628157",
+        "calories": 373.190979,
+        "mass": 355,
+        "fat": 36.018696,
+        "carbs": 25.867041,
+        "protein": 37.479683
+      },
+      "estimate": {
+        "calories": 332,
+        "mass": 315,
+        "fat": 14.6,
+        "carbs": 37.8,
+        "protein": 15.3
+      },
+      "items": [
+        "Cooked lentils with spiced/tahini-style sauce",
+        "Roasted cauliflower with seasoning/sauce",
+        "Mixed salad greens (arugula and leafy greens)",
+        "Cooked red chard / beet greens",
+        "Dressing/oil and sauce (estimated)"
+      ],
+      "latencyMs": 6301
+    },
+    {
+      "id": "dish_1559844951",
+      "reference": {
+        "id": "dish_1559844951",
+        "calories": 274.335999,
+        "mass": 122,
+        "fat": 17.906,
+        "carbs": 22.792,
+        "protein": 9.784
+      },
+      "estimate": {
+        "calories": 351,
+        "mass": 147,
+        "fat": 20.7,
+        "carbs": 36.4,
+        "protein": 8.4
+      },
+      "items": [
+        "Whole almonds",
+        "Roasted/fried potato chunks",
+        "Small crumb or food fragment (unidentified)"
+      ],
+      "latencyMs": 6234
+    },
+    {
+      "id": "dish_1563466280",
+      "reference": {
+        "id": "dish_1563466280",
+        "calories": 357.059998,
+        "mass": 66,
+        "fat": 27.719999,
+        "carbs": 0.924,
+        "protein": 24.42
+      },
+      "estimate": {
+        "calories": 215,
+        "mass": 40,
+        "fat": 17,
+        "carbs": 0.6,
+        "protein": 14
+      },
+      "items": [
+        "Crispy cooked bacon strips (pork bacon, approx. 6-7 slices)"
+      ],
+      "latencyMs": 4446
+    },
+    {
+      "id": "dish_1561578623",
+      "reference": {
+        "id": "dish_1561578623",
+        "calories": 208.514832,
+        "mass": 208,
+        "fat": 10.297771,
+        "carbs": 13.109113,
+        "protein": 15.945778
+      },
+      "estimate": {
+        "calories": 335,
+        "mass": 320,
+        "fat": 14.5,
+        "carbs": 29,
+        "protein": 25.5
+      },
+      "items": [
+        "Sliced roasted meat (pork or beef) with herb/pesto-style topping",
+        "Cooked cauliflower pieces (possibly lightly mashed or crushed)",
+        "Roasted potato pieces"
+      ],
+      "latencyMs": 6368
+    },
+    {
+      "id": "dish_1562775373",
+      "reference": {
+        "id": "dish_1562775373",
+        "calories": 329.080017,
+        "mass": 148,
+        "fat": 24.959999,
+        "carbs": 2.312,
+        "protein": 22.360001
+      },
+      "estimate": {
+        "calories": 285,
+        "mass": 124,
+        "fat": 22,
+        "carbs": 2.4,
+        "protein": 19
+      },
+      "items": [
+        "Scrambled eggs",
+        "Bacon strips (cooked, 3 strips)"
+      ],
+      "latencyMs": 4694
+    },
+    {
+      "id": "dish_1564428404",
+      "reference": {
+        "id": "dish_1564428404",
+        "calories": 113.751038,
+        "mass": 104,
+        "fat": 9.80839,
+        "carbs": 6.298835,
+        "protein": 1.598034
+      },
+      "estimate": {
+        "calories": 55,
+        "mass": 86,
+        "fat": 4.2,
+        "carbs": 4,
+        "protein": 1.1
+      },
+      "items": [
+        "Mixed salad greens (leaf lettuce, dark red/green baby lettuces)",
+        "Shredded carrot",
+        "Light dressing or oil residue (possible, slight sheen on leaves)"
+      ],
+      "latencyMs": 6045
+    },
+    {
+      "id": "dish_1562689519",
+      "reference": {
+        "id": "dish_1562689519",
+        "calories": 169.540009,
+        "mass": 173,
+        "fat": 7.439,
+        "carbs": 5.882,
+        "protein": 19.030001
+      },
+      "estimate": {
+        "calories": 147,
+        "mass": 150,
+        "fat": 6.5,
+        "carbs": 5,
+        "protein": 16.5
+      },
+      "items": [
+        "Cottage cheese (appears plain, curd style)"
+      ],
+      "latencyMs": 4842
+    },
+    {
+      "id": "dish_1559678457",
+      "reference": {
+        "id": "dish_1559678457",
+        "calories": 624.236084,
+        "mass": 465,
+        "fat": 37.50322,
+        "carbs": 29.983656,
+        "protein": 43.010422
+      },
+      "estimate": {
+        "calories": 480,
+        "mass": 385,
+        "fat": 15.1,
+        "carbs": 51.2,
+        "protein": 36.9
+      },
+      "items": [
+        "Sliced beef steak (medium-rare)",
+        "Cooked wheat berries / grain pilaf with onion",
+        "Steamed broccoli",
+        "Fresh spinach leaves",
+        "Sun-dried tomato pieces and light dressing/oil"
+      ],
+      "latencyMs": 6746
+    },
+    {
+      "id": "dish_1563207364",
+      "reference": {
+        "id": "dish_1563207364",
+        "calories": 309.269989,
+        "mass": 271,
+        "fat": 13.774,
+        "carbs": 30.657,
+        "protein": 15.01
+      },
+      "estimate": {
+        "calories": 343,
+        "mass": 295,
+        "fat": 13.8,
+        "carbs": 37.6,
+        "protein": 17.8
+      },
+      "items": [
+        "Roasted sweet potato and potato cubes (with some mushrooms)",
+        "Red grapes (about 7)",
+        "Scrambled egg",
+        "Chopped egg white / hard-boiled egg",
+        "Soft white cheese (e.g., fresh mozzarella or feta-style)"
+      ],
+      "latencyMs": 6568
+    },
+    {
+      "id": "dish_1563897837",
+      "reference": {
+        "id": "dish_1563897837",
+        "calories": 118.470001,
+        "mass": 304,
+        "fat": 0.709,
+        "carbs": 29.568001,
+        "protein": 1.925
+      },
+      "estimate": {
+        "calories": 92,
+        "mass": 290,
+        "fat": 0.5,
+        "carbs": 22.5,
+        "protein": 1.8
+      },
+      "items": [
+        "Watermelon chunks",
+        "Strawberries (halved/whole)",
+        "Blueberries"
+      ],
+      "latencyMs": 4938
+    },
+    {
+      "id": "dish_1568666329",
+      "reference": {
+        "id": "dish_1568666329",
+        "calories": 743.76001,
+        "mass": 594,
+        "fat": 42.484001,
+        "carbs": 19.77,
+        "protein": 72.891998
+      },
+      "estimate": {
+        "calories": 380,
+        "mass": 370,
+        "fat": 14.7,
+        "carbs": 17,
+        "protein": 45.6
+      },
+      "items": [
+        "Diced cooked chicken breast",
+        "Broccoli florets (steamed)",
+        "Savoy cabbage / leafy greens",
+        "Artichoke hearts",
+        "Oil/dressing (light drizzle)"
+      ],
+      "latencyMs": 5020
+    },
+    {
+      "id": "dish_1562086740",
+      "reference": {
+        "id": "dish_1562086740",
+        "calories": 447.890015,
+        "mass": 215,
+        "fat": 33.880001,
+        "carbs": 3.374,
+        "protein": 30.41
+      },
+      "estimate": {
+        "calories": 285,
+        "mass": 146,
+        "fat": 21.5,
+        "carbs": 2.2,
+        "protein": 19
+      },
+      "items": [
+        "Scrambled eggs (appears seasoned with pepper/herbs)",
+        "Bacon strips, cooked (2 strips)"
+      ],
+      "latencyMs": 4377
+    },
+    {
+      "id": "dish_1557861605",
+      "reference": {
+        "id": "dish_1557861605",
+        "calories": 35.099998,
+        "mass": 39,
+        "fat": 5.07,
+        "carbs": 0,
+        "protein": 7.176
+      },
+      "estimate": {
+        "calories": 566,
+        "mass": 103,
+        "fat": 16.5,
+        "carbs": 10.5,
+        "protein": 16.7
+      },
+      "items": [
+        "Pan-seared fish fillet (likely salmon or similar) with dark crust",
+        "Crispy golden topping/base (breadcrumb, fried grain or potato-like)",
+        "Sauce dots and herb garnish (e.g., aioli/cream dots, chives or microgreens)"
+      ],
+      "latencyMs": 6547
+    },
+    {
+      "id": "dish_1561392543",
+      "reference": {
+        "id": "dish_1561392543",
+        "calories": 126.004929,
+        "mass": 119,
+        "fat": 8.808466,
+        "carbs": 12.171466,
+        "protein": 0.9586
+      },
+      "estimate": {
+        "calories": 73,
+        "mass": 158,
+        "fat": 2.6,
+        "carbs": 12.6,
+        "protein": 2
+      },
+      "items": [
+        "Dressed baby spinach",
+        "Shredded carrot",
+        "Strawberries (halved and quartered)",
+        "Blueberries"
+      ],
+      "latencyMs": 5613
+    },
+    {
+      "id": "dish_1558632080",
+      "reference": {
+        "id": "dish_1558632080",
+        "calories": 72.148003,
+        "mass": 68,
+        "fat": 1.632,
+        "carbs": 14.96,
+        "protein": 2.108
+      },
+      "estimate": {
+        "calories": 78,
+        "mass": 90,
+        "fat": 1.1,
+        "carbs": 17,
+        "protein": 2.9
+      },
+      "items": [
+        "Corn on the cob (short cross-section piece, boiled/steamed, appears plain)"
+      ],
+      "latencyMs": 4275
+    },
+    {
+      "id": "dish_1560356355",
+      "reference": {
+        "id": "dish_1560356355",
+        "calories": 301.606934,
+        "mass": 148,
+        "fat": 15.277617,
+        "carbs": 28.402531,
+        "protein": 12.777824
+      },
+      "estimate": {
+        "calories": 275,
+        "mass": 235,
+        "fat": 10.2,
+        "carbs": 34.9,
+        "protein": 12.7
+      },
+      "items": [
+        "Roasted sweet potato cubes",
+        "Fresh baby spinach",
+        "Shredded carrot",
+        "Crispy prosciutto (or bacon-style cured pork)"
+      ],
+      "latencyMs": 5913
+    },
+    {
+      "id": "dish_1565640272",
+      "reference": {
+        "id": "dish_1565640272",
+        "calories": 377.820007,
+        "mass": 405,
+        "fat": 13.907999,
+        "carbs": 49.740002,
+        "protein": 16.559999
+      },
+      "estimate": {
+        "calories": 476,
+        "mass": 445,
+        "fat": 20.3,
+        "carbs": 55.5,
+        "protein": 21.1
+      },
+      "items": [
+        "Pepperoni pizza (2 small rectangular slices)",
+        "Sliced green and red bell peppers",
+        "Cherry tomatoes (about 10)",
+        "Grilled asparagus (on side plate, partially visible)",
+        "Olives (on side plate, partially visible)"
+      ],
+      "latencyMs": 7858
+    },
+    {
+      "id": "dish_1565020926",
+      "reference": {
+        "id": "dish_1565020926",
+        "calories": 398.496124,
+        "mass": 489,
+        "fat": 10.379284,
+        "carbs": 56.515961,
+        "protein": 21.472317
+      },
+      "estimate": {
+        "calories": 355,
+        "mass": 300,
+        "fat": 15.9,
+        "carbs": 43.2,
+        "protein": 12.9
+      },
+      "items": [
+        "Raspberries",
+        "Blackberries",
+        "Dark grapes",
+        "Chia seed pudding",
+        "Roasted sweet potato cubes",
+        "Bacon strip (cooked)",
+        "White soft cheese or tofu pieces",
+        "Golden raisins/dried fruit"
+      ],
+      "latencyMs": 7707
+    },
+    {
+      "id": "dish_1558638137",
+      "reference": {
+        "id": "dish_1558638137",
+        "calories": 60.839996,
+        "mass": 117,
+        "fat": 0.234,
+        "carbs": 16.379999,
+        "protein": 0.351
+      },
+      "estimate": {
+        "calories": 94,
+        "mass": 180,
+        "fat": 0.3,
+        "carbs": 25,
+        "protein": 0.5
+      },
+      "items": [
+        "Apple (red-yellow, whole, with skin)"
+      ],
+      "latencyMs": 6608
+    },
+    {
+      "id": "dish_1559590005",
+      "reference": {
+        "id": "dish_1559590005",
+        "calories": 360.832489,
+        "mass": 241,
+        "fat": 16.641808,
+        "carbs": 39.46653,
+        "protein": 14.747198
+      },
+      "estimate": {
+        "calories": 609,
+        "mass": 315,
+        "fat": 26.3,
+        "carbs": 66,
+        "protein": 27.2
+      },
+      "items": [
+        "Cheese pizza slice (thin crust)",
+        "Pizza slice with meat sauce and tomato slice",
+        "Fresh spinach leaves",
+        "Cooked mushrooms",
+        "Dried cranberries/raisins and red onion garnish",
+        "Salad dressing/oil (assumed light coating)"
+      ],
+      "latencyMs": 15239
+    },
+    {
+      "id": "dish_1563295016",
+      "reference": {
+        "id": "dish_1563295016",
+        "calories": 127.879997,
+        "mass": 79,
+        "fat": 7.621,
+        "carbs": 8.182,
+        "protein": 6.965
+      },
+      "estimate": {
+        "calories": 180,
+        "mass": 115,
+        "fat": 10.6,
+        "carbs": 12.2,
+        "protein": 9.5
+      },
+      "items": [
+        "Cooked bacon strips",
+        "Fresh pineapple chunks"
+      ],
+      "latencyMs": 4369
+    },
+    {
+      "id": "dish_1563221025",
+      "reference": {
+        "id": "dish_1563221025",
+        "calories": 245.445801,
+        "mass": 123,
+        "fat": 12.988835,
+        "carbs": 4.359616,
+        "protein": 25.94677
+      },
+      "estimate": {
+        "calories": 263,
+        "mass": 145,
+        "fat": 10.7,
+        "carbs": 11.5,
+        "protein": 29.9
+      },
+      "items": [
+        "Grilled meat pieces (likely chicken or pork, sliced)",
+        "Breaded/crumb-coated strip (likely chicken or fish)",
+        "Spinach and lettuce leaves",
+        "Small amount of grain or rice with a corn-like piece"
+      ],
+      "latencyMs": 4943
+    },
+    {
+      "id": "dish_1559242568",
+      "reference": {
+        "id": "dish_1559242568",
+        "calories": 116.116005,
+        "mass": 203,
+        "fat": 0.203,
+        "carbs": 30.855999,
+        "protein": 0.812
+      },
+      "estimate": {
+        "calories": 104,
+        "mass": 180,
+        "fat": 0.2,
+        "carbs": 27.5,
+        "protein": 0.7
+      },
+      "items": [
+        "Green pear (whole, with skin)"
+      ],
+      "latencyMs": 5607
+    },
+    {
+      "id": "dish_1563568025",
+      "reference": {
+        "id": "dish_1563568025",
+        "calories": 244.986359,
+        "mass": 247,
+        "fat": 16.967199,
+        "carbs": 28.967131,
+        "protein": 19.446245
+      },
+      "estimate": {
+        "calories": 473,
+        "mass": 458,
+        "fat": 21.4,
+        "carbs": 46.8,
+        "protein": 30.9
+      },
+      "items": [
+        "Corn on the cob pieces (3 segments)",
+        "Fish fillet, skin-on, with fried garlic topping",
+        "Bok choy / leafy greens, cooked",
+        "Cooked cucumber or gourd slices",
+        "Cooking oil and sauce (estimated absorbed or coating)"
+      ],
+      "latencyMs": 7126
+    },
+    {
+      "id": "dish_1563393403",
+      "reference": {
+        "id": "dish_1563393403",
+        "calories": 103.154633,
+        "mass": 216,
+        "fat": 7.439952,
+        "carbs": 10.219167,
+        "protein": 10.354001
+      },
+      "estimate": {
+        "calories": 293,
+        "mass": 348,
+        "fat": 16.2,
+        "carbs": 21.9,
+        "protein": 19.6
+      },
+      "items": [
+        "Herb and spice-crusted protein (appears to be tofu or white fish) with herb garnish",
+        "Steamed broccoli florets",
+        "Yellow or orange sweet pepper",
+        "Zucchini slice",
+        "Red bell pepper",
+        "Cooking oil or seasoning (estimated absorbed)"
+      ],
+      "latencyMs": 6532
+    },
+    {
+      "id": "dish_1563476646",
+      "reference": {
+        "id": "dish_1563476646",
+        "calories": 380.158081,
+        "mass": 218,
+        "fat": 18.121593,
+        "carbs": 21.653313,
+        "protein": 29.908882
+      },
+      "estimate": {
+        "calories": 548,
+        "mass": 308,
+        "fat": 20.1,
+        "carbs": 63.5,
+        "protein": 28.3
+      },
+      "items": [
+        "Penne pasta (cooked, in light sauce)",
+        "Cooked meat chunks (appears to be pork or beef, in brown sauce)",
+        "Sauce and cooking oil (light brown/creamy coating)",
+        "Leafy greens (possibly basil or spinach)"
+      ],
+      "latencyMs": 6461
+    },
+    {
+      "id": "dish_1558636813",
+      "reference": {
+        "id": "dish_1558636813",
+        "calories": 60.720001,
+        "mass": 88,
+        "fat": 0.176,
+        "carbs": 15.84,
+        "protein": 0.616
+      },
+      "estimate": {
+        "calories": 62,
+        "mass": 90,
+        "fat": 0.2,
+        "carbs": 16.3,
+        "protein": 0.6
+      },
+      "items": [
+        "Grapes (mixed red and green, about 16 pieces)"
+      ],
+      "latencyMs": 6176
+    },
+    {
+      "id": "dish_1560453132",
+      "reference": {
+        "id": "dish_1560453132",
+        "calories": 142.09024,
+        "mass": 108,
+        "fat": 12.929943,
+        "carbs": 5.810329,
+        "protein": 2.847845
+      },
+      "estimate": {
+        "calories": 110,
+        "mass": 111,
+        "fat": 7.7,
+        "carbs": 8,
+        "protein": 3.8
+      },
+      "items": [
+        "Fresh spinach leaves (possibly with some chard)",
+        "Shredded carrot",
+        "Blueberries",
+        "Pumpkin seeds (pepitas)",
+        "Light dressing (appears as a glossy coating on leaves)"
+      ],
+      "latencyMs": 5646
+    },
+    {
+      "id": "dish_1559925083",
+      "reference": {
+        "id": "dish_1559925083",
+        "calories": 125.135506,
+        "mass": 81,
+        "fat": 4.271,
+        "carbs": 16.966999,
+        "protein": 4.623
+      },
+      "estimate": {
+        "calories": 227,
+        "mass": 160,
+        "fat": 7.8,
+        "carbs": 32,
+        "protein": 8.3
+      },
+      "items": [
+        "Roasted sweet potato cubes",
+        "Bacon strip (cooked)",
+        "Small piece of what looks like potato or apple"
+      ],
+      "latencyMs": 8070
+    },
+    {
+      "id": "dish_1562950895",
+      "reference": {
+        "id": "dish_1562950895",
+        "calories": 137.818542,
+        "mass": 144,
+        "fat": 3.512195,
+        "carbs": 25.287806,
+        "protein": 1.404878
+      },
+      "estimate": {
+        "calories": 165,
+        "mass": 110,
+        "fat": 6,
+        "carbs": 26,
+        "protein": 2.5
+      },
+      "items": [
+        "Roasted/pan-fried diced potatoes (skin-on, with oil)"
+      ],
+      "latencyMs": 5253
+    },
+    {
+      "id": "dish_1565987298",
+      "reference": {
+        "id": "dish_1565987298",
+        "calories": 211.138992,
+        "mass": 88,
+        "fat": 10.094469,
+        "carbs": 16.614517,
+        "protein": 12.885552
+      },
+      "estimate": {
+        "calories": 455,
+        "mass": 190,
+        "fat": 22,
+        "carbs": 34,
+        "protein": 28
+      },
+      "items": [
+        "Baked pizza slice with cheese and tomato sauce (small, rectangular)",
+        "Sliced baked ground meat loaf (meatloaf or similar)"
+      ],
+      "latencyMs": 5684
+    },
+    {
+      "id": "dish_1562700496",
+      "reference": {
+        "id": "dish_1562700496",
+        "calories": 31,
+        "mass": 124,
+        "fat": 0.372,
+        "carbs": 6.2,
+        "protein": 2.232
+      },
+      "estimate": {
+        "calories": 25,
+        "mass": 100,
+        "fat": 0.3,
+        "carbs": 5,
+        "protein": 1.8
+      },
+      "items": [
+        "Cooked cauliflower florets (steamed or boiled, no visible sauce)"
+      ],
+      "latencyMs": 5214
+    },
+    {
+      "id": "dish_1562181285",
+      "reference": {
+        "id": "dish_1562181285",
+        "calories": 796.922119,
+        "mass": 324,
+        "fat": 57.774529,
+        "carbs": 17.129475,
+        "protein": 51.892128
+      },
+      "estimate": {
+        "calories": 630,
+        "mass": 295,
+        "fat": 40,
+        "carbs": 30,
+        "protein": 38
+      },
+      "items": [
+        "Breaded fried chicken cutlet (pieces)",
+        "Creamy cabbage and carrot slaw topping",
+        "Cooked bacon strips",
+        "Spinach salad with strawberries and nuts (slivered almonds)",
+        "Salad dressing (assumed light vinaigrette)"
+      ],
+      "latencyMs": 7219
+    }
+  ]
+}

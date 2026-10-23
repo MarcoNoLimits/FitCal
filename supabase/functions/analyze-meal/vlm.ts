@@ -179,7 +179,10 @@ export async function callGemini(
 export async function callOpenRouter(
   prompt: string,
   base64Image?: string,
-  model = "qwen/qwen3-vl-235b-a22b-instruct",
+  // Primary model since 2026-10-23: best of six on tools/accuracy-bench (Nutrition5k, 100 dishes):
+  // 40% mean calorie error and 38% of dishes within ±20%, vs 48% and 28% for Gemini 2.5 Flash,
+  // at a lower price and the same speed. Override with the VLM_OPENROUTER_MODEL secret.
+  model = Deno.env.get("VLM_OPENROUTER_MODEL") ?? "google/gemini-3.1-flash-lite",
   // The benchmark sends dataset PNGs and may use the grounded prompt; the app uses the defaults.
   mimeType = "image/jpeg",
   systemPrompt: string = SYSTEM_PROMPT,
@@ -227,7 +230,8 @@ export interface VlmOutcome {
 }
 
 export async function executeVlmFailover(prompt: string, base64Image?: string): Promise<VlmOutcome> {
-  const primaryProvider = (Deno.env.get("VLM_PRIMARY_PROVIDER") ?? "gemini").toLowerCase().trim();
+  // OpenRouter (Gemini 3.1 Flash-Lite) first; Gemini 2.5 Flash direct is the fallback.
+  const primaryProvider = (Deno.env.get("VLM_PRIMARY_PROVIDER") ?? "openrouter").toLowerCase().trim();
   const allowFallback = (Deno.env.get("VLM_ALLOW_FALLBACK") ?? "true").toLowerCase() !== "false";
   const errors: string[] = [];
   const failed: string[] = [];
@@ -263,7 +267,7 @@ export async function executeVlmFailover(prompt: string, base64Image?: string): 
 
   if (!allowFallback) throw new Error(`Primary provider "${primaryProvider}" failed: ${errors.join("; ")}`);
 
-  const fallbackOrder = ["gemini", "openrouter", "groq"].filter((p) => p !== primaryProvider);
+  const fallbackOrder = ["openrouter", "gemini", "groq"].filter((p) => p !== primaryProvider);
   for (const name of fallbackOrder) {
     const r = await tryProvider(name);
     if (r) return { ...r, failed: [...failed] };
