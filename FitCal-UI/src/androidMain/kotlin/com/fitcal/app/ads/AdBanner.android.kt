@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +27,9 @@ actual fun AdBanner(modifier: Modifier) {
     if (com.fitcal.shared.subscription.SubscriptionManager.isPremiumUser()) {
         return
     }
+    // No banner request before consent is resolved and the SDK is initialized.
+    val adsInitialized by AndroidAdManager.adsInitialized.collectAsState()
+    if (!adsInitialized) return
     Box(
         modifier = modifier
             .fillMaxWidth()

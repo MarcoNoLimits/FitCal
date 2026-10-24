@@ -18,6 +18,7 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.ads.rewarded.ServerSideVerificationOptions
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class AndroidAdManager(
     /**
@@ -32,6 +33,7 @@ class AndroidAdManager(
 ) : AdManager {
 
     private var interstitialAd: InterstitialAd? = null
+    private var interstitialLoadedAt = 0L
     private var rewardedAd: RewardedAd? = null
 
     private var isInterstitialLoading = false
@@ -39,7 +41,17 @@ class AndroidAdManager(
 
     companion object {
         private const val TAG = "FitCal_Ads"
+
+        /** AdMob fills expire about an hour after loading; a stale one shows nothing or earns nothing. */
+        private const val INTERSTITIAL_MAX_AGE_MS = 55 * 60 * 1000L
+
         var currentActivityRef: WeakReference<Activity>? = null
+
+        /**
+         * True once consent is resolved and MobileAds has initialized (MainActivity sets it).
+         * Banners wait for it so no ad request goes out before the consent result.
+         */
+        val adsInitialized = MutableStateFlow(false)
 
         /** Forwards AdMob paid-event revenue (reported in micros) to ad telemetry. */
         fun trackPaidEvent(value: AdValue, adUnitId: String, format: String, responseInfo: ResponseInfo?) {
@@ -56,11 +68,24 @@ class AndroidAdManager(
     }
 
     override fun preloadAds() {
+        // Before consent and SDK init, nothing loads; MainActivity preloads once init completes.
+        if (!adsInitialized.value) return
         preloadInterstitial()
         preloadRewarded()
     }
 
+    /** Drops a preloaded interstitial that is too old to show. */
+    private fun discardExpiredInterstitial() {
+        if (interstitialAd != null &&
+            System.currentTimeMillis() - interstitialLoadedAt > INTERSTITIAL_MAX_AGE_MS
+        ) {
+            Log.d(TAG, "Interstitial expired; reloading.")
+            interstitialAd = null
+        }
+    }
+
     private fun preloadInterstitial() {
+        discardExpiredInterstitial()
         if (interstitialAd != null || isInterstitialLoading) return
         isInterstitialLoading = true
 
@@ -74,6 +99,7 @@ class AndroidAdManager(
                         trackPaidEvent(value, ad.adUnitId, "INTERSTITIAL", ad.responseInfo)
                     }
                     interstitialAd = ad
+                    interstitialLoadedAt = System.currentTimeMillis()
                     isInterstitialLoading = false
                     Log.d(TAG, "Interstitial loaded.")
                 }
@@ -118,6 +144,7 @@ class AndroidAdManager(
 
     override fun showScanProcessingAd(onFinished: () -> Unit) {
         val activity = currentActivityRef?.get()
+        discardExpiredInterstitial()
         val ad = interstitialAd
         if (activity != null && !activity.isFinishing && !activity.isDestroyed && ad != null) {
             activity.runOnUiThread {
@@ -219,7 +246,10 @@ class AndroidAdManager(
         )
     }
 
-    override fun isInterstitialReady(): Boolean = interstitialAd != null
+    override fun isInterstitialReady(): Boolean {
+        discardExpiredInterstitial()
+        return interstitialAd != null
+    }
 
     override fun isRewardedReady(): Boolean = rewardedAd != null
 }
