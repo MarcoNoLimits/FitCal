@@ -28,6 +28,14 @@ object AdConfig {
     const val ANDROID_PROD_INTERSTITIAL = "ca-app-pub-6111686385218385/4814322830"
     const val ANDROID_PROD_REWARDED = "ca-app-pub-6111686385218385/6678068844"
 
+    /**
+     * Owner/team phones that always get test ads, even in release builds, so our own use
+     * never counts as invalid traffic. Hashed IDs from the "setTestDeviceIds" line AdMob logs.
+     */
+    val ANDROID_TEST_DEVICE_IDS = listOf(
+        "6CDA3976C892C606D315737DD438A316", // Owner's Samsung Galaxy A26 (SM-A266B)
+    )
+
     val ANDROID_BANNER: String
         get() = if (com.fitcal.app.isDebugBuild) ANDROID_TEST_BANNER else ANDROID_PROD_BANNER
 

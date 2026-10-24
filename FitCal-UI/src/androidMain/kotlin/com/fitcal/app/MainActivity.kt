@@ -19,6 +19,12 @@ class MainActivity : ComponentActivity() {
         appContext = applicationContext
         initPrivacyConsentStore()
         AndroidAdManager.currentActivityRef = WeakReference(this)
+        // Our own phones always get test ads. Set before any composable can build an AdView.
+        MobileAds.setRequestConfiguration(
+            MobileAds.getRequestConfiguration().toBuilder()
+                .setTestDeviceIds(com.fitcal.app.ads.AdConfig.ANDROID_TEST_DEVICE_IDS)
+                .build()
+        )
         // Health Connect's permission screen must be registered before the activity starts.
         com.fitcal.app.health.HealthConnectBridge.launcher = registerForActivityResult(
             androidx.health.connect.client.PermissionController.createRequestPermissionResultContract()
@@ -51,11 +57,12 @@ class MainActivity : ComponentActivity() {
 
             // 3. Only now initialize the ad SDK.
             MobileAds.initialize(this@MainActivity) {
-                if (personalized) {
-                    getPlatformAdManager().preloadAds()
-                } else {
+                AndroidAdManager.adsInitialized.value = true
+                if (!personalized) {
+                    // fitCalAdRequest() adds npa=1 to every request in this case.
                     android.util.Log.i("FitCal_Privacy", "Ads limited to non-personalized")
                 }
+                getPlatformAdManager().preloadAds()
             }
         }
     }
