@@ -1,0 +1,19 @@
+{
+  "name": "fitcal-launch-video",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "music:launch": "node ../scripts/music.mjs public/music.wav",
+    "render:launch": "npm run music:launch && remotion render src/index.ts FitCal ../launch.mp4",
+    "brag": "remotion render src/index.ts Brag96 ../../brag-output/work/brag96-silent.mp4 --muted && node ../../brag-output/work/mux.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.539",
+    "@remotion/google-fonts": "^4.0.539",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.539",
+    "typescript": "^7.0.2"
+  }
+}
