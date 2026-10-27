@@ -1,0 +1,8 @@
+# Intermediate renders and third-party music (licensed for use in the video, not for redistribution
+# in a public repo). The finished brag.mp4 carries the music; mux.mjs rebuilds it from these.
+work/*.mp4
+work/*.wav
+work/*.png
+work/music-candidates/
+work/frames/
+previews/
