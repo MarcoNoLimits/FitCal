@@ -26,6 +26,8 @@
  *   REWARD_REQUIRE_SSV         ("true" = rewarded bonus is granted only by AdMob's SSV
  *                               callback; default "false" = POST /v1/reward/ad-earned grants
  *                               and SSV callbacks are only verified and recorded)
+ *   DAILY_AI_CALL_CEILING      (paid AI calls allowed per UTC day across all users, default
+ *                               5000 ≈ $5/day; past it the AI routes answer 503)
  *
  * Database: every table and RPC lives in schema `fitcal` (renamed from `fitter` in
  * migration 0011). Service-role requests must send the fitcal profile headers.
@@ -49,6 +51,10 @@ const RECALC_DAILY_CAP = 50;
 const RECALC_MAX_ITEMS = 30;
 const RECALC_MAX_NAME_CHARS = 80;
 const RECALC_MAX_GRAMS = 5000;
+
+// Project-wide spending brake (fitcal.claim_ai_call, migration 0009). Per-user quotas don't stop
+// many accounts at once, e.g. farmed guests. Override with the DAILY_AI_CALL_CEILING secret.
+const DEFAULT_DAILY_AI_CALL_CEILING = 5000;
 
 // No Access-Control-Allow-Origin: the native app sends no Origin, and browsers must
 // not be able to read responses made with a user's token.
@@ -157,6 +163,32 @@ async function callFitcalRpc<T>(fn: string, args: Record<string, unknown>): Prom
   });
   if (!resp.ok) throw new Error(`${fn} RPC failed (${resp.status}): ${await resp.text()}`);
   return (await resp.json()) as T;
+}
+
+function dailyAiCallCeiling(): number {
+  const parsed = Number(Deno.env.get("DAILY_AI_CALL_CEILING"));
+  return Number.isFinite(parsed) && parsed > 0 ? Math.trunc(parsed) : DEFAULT_DAILY_AI_CALL_CEILING;
+}
+
+/**
+ * Counts one paid AI call against today's project-wide ceiling. Returns a 503 response when the
+ * ceiling is reached, or null to go ahead. Fails open if the counter is unavailable: the per-user
+ * quotas still apply, and a database hiccup should not take scanning down.
+ */
+async function aiCeilingResponse(userId: string, route: string): Promise<Response | null> {
+  const ceiling = dailyAiCallCeiling();
+  try {
+    if (await callFitcalRpc<boolean>("claim_ai_call", { p_ceiling: ceiling })) return null;
+  } catch (ceilingErr: any) {
+    console.error("claim_ai_call RPC error:", ceilingErr.message);
+    return null;
+  }
+  console.error(`[ai-ceiling] daily ceiling ${ceiling} reached; refused ${route} for user=${userId}`);
+  trackServerEvent(userId, "ai_ceiling_hit", { route, ceiling });
+  return jsonResponse(
+    { error: "Service temporarily unavailable", message: "FitCal is very busy right now. Please try again later." },
+    503
+  );
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -433,6 +465,9 @@ Deno.serve(async (req: Request) => {
 
       console.log(`[analyze-meal] user=${userId} allowance=${effectiveAllowance}`);
 
+      const ceilingHit = await aiCeilingResponse(userId, "analyze-meal");
+      if (ceilingHit) return ceilingHit;
+
       const startedAt = Date.now();
       const imageKb = Math.round((imageBase64.length * 3) / 4 / 1024);
       let outcome: VlmOutcome;
@@ -507,6 +542,9 @@ Deno.serve(async (req: Request) => {
       }
 
       console.log(`[analyze-text] user=${userId} allowance=${effectiveAllowance}`);
+
+      const ceilingHit = await aiCeilingResponse(userId, "analyze-text");
+      if (ceilingHit) return ceilingHit;
 
       // Behavioural analytics only: the length of the text, never the text itself.
       const startedAt = Date.now();
@@ -666,6 +704,8 @@ Deno.serve(async (req: Request) => {
       );
 
       console.log(`[recalculate] user=${userId}`);
+      const ceilingHit = await aiCeilingResponse(userId, "recalculate");
+      if (ceilingHit) return ceilingHit;
       const startedAt = Date.now();
       let outcome: VlmOutcome;
       try {
