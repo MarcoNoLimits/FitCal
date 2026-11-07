@@ -2,6 +2,7 @@ package com.fitcal.app.ui.screens.dashboard.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,7 +18,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -87,7 +92,13 @@ fun FloatingScanButton(
                 .semantics { contentDescription = "Scan a meal. ${scansLeftLabel(scansRemaining)}" }
                 .padding(4.dp)
         ) {
-            Box(Modifier.fillMaxSize().background(PrimaryAccent, CircleShape))
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize().background(PrimaryAccent, CircleShape)
+            ) {
+                // A plain green core read as decoration on the dashboard; the camera says "scan".
+                CameraGlyph(Modifier.size(22.dp))
+            }
         }
 
         if (badgeAlpha > 0f && scansRemaining < UNLIMITED_SCANS) {
@@ -109,5 +120,36 @@ fun FloatingScanButton(
                 )
             }
         }
+    }
+}
+
+/** Simple white camera outline: body, viewfinder bump and lens. The core icon set has no camera. */
+@Composable
+private fun CameraGlyph(modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val stroke = Stroke(width = size.minDimension * 0.11f)
+        val w = size.width
+        val h = size.height
+        val bodyTop = h * 0.28f
+        // Viewfinder bump on top of the body.
+        drawRoundRect(
+            color = Color.White,
+            topLeft = Offset(w * 0.34f, h * 0.14f),
+            size = Size(w * 0.32f, h * 0.18f),
+            cornerRadius = CornerRadius(w * 0.05f),
+        )
+        drawRoundRect(
+            color = Color.White,
+            topLeft = Offset(w * 0.06f, bodyTop),
+            size = Size(w * 0.88f, h * 0.6f),
+            cornerRadius = CornerRadius(w * 0.14f),
+            style = stroke,
+        )
+        drawCircle(
+            color = Color.White,
+            radius = w * 0.16f,
+            center = Offset(w * 0.5f, bodyTop + h * 0.3f),
+            style = stroke,
+        )
     }
 }

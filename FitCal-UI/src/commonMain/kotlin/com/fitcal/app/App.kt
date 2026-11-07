@@ -931,6 +931,9 @@ fun App() {
                                 popUpTo(DashboardDestination)
                             }
                         },
+                        onGoToDashboard = {
+                            navController.popBackStack(DashboardDestination, inclusive = false)
+                        },
                         shouldSuggestSignIn = {
                             SignInPromptPolicy.shouldPromptAfterMealLogged(
                                 isPermanentUser = userEmail != null,
@@ -1031,6 +1034,10 @@ fun App() {
                             navController.navigate(CameraDestination) {
                                 popUpTo(DashboardDestination)
                             }
+                        },
+                        onGoToDashboard = {
+                            lastCapturedImageBytes = null
+                            navController.popBackStack(DashboardDestination, inclusive = false)
                         },
                         shouldSuggestSignIn = {
                             SignInPromptPolicy.shouldPromptAfterMealLogged(

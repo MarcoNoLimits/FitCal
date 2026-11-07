@@ -197,7 +197,6 @@ fun DashboardScreen(
 
     // Maintenance calories for the user's activity level
     val maintenanceCal = remember(profile) { maintenanceCalories(profile) }
-    val deficitBalance = maintenanceCal - totalCalories
 
     // Floating scan button: docks above the banner, lands in the scan card's shutter slot
     // when it scrolls into place (see placeScanButton).
@@ -423,18 +422,19 @@ fun DashboardScreen(
                             )
 
                             // Maintenance needs real body stats, which only a plan guarantees.
+                            // Shown as a neutral reference: a running "deficit" in green mid-day
+                            // rewarded eating less and read as a goal on maintain plans.
                             if (targetsMode == TargetsMode.PLAN) Column {
                                 Text(
-                                    text = "BMR Deficit",
+                                    text = "Maintenance",
                                     style = BrandTypography.BodySmall,
                                     color = MutedTextColor
                                 )
                                 Text(
-                                    text = if (deficitBalance >= 0) "$deficitBalance kcal deficit" else "${-deficitBalance} kcal surplus",
+                                    text = "about $maintenanceCal kcal",
                                     style = BrandTypography.BodySmall,
-                                    fontWeight = FontWeight.Bold,
-                                    // F1.1: was Color(0xFFEF4444) → DangerColor
-                                    color = if (deficitBalance >= 0) PrimaryAccent else DangerColor
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TextColor
                                 )
                             }
                         }

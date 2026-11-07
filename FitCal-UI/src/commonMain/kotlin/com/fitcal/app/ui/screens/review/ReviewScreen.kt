@@ -79,6 +79,8 @@ fun ResultScreen(
     capturedImageBytes: ByteArray?,
     onMealLogged: (String, Int, Float, Float, Float, List<FoodItem>) -> Unit,
     onLogAgain: () -> Unit,
+    // "Go to Dashboard" after a meal is logged. Separate from onLogAgain (back to the camera).
+    onGoToDashboard: () -> Unit = onLogAgain,
     // Reopened from the dashboard: save in place and go back, no scan-only prompts or analytics.
     isEditingLoggedMeal: Boolean = false,
     ingredientsNote: String? = null,
@@ -843,7 +845,7 @@ fun ResultScreen(
 
         Dialog(onDismissRequest = {
             showSuccessDialog = false
-            onLogAgain()
+            onGoToDashboard()
         }) {
             // F3.2: AnimatedVisibility fade+scaleIn on success dialog
             AnimatedVisibility(
@@ -916,7 +918,7 @@ fun ResultScreen(
                         Button(
                             onClick = {
                                 showSuccessDialog = false
-                                onLogAgain()
+                                onGoToDashboard()
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryAccent),
                             modifier = Modifier.fillMaxWidth()
