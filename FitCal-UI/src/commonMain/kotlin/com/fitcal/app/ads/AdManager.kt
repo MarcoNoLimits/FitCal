@@ -12,8 +12,9 @@ import kotlinx.coroutines.launch
 
 /**
  * Google AdMob PRODUCTION ad unit IDs for FitCal.
- * Registered in the AdMob console under App "FitCal"
- * (App ID ca-app-pub-6111686385218385~4832925123).
+ * Registered in the AdMob console under App "FitCal: AI Calorie Counter", the AdMob app
+ * linked to the Play listing xyz.tecaa.fitcal (App ID ca-app-pub-6111686385218385~3389450127).
+ * Switched 2026-11-10 from the unlinked app ~4832925123, which AdMob could not review.
  */
 object AdConfig {
     // Android Official Google Test Ad Units (enforced in debug builds to avoid NO_FILL & Invalid Traffic)
@@ -22,11 +23,11 @@ object AdConfig {
     const val ANDROID_TEST_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712"
     const val ANDROID_TEST_REWARDED = "ca-app-pub-3940256099942544/5224354917"
 
-    // Android Production Ad Units (FitCal — App ID ca-app-pub-6111686385218385~4832925123)
-    const val ANDROID_APP_ID = "ca-app-pub-6111686385218385~4832925123"
-    const val ANDROID_PROD_BANNER = "ca-app-pub-6111686385218385/2729505961"
-    const val ANDROID_PROD_INTERSTITIAL = "ca-app-pub-6111686385218385/4814322830"
-    const val ANDROID_PROD_REWARDED = "ca-app-pub-6111686385218385/6678068844"
+    // Android Production Ad Units (FitCal: AI Calorie Counter — App ID ca-app-pub-6111686385218385~3389450127)
+    const val ANDROID_APP_ID = "ca-app-pub-6111686385218385~3389450127"
+    const val ANDROID_PROD_BANNER = "ca-app-pub-6111686385218385/4959671761"
+    const val ANDROID_PROD_INTERSTITIAL = "ca-app-pub-6111686385218385/9152912694"
+    const val ANDROID_PROD_REWARDED = "ca-app-pub-6111686385218385/8240441222"
 
     /**
      * Owner/team phones that always get test ads, even in release builds, so our own use

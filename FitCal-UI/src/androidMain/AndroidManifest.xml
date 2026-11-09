@@ -111,7 +111,7 @@
         <!-- Google Mobile Ads (AdMob) Production Application ID for FitCal -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-6111686385218385~4832925123"/>
+            android:value="ca-app-pub-6111686385218385~3389450127"/>
         
     </application>
 

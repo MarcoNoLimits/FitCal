@@ -69,7 +69,7 @@ Branding was validated by Google on 2026-10-12. The Web client secret was rotate
 |---|---|
 | Package name | `xyz.tecaa.fitcal` (Play ID, chosen 2026-11-09 because `com.fitcal.app` was taken on Play; the Kotlin namespace is still `com.fitcal.app`) |
 | Version | `versionCode 1`, `versionName 1.0` (raise `versionCode` on every upload) |
-| AdMob App ID | `ca-app-pub-6111686385218385~4832925123` |
+| AdMob App ID | `ca-app-pub-6111686385218385~3389450127` ("FitCal: AI Calorie Counter", linked to Play `xyz.tecaa.fitcal`; since versionCode 2). Units: banner `/4959671761`, interstitial `/9152912694`, rewarded `/8240441222` (2 Scans). The old unlinked app `~4832925123` is retired. |
 | Supabase project | `uedtovphilwstzdpzjrk` (EU, Free plan) |
 | Website (Vercel `fitcal-site`, auto-deploys `site/` from `main`) | https://fitcal.tecaa.xyz/ |
 | Privacy policy | https://fitcal.tecaa.xyz/privacy.html |
