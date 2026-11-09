@@ -45,8 +45,8 @@ With Play App Signing, Google re-signs the app that users install. Its fingerpri
 
 | Where | Which SHA-1 | Why |
 |---|---|---|
-| Google Cloud → Credentials → OAuth client **Android** `com.fitcal.app` #1 | Upload key (§1) | Google sign-in on builds you install yourself |
-| Google Cloud → OAuth client **Android** `com.fitcal.app` #2 | App signing key (§2) | Google sign-in for **real users** installing from Play |
+| Google Cloud → Credentials → OAuth client **Android** `xyz.tecaa.fitcal` #1 | Upload key (§1) | Google sign-in on builds you install yourself |
+| Google Cloud → OAuth client **Android** `xyz.tecaa.fitcal` #2 | App signing key (§2) | Google sign-in for **real users** installing from Play |
 | Google Cloud → OAuth client **Web** | none | Its client ID goes in `local.properties` as `GOOGLE_WEB_CLIENT_ID`, and its ID + secret go in Supabase → Auth → Providers → Google |
 
 ## 3b. Google OAuth clients (Google Cloud project "FitCal", created 2026-10-12)
@@ -66,7 +66,7 @@ Branding was validated by Google on 2026-10-12. The Web client secret was rotate
 
 | Item | Value |
 |---|---|
-| Package name | `com.fitcal.app` |
+| Package name | `xyz.tecaa.fitcal` (Play ID, chosen 2026-11-09 because `com.fitcal.app` was taken on Play; the Kotlin namespace is still `com.fitcal.app`) |
 | Version | `versionCode 1`, `versionName 1.0` (raise `versionCode` on every upload) |
 | AdMob App ID | `ca-app-pub-6111686385218385~4832925123` |
 | Supabase project | `uedtovphilwstzdpzjrk` (EU, Free plan) |

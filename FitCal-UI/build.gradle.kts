@@ -107,7 +107,9 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
     }
 
     defaultConfig {
-        applicationId = "com.fitcal.app"
+        // Play package name. "com.fitcal.app" was already taken on Google Play (2026-11-09).
+        // The Kotlin namespace stays com.fitcal.app; only the installed app ID changes.
+        applicationId = "xyz.tecaa.fitcal"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
