@@ -38,8 +38,8 @@ With Play App Signing, Google re-signs the app that users install. Its fingerpri
 
 | Item | Value |
 |---|---|
-| App signing SHA-1 | _TODO: Play Console → Test and release → App integrity → App signing_ |
-| App signing SHA-256 | _TODO_ |
+| App signing SHA-1 | _TODO: not shown yet on 2026-11-09; check Play Console → Test and release → App integrity → App signing after the first release is approved_ |
+| App signing SHA-256 | `3B:4D:7D:EF:C6:89:BC:18:A0:FF:A3:A9:FC:AA:FE:48:DA:8D:51:2C:C2:E3:17:B6:3B:CC:29:E3:04:54:23:D9` |
 
 ## 3. Where each fingerprint goes
 
@@ -83,8 +83,8 @@ All form answers (Data safety, content rating, Health declaration, target audien
 
 ## 6. Status (2026-10-12)
 
-- [ ] **Play developer account: $25 one-time fee, not paid yet.** Everything below that touches Play waits on this.
-- [ ] Closed test: 12 testers for 14 days, if the account is personal and new. Collect testers' Gmail addresses now: _list them here_.
+- [x] **Play developer account** paid and identity verified (personal account, trader). App created 2026-11-09 as "FitCal: AI Calorie Counter", package `xyz.tecaa.fitcal`. All App content declarations, store listing, store settings and Health Connect declaration done; release 1 (1.0) on Closed testing - Alpha sent for review 2026-11-09.
+- [ ] Closed test: 12 testers for 14 days (Play Console email list "FitCal testers"; feedback to fitcal@tecaa.xyz). Opt-in link once approved: https://play.google.com/apps/testing/xyz.tecaa.fitcal
 - [ ] First AAB upload → fill in §2 → second Android OAuth client.
 - [x] Email (2026-10-12): Name.com forwarding only (receive-only; replies go out from Gmail). Zoho records removed, root SPF is `v=spf1 ~all`, DMARC is `p=none` with reports to `fitcal@tecaa.xyz`. Auth emails send via Resend (`resend._domainkey`, `send.tecaa.xyz`). Around 2026-10-26, if reports are clean, change DMARC to `p=quarantine`.
 - [x] Confirm forwarding (2026-11-07): a test to `fitcal@tecaa.xyz` arrived. It only worked after deleting a stray MX record `inbound-smtp.eu-west-1.amazonaws.com` (priority 9) in Cloudflare, which had been catching all mail before Name.com's forwarding. DNS for tecaa.xyz is on **Cloudflare**, not Name.com; `fitcal.tecaa.xyz` is a CNAME to `cname.vercel-dns.com` (DNS only), added the same day.
