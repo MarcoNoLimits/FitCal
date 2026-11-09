@@ -38,7 +38,7 @@ With Play App Signing, Google re-signs the app that users install. Its fingerpri
 
 | Item | Value |
 |---|---|
-| App signing SHA-1 | _TODO: not shown yet on 2026-11-09; check Play Console → Test and release → App integrity → App signing after the first release is approved_ |
+| App signing SHA-1 | `AB:6F:BE:A8:A5:23:18:2C:BE:B5:00:20:68:B8:27:3C:6B:03:5A:43` |
 | App signing SHA-256 | `3B:4D:7D:EF:C6:89:BC:18:A0:FF:A3:A9:FC:AA:FE:48:DA:8D:51:2C:C2:E3:17:B6:3B:CC:29:E3:04:54:23:D9` |
 
 ## 3. Where each fingerprint goes
@@ -49,14 +49,15 @@ With Play App Signing, Google re-signs the app that users install. Its fingerpri
 | Google Cloud → OAuth client **Android** `xyz.tecaa.fitcal` #2 | App signing key (§2) | Google sign-in for **real users** installing from Play |
 | Google Cloud → OAuth client **Web** | none | Its client ID goes in `local.properties` as `GOOGLE_WEB_CLIENT_ID`, and its ID + secret go in Supabase → Auth → Providers → Google |
 
-## 3b. Google OAuth clients (Google Cloud project "FitCal", created 2026-10-12)
+## 3b. Google OAuth clients (Google Cloud project "Hermes" `gen-lang-client-0971493323`, number 846576167463, account ahmed.teca.kanadji911@gmail.com; created 2026-10-12. Not the separate "FitCal" project `fitcal-511412`, which has no clients)
 
 | Client | Client ID | Notes |
 |---|---|---|
 | Web `FitCal Supabase` | `846576167463-1482ovcavtvnh87fb0gmk5eopds61lvk.apps.googleusercontent.com` | `GOOGLE_WEB_CLIENT_ID` in `local.properties`; ID + secret in Supabase → Auth → Google. Redirect URI `https://uedtovphilwstzdpzjrk.supabase.co/auth/v1/callback`. The secret is stored only in Supabase. |
 | Android (upload key) | `846576167463-knle3ffi0gpeqqcbjltcsb6ollkilc22.apps.googleusercontent.com` (assumed; check the client names in Cloud Console) | SHA-1 `AF:EF:50:…:14:7A` |
 | Android (debug key) | `846576167463-dcabg4jeusrht2nq34lfqtqlci3atp7m.apps.googleusercontent.com` (assumed) | SHA-1 `D4:72:F3:85:6B:50:1F:13:3A:20:7D:CB:9C:41:36:1B:6F:D5:78:D4` (this PC's `~/.android/debug.keystore`) |
-| Android (Play app signing) | _TODO after the first upload_ | SHA-1 from Play Console → App integrity |
+| Android `xyz.tecaa.fitcal` Play signing | `846576167463-cjm8uh0k6mj80chqhi77hegeff5iq02b.apps.googleusercontent.com` (created 2026-11-09) | SHA-1 `AB:6F:BE:…:5A:43` — Google sign-in for builds installed from Play |
+| Android `xyz.tecaa.fitcal` upload key | `846576167463-nntb4li3i5t23ot65naomq9tljnk3hi1.apps.googleusercontent.com` (created 2026-11-09) | SHA-1 `AF:EF:50:…:14:7A` — sideloaded release builds |
 
 **Testing (2026-10-12):** on the emulator the Google button opens Credential Manager and reaches Google's account step. The full flow is **not tested yet**: picking an account, the SHA-1/client-ID match, and Supabase accepting the token. Test it on a real phone: guest with a logged meal → Continue with Google → the meal is still there. If it fails with "developer error" or code 10, the SHA-1 or package doesn't match an Android client.
 
