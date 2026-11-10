@@ -69,6 +69,13 @@ expect fun syncPlatformMealReminders(
 expect suspend fun requestPlatformAdConsent(): Boolean
 
 /**
+ * Starts the ad SDK if consent now allows it. Safe to call repeatedly. Called after the in-app
+ * privacy screen is accepted, so a new user gets ads in their first session instead of only
+ * after the app is restarted.
+ */
+expect fun startAdsIfAllowed()
+
+/**
  * Whether Google's consent tool (UMP) requires a "privacy options" entry point for this user
  * (EEA/UK and similar). When true, Settings offers a way to reopen the consent form.
  */

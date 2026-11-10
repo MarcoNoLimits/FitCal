@@ -128,6 +128,10 @@ actual fun createConsentStorage(): PrivacyConsent.ConsentStorage {
  * IMPORTANT: the caller MUST await this before MobileAds.initialize / ad loads.
  * Initializing first and prompting later is the defect this function exists to prevent.
  */
+actual fun startAdsIfAllowed() {
+    com.fitcal.app.ads.AdStartup.startFromCurrentActivity()
+}
+
 actual suspend fun requestPlatformAdConsent(): Boolean = suspendCancellableCoroutine { cont ->
     try {
         val activity = AndroidAdManager.currentActivityRef?.get()

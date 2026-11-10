@@ -4,12 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.fitcal.app.ads.AdStartup
 import com.fitcal.app.ads.AndroidAdManager
-import com.fitcal.app.privacy.PrivacyConsent
 import com.fitcal.app.ui.launch.LaunchAnimationHost
 import com.google.android.gms.ads.MobileAds
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 class MainActivity : ComponentActivity() {
@@ -39,32 +37,10 @@ class MainActivity : ComponentActivity() {
         }
 
         // ── Ad initialization is DEFERRED until consent is resolved. ──
-        // Previously MobileAds initialized and preloadAds() ran before (or
-        // entirely without) a CMP result, which violates GDPR/ePrivacy Art. 5(3),
-        // Google Play's EU consent policy, and ATT. Order matters legally.
-        lifecycleScope.launch {
-            // 1. Collect the OS/store consent signal FIRST.
-            val platformGranted = requestPlatformAdConsent()
-
-            // 2. AND it with the user's explicit in-app choice. Denying either wins.
-            val personalized = platformGranted && PrivacyConsent.isAdsPersonalizationEnabled()
-
-            if (!PrivacyConsent.canRequestAds()) {
-                // No privacy acceptance at all: never initialize ad SDKs.
-                android.util.Log.i("FitCal_Privacy", "Privacy not accepted — skipping ad init")
-                return@launch
-            }
-
-            // 3. Only now initialize the ad SDK.
-            MobileAds.initialize(this@MainActivity) {
-                AndroidAdManager.adsInitialized.value = true
-                if (!personalized) {
-                    // fitCalAdRequest() adds npa=1 to every request in this case.
-                    android.util.Log.i("FitCal_Privacy", "Ads limited to non-personalized")
-                }
-                getPlatformAdManager().preloadAds()
-            }
-        }
+        // Consent signal first, then the in-app privacy decision, then MobileAds (see AdStartup).
+        // On a first launch the privacy screen is not accepted yet, so this does nothing and
+        // App() starts ads again once the user accepts (startAdsIfAllowed).
+        AdStartup.start(this)
     }
 
     override fun onNewIntent(intent: android.content.Intent) {

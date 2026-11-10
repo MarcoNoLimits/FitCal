@@ -277,6 +277,9 @@ fun App() {
                         "consent_completed",
                         "ads_personalized" to PrivacyConsent.isAdsPersonalizationEnabled(),
                     )
+                    // First launch: ads could not start before this decision, so start them now
+                    // instead of waiting for the next app launch.
+                    startAdsIfAllowed()
                 },
                 onOpenPrivacyPolicy = { showLegalDocument = true },
                 onOpenTerms = { showLegalDocument = true },

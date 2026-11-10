@@ -122,6 +122,9 @@ actual fun isAdPrivacyOptionsRequired(): Boolean = false
 
 actual fun showAdPrivacyOptions(onDone: () -> Unit) = onDone()
 
+// iOS is not a v1 release target; its ad start-up is unchanged.
+actual fun startAdsIfAllowed() = Unit
+
 actual suspend fun requestPlatformAdConsent(): Boolean = suspendCancellableCoroutine { cont ->
     try {
         val status = ATTrackingManager.trackingAuthorizationStatus
